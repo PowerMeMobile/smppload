@@ -149,8 +149,13 @@ send_seq_messages(State0, Stats0) ->
 			Stats = send_message(Submit),
 			send_seq_messages(State1, stats:add(Stats0, Stats));
 		{no_more, State1} ->
-			AvgRps = pagload_esme:get_avg_rps(),
-			Stats1 = stats:inc_rps(Stats0, AvgRps),
+			Stats1 =
+				case pagload_esme:get_avg_rps() of
+					{ok, AvgRps} ->
+						stats:inc_rps(Stats0, AvgRps);
+					{error, _} ->
+						Stats0
+				end,
 			{ok, State1, Stats1}
 	end.
 
@@ -215,8 +220,13 @@ send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, Stats0) ->
 			end
 	after
 		1000 ->
-			AvgRps = pagload_esme:get_avg_rps(),
-			Stats1 = stats:inc_rps(Stats0, AvgRps),
+			Stats1 =
+				case pagload_esme:get_avg_rps() of
+					{ok, AvgRps} ->
+						stats:inc_rps(Stats0, AvgRps);
+					{error, _} ->
+						Stats0
+				end,
 			{ok, State0, Stats1}
 	end.
 

@@ -119,7 +119,13 @@ submit_sm(Source, Destination, Body, Opts) ->
 	gen_esme:call(?MODULE, {submit_sm, Params2, [], Priority}, ?SUBMIT_TIMEOUT).
 
 get_avg_rps() ->
-    gen_esme:rps_avg(?MODULE).
+	try gen_esme:rps_avg(?MODULE) of
+		AvgRps ->
+			{ok, AvgRps}
+	catch
+		exit:Reason ->
+			{error, Reason}
+	end.
 
 get_rps() ->
     gen_esme:rps(?MODULE).
