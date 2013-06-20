@@ -7,6 +7,9 @@
 -include("pagload.hrl").
 -include("submit_message.hrl").
 
+%% Purely empirical value
+-define(MAX_OUTSTANDING_SUBMITS, 100).
+
 %% ===================================================================
 %% API
 %% ===================================================================
@@ -173,7 +176,7 @@ send_par_messages(State0) ->
 	process_flag(trap_exit, true),
 	ReplyTo = self(),
 	ReplyRef = make_ref(),
-	{ok, State1} = send_par_init_messages(ReplyTo, ReplyRef, 100, 0, State0),
+	{ok, State1} = send_par_init_messages(ReplyTo, ReplyRef, ?MAX_OUTSTANDING_SUBMITS, 0, State0),
 	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:new()).
 
 %% start phase
