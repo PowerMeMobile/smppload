@@ -1,0 +1,12 @@
+{application, pagload, [
+	{description, "Power Alley Gateway SMPP loader"},
+	{vsn, "0.0.1"},
+	{registered, []},
+	{applications, [
+		kernel,
+		stdlib,
+		common_lib
+	]},
+	{mod, {pagload_app, []}},
+	{env, []}
+]}.
