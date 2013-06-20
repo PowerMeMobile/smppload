@@ -7,8 +7,10 @@
 -include("pagload.hrl").
 -include("submit_message.hrl").
 
-%% Purely empirical value
+%% Purely empirical values
 -define(MAX_OUTSTANDING_SUBMITS, 100).
+-define(FIRST_REPLY_TIMEOUT, 20000).
+-define(REST_REPLIES_TIMEOUT, 3000).
 
 %% ===================================================================
 %% API
@@ -182,7 +184,7 @@ send_par_messages(State0) ->
 	ReplyTo = self(),
 	ReplyRef = make_ref(),
 	{ok, State1} = send_par_init_messages(ReplyTo, ReplyRef, ?MAX_OUTSTANDING_SUBMITS, 0, State0),
-	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:new()).
+	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, ?FIRST_REPLY_TIMEOUT, State1, stats:new()).
 
 %% start phase
 send_par_init_messages(_ReplyTo, _ReplyRef, MaxMsgCnt, MaxMsgCnt, State0) ->
@@ -197,10 +199,11 @@ send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt, State0) ->
 	end.
 
 %% collect and send new messages phase.
-send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, Stats0) ->
+send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, State0, Stats0) ->
 	receive
 		{ReplyRef, Stats} ->
-			send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, stats:add(Stats0, Stats));
+			send_par_messages_and_collect_replies(
+				ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, State0, stats:add(Stats0, Stats));
 
 		{'EXIT', _Pid, Reason} ->
 			Stats1 =
@@ -214,12 +217,14 @@ send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, Stats0) ->
 			case lazy_messages:get_next(State0) of
 				{ok, Submit, State1} ->
 					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
-					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats1);
+					send_par_messages_and_collect_replies(
+						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, State1, Stats1);
 				{no_more, State1} ->
-					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats0)
+					send_par_messages_and_collect_replies(
+						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, State1, Stats0)
 			end
 	after
-		1000 ->
+		Timeout ->
 			Stats1 =
 				case pagload_esme:get_avg_rps() of
 					{ok, AvgRps} ->
