@@ -147,10 +147,10 @@ send_seq_messages(Rps, State0, Stats0) ->
 	case lazy_messages:get_next(State0) of
 		{ok, Submit, State1} ->
 			Stats = send_message(Submit, Rps),
-			send_seq_messages(State1, stats:add(Stats0, Stats));
+			send_seq_messages(Rps, State1, stats:add(Stats0, Stats));
 		{no_more, State1} ->
-			Rps = pagload_esme:get_avg_rps(),
-			Stats1 = stats:inc_rps(Stats0, Rps),
+			AvgRps = pagload_esme:get_avg_rps(),
+			Stats1 = stats:inc_rps(Stats0, AvgRps),
 			{ok, State1, Stats1}
 	end.
 
