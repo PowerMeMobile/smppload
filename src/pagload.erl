@@ -98,7 +98,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			?DEBUG("Module: ~p~n", [Module]),
 
 			Sequentially = ?gv(sequentially, Opts, false),
-			{ok, Stats} = send_messages(Module, Opts, Rps, Sequentially),
+			{ok, Stats} = send_messages(Module, Opts, Sequentially),
 
 			?INFO("Stats:~n", []),
 			?INFO("   Send success:     ~p~n", [stats:send_succ(Stats)]),
@@ -125,36 +125,33 @@ get_lazy_messages_module(Opts) ->
 			lazy_messages_body
 	end.
 
-send_messages(Module, Config, Rps, Sequentially) ->
+send_messages(Module, Config, Sequentially) ->
 	{ok, State0} = lazy_messages:init(Module, Config),
 		Fun = case Sequentially of
 				true ->
-					fun send_seq_messages/2;
+					fun send_seq_messages/1;
 				false ->
-					fun send_par_messages/2
+					fun send_par_messages/1
 			  end,
-	{ok, State1, Stats} = Fun(Rps, State0),
+	{ok, State1, Stats} = Fun(State0),
 	ok = lazy_messages:deinit(State1),
 	{ok, Stats}.
 
-send_seq_messages(Rps, State0) ->
-	send_seq_messages(Rps, State0, stats:new()).
+send_seq_messages(State0) ->
+	send_seq_messages(State0, stats:new()).
 
-send_par_messages(Rps, State0) ->
-	send_par_messages(self(), make_ref(), Rps, State0, 0).
-
-send_seq_messages(Rps, State0, Stats0) ->
+send_seq_messages(State0, Stats0) ->
 	case lazy_messages:get_next(State0) of
 		{ok, Submit, State1} ->
-			Stats = send_message(Submit, Rps),
-			send_seq_messages(Rps, State1, stats:add(Stats0, Stats));
+			Stats = send_message(Submit),
+			send_seq_messages(State1, stats:add(Stats0, Stats));
 		{no_more, State1} ->
 			AvgRps = pagload_esme:get_avg_rps(),
 			Stats1 = stats:inc_rps(Stats0, AvgRps),
 			{ok, State1, Stats1}
 	end.
 
-send_message(Submit, _Rps) ->
+send_message(Submit) ->
 	Source = Submit#submit_message.source,
 	Destination = Submit#submit_message.destination,
 	Body = Submit#submit_message.body,
@@ -172,44 +169,59 @@ send_message(Submit, _Rps) ->
 			stats:inc_send_fail(stats:new())
 	end.
 
-send_par_messages(ReplyTo, ReplyRef, Rps, State0, MsgCnt) ->
+send_par_messages(State0) ->
+	process_flag(trap_exit, true),
+	ReplyTo = self(),
+	ReplyRef = make_ref(),
+	{ok, State1} = send_par_init_messages(ReplyTo, ReplyRef, 100, 0, State0),
+	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:new()).
+
+%% start phase
+send_par_init_messages(_ReplyTo, _ReplyRef, MaxMsgCnt, MaxMsgCnt, State0) ->
+	{ok, State0};
+send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt, State0) ->
 	case lazy_messages:get_next(State0) of
 		{ok, Submit, State1} ->
-			Fun = fun() ->
-				Stats = send_message(Submit, Rps),
-				ReplyTo ! {ReplyRef, Stats}
-			end,
-			{_Pid, _MoninorRef} = spawn_monitor(Fun),
-			send_par_messages(ReplyTo, ReplyRef, Rps, State1, MsgCnt + 1);
+			spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
+			send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt + 1, State1);
 		{no_more, State1} ->
-			{_, Stats} = collect_replies(ReplyRef, MsgCnt),
-			{ok, State1, Stats}
+			{ok, State1}
 	end.
 
-collect_replies(ReplyRef, MsgCnt) ->
-	?INFO("Collecting replies: ~p~n", [MsgCnt]),
-	{Res, Stats0} = collect_replies(ReplyRef, MsgCnt, stats:new()),
-	?INFO("Collecting done~n", []),
-	Rps = pagload_esme:get_avg_rps(),
-	Stats1 = stats:inc_rps(Stats0, Rps),
-	{Res, Stats1}.
-
-collect_replies(_, 0, Stats) ->
-	{ok, Stats};
-collect_replies(ReplyRef, MsgCnt, Stats0) ->
+%% collect and send new messages phase.
+send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, Stats0) ->
 	receive
 		{ReplyRef, Stats} ->
-			collect_replies(ReplyRef, MsgCnt - 1, stats:add(Stats0, Stats));
-		{'DOWN', _MonitorRef, process, _Pid, normal} ->
-			collect_replies(ReplyRef, MsgCnt, Stats0);
-		{'DOWN', _MonitorRef, process, _Pid, Reason} ->
+			send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, stats:add(Stats0, Stats));
+
+		{'EXIT', _Pid, normal} ->
+			case lazy_messages:get_next(State0) of
+				{ok, Submit, State1} ->
+					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
+					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats0);
+				{no_more, State1} ->
+					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats0)
+			end;
+
+		{'EXIT', _Pid, Reason} ->
 			?ERROR("Submit failed with: ~p~n", [Reason]),
-			collect_replies(ReplyRef, MsgCnt - 1, stats:inc_errors(Stats0))
+			case lazy_messages:get_next(State0) of
+				{ok, Submit, State1} ->
+					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
+					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:inc_errors(Stats0));
+				{no_more, State1} ->
+					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:inc_errors(Stats0))
+			end
 	after
-		60000 ->
-			?ERROR("Collect timeout ~p~n", [MsgCnt]),
-			{timeout, stats:inc_errors(Stats0, MsgCnt)}
+		1000 ->
+			AvgRps = pagload_esme:get_avg_rps(),
+			Stats1 = stats:inc_rps(Stats0, AvgRps),
+			{ok, State0, Stats1}
 	end.
+
+send_message_and_reply(ReplyTo, ReplyRef, Submit) ->
+	Stats = send_message(Submit),
+	ReplyTo ! {ReplyRef, Stats}.
 
 print_usage(ScriptName, OptSpecs) ->
 	print_description_vsn(ScriptName),
