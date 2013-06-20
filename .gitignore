@@ -1,1 +1,5 @@
 TAGS
+deps/*
+ebin/*
+priv/*
+pagload
