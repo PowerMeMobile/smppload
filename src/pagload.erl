@@ -111,7 +111,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			?INFO("   Errors:           ~p~n", [stats:errors(Stats)]),
 			?INFO("   Avg Rps:          ~p mps~n", [stats:rps(Stats)]),
 
-			ok = pagload_esme:unbind(),
+			pagload_esme:unbind(),
 			?INFO("Unbound~n", [])
 	end.
 

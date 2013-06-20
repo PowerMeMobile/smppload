@@ -97,7 +97,11 @@ bind_transceiver(Params) ->
 	gen_esme:call(?MODULE, {bind_transceiver, Params}, ?BIND_TIMEOUT).
 
 unbind() ->
-	gen_esme:call(?MODULE, {unbind, []}, ?UNBIND_TIMEOUT).
+	try gen_esme:call(?MODULE, {unbind, []}, ?UNBIND_TIMEOUT)
+	catch
+		exit:Reason ->
+			{error, Reason}
+	end.
 
 submit_sm(Source, Destination, Body, Opts) ->
 	Params0 = [
