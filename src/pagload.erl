@@ -197,23 +197,21 @@ send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, Stats0) ->
 		{ReplyRef, Stats} ->
 			send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State0, stats:add(Stats0, Stats));
 
-		{'EXIT', _Pid, normal} ->
+		{'EXIT', _Pid, Reason} ->
+			Stats1 =
+				case Reason of
+						normal ->
+							Stats0;
+						_Other ->
+							?ERROR("Submit failed with: ~p~n", [Reason]),
+							stats:inc_errors(Stats0)
+				end,
 			case lazy_messages:get_next(State0) of
 				{ok, Submit, State1} ->
 					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
-					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats0);
+					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats1);
 				{no_more, State1} ->
 					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, Stats0)
-			end;
-
-		{'EXIT', _Pid, Reason} ->
-			?ERROR("Submit failed with: ~p~n", [Reason]),
-			case lazy_messages:get_next(State0) of
-				{ok, Submit, State1} ->
-					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
-					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:inc_errors(Stats0));
-				{no_more, State1} ->
-					send_par_messages_and_collect_replies(ReplyTo, ReplyRef, State1, stats:inc_errors(Stats0))
 			end
 	after
 		1000 ->
