@@ -11,7 +11,6 @@
 -include("lazy_messages.hrl").
 -include("submit_message.hrl").
 
-%-define(TEST, 1).
 -ifdef(TEST).
    -include_lib("eunit/include/eunit.hrl").
 -endif.

@@ -11,7 +11,6 @@
 -include("lazy_messages.hrl").
 -include("submit_message.hrl").
 
-%-define(TEST, 1).
 -ifdef(TEST).
    -include_lib("eunit/include/eunit.hrl").
 -endif.
@@ -106,7 +105,7 @@ one_test() ->
 	{ok, #submit_message{body = Body3}, State3} = lazy_messages_random:get_next(State2),
 	?assertEqual("4rIYy", Body3),
 	{no_more, State4} = lazy_messages_random:get_next(State3),
-	ok = lazy_messages_user:deinit(State4).
+	ok = lazy_messages_random:deinit(State4).
 
 -endif.
 
