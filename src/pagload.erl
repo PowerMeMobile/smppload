@@ -44,7 +44,7 @@ opt_specs() ->
 		{port, $P, "port", {integer, 2775}, "SMSC server port"},
 		{system_id, $u, "system_id", {string, "paguser"}, "SMSC username"},
 		{password, $p, "password", {string, "secret"}, "SMSC password"},
-		{system_type, $t, "system_type", {string, "smpp"}, "SMSC service type"},
+		{system_type, $t, "system_type", {string, ""}, "SMSC service type"},
 		{rps, $r, "rps", {integer, 1000}, "Number of requests per second"},
 		{source, $s, "source", string, "SMS source address"},
 		{destination , $d, "destination", string, "SMS destination address"},
