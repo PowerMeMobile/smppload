@@ -248,8 +248,8 @@ handle_resp({error, {command_status, Status}}, ReqRef, State = #state{
 	bind_req = Req
 }) ->
 	?DEBUG("Request: ~p~n", [Req]),
-	?DEBUG("Bind failed with: ~p~n", [Status]),
-	gen_esme:reply(From, {error, smpp_error:format(Status)}),
+	?DEBUG("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	gen_esme:close(?MODULE),
 	{noreply, State#state{
 		bind_from = undefined,
@@ -262,10 +262,9 @@ handle_resp({error, {command_status, Status}}, ReqRef, State = #state{
 	unbind_req = Req
 }) ->
 	?DEBUG("Request: ~p~n", [Req]),
-	?DEBUG("Bind failed with: ~p~n", [Status]),
-	Reason = smpp_error:format(Status),
+	?DEBUG("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	gen_esme:close(?MODULE),
-	gen_esme:reply(From, {error, Reason}),
 	{noreply, State#state{
 		unbind_from = undefined,
 		unbind_ref = undefined,
@@ -298,8 +297,8 @@ handle_resp({error, {command_status, Status}}, ReqRef, State) ->
 	{{Req, From, ReqRef, undefined}, Reqs} =
 		cl_lists:keyextract(ReqRef, 3, State#state.submit_reqs),
 	?DEBUG("Request: ~p~n", [Req]),
-	?DEBUG("Failed with: ~p~n", [Status]),
-	gen_esme:reply(From, {error, smpp_error:format(Status)}),
+	?DEBUG("Failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	{noreply, State#state{submit_reqs = Reqs}}.
 
 handle_deliver_sm(PduDlr, _From, State0) ->
