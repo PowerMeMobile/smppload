@@ -53,8 +53,8 @@
 
 -define(BIND_TIMEOUT, 30000).
 -define(UNBIND_TIMEOUT, 30000).
--define(SUBMIT_TIMEOUT, 60000).
--define(DELIVERY_TIMEOUT, 50000).
+-define(SUBMIT_TIMEOUT, 120000).
+-define(DELIVERY_TIMEOUT, 100000).
 
 -record(state, {
 	bind_from,

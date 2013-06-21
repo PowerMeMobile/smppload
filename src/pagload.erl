@@ -9,8 +9,8 @@
 
 %% Purely empirical values
 -define(MAX_OUTSTANDING_SUBMITS, 100).
--define(FIRST_REPLY_TIMEOUT, 20000).
--define(REST_REPLIES_TIMEOUT, 3000).
+-define(FIRST_REPLY_TIMEOUT, 150000).
+-define(REST_REPLIES_TIMEOUT, 30000).
 
 %% ===================================================================
 %% API
@@ -183,27 +183,36 @@ send_par_messages(State0) ->
 	process_flag(trap_exit, true),
 	ReplyTo = self(),
 	ReplyRef = make_ref(),
-	{ok, State1} = send_par_init_messages(ReplyTo, ReplyRef, ?MAX_OUTSTANDING_SUBMITS, 0, State0),
-	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, ?FIRST_REPLY_TIMEOUT, State1, stats:new()).
+	{ok, MsgSent, State1} = send_par_init_messages(ReplyTo, ReplyRef, ?MAX_OUTSTANDING_SUBMITS, 0, State0),
+	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, ?FIRST_REPLY_TIMEOUT, MsgSent, State1, stats:new()).
 
 %% start phase
 send_par_init_messages(_ReplyTo, _ReplyRef, MaxMsgCnt, MaxMsgCnt, State0) ->
-	{ok, State0};
+	{ok, MaxMsgCnt, State0};
 send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt, State0) ->
 	case lazy_messages:get_next(State0) of
 		{ok, Submit, State1} ->
 			spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
 			send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt + 1, State1);
 		{no_more, State1} ->
-			{ok, State1}
+			{ok, MsgCnt, State1}
 	end.
 
 %% collect and send new messages phase.
-send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, State0, Stats0) ->
+send_par_messages_and_collect_replies(_ReplyTo, _ReplyRef, _Timeout, 0, State0, Stats0) ->
+	Stats1 =
+		case pagload_esme:get_avg_rps() of
+			{ok, AvgRps} ->
+				stats:inc_rps(Stats0, AvgRps);
+			{error, _} ->
+				Stats0
+		end,
+	{ok, State0, Stats1};
+send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, MsgSent, State0, Stats0) ->
 	receive
 		{ReplyRef, Stats} ->
 			send_par_messages_and_collect_replies(
-				ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, State0, stats:add(Stats0, Stats));
+				ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, MsgSent, State0, stats:add(Stats0, Stats));
 
 		{'EXIT', _Pid, Reason} ->
 			Stats1 =
@@ -218,10 +227,10 @@ send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, State0, Stats0
 				{ok, Submit, State1} ->
 					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
 					send_par_messages_and_collect_replies(
-						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, State1, Stats1);
+						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, MsgSent - 1 + 1, State1, Stats1);
 				{no_more, State1} ->
 					send_par_messages_and_collect_replies(
-						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, State1, Stats0)
+						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, MsgSent - 1, State1, Stats0)
 			end
 	after
 		Timeout ->
