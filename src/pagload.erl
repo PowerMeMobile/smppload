@@ -41,7 +41,7 @@ opt_specs() ->
 		%% {Name, ShortOpt, LongOpt, ArgSpec, HelpMsg}
 		{help, $h, "help", undefined, "Show this message"},
 		{host, $H, "host", {string, "127.0.0.1"}, "SMSC server host name or IP address"},
-		{port, $P, "port", {integer, 27017}, "SMSC server port"},
+		{port, $P, "port", {integer, 2775}, "SMSC server port"},
 		{system_id, $u, "system_id", {string, "paguser"}, "SMSC username"},
 		{password, $p, "password", {string, "secret"}, "SMSC password"},
 		{system_type, $t, "system_type", {string, "smpp"}, "SMSC service type"},
