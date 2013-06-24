@@ -1,0 +1,83 @@
+# send 1 message with body "Hello there!" with log level ERROR
+./pagload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
+
+# send 1 message with body "Hello there!" with log level INFO
+./pagload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!" -v
+INFO:  Connected to 127.0.0.1:2775
+INFO:  Bound to Funnel
+INFO:  Stats:
+INFO:     Send success:     1
+INFO:     Delivery success: 0
+INFO:     Send fail:        0
+INFO:     Delivery fail:    0
+INFO:     Errors:           0
+INFO:     Avg Rps:          20 mps
+INFO:  Unbound
+
+# send 1 message with body "Hello there!" with log level DEBUG
+./pagload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
+DEBUG: Options: [{port,2775},
+                 {system_type,[]},
+                 {system_id,"user"},
+                 {password,"password"},
+                 {source,"375296660002"},
+                 {destination,"375293332211"},
+                 {body,"Hello there"},
+                 {verbosity,2},
+                 {host,"127.0.0.1"},
+                 {rps,1000},
+                 {length,140},
+                 {count,1},
+                 {delivery,0}]
+DEBUG: Module: lazy_messages_body
+INFO:  Connected to 127.0.0.1:2775
+DEBUG: Request: {bind_transceiver,[{system_type,[]},
+                                   {system_id,"user"},
+                                   {password,"password"}]}
+DEBUG: Response: {bind_transceiver_resp,0,1,[{system_id,"Funnel"}]}
+INFO:  Bound to Funnel
+DEBUG: Request: {submit_sm,[{source_addr_ton,1},
+                            {source_addr_npi,1},
+                            {source_addr,"375296660002"},
+                            {dest_addr_ton,1},
+                            {dest_addr_npi,1},
+                            {destination_addr,"375293332211"},
+                            {short_message,"Hello there"},
+                            {registered_delivery,0}]}
+DEBUG: Response: {submit_sm_resp,0,2,[{message_id,"190602"}]}
+INFO:  Stats:
+INFO:     Send success:     1
+INFO:     Delivery success: 0
+INFO:     Send fail:        0
+INFO:     Delivery fail:    0
+INFO:     Errors:           0
+INFO:     Avg Rps:          23 mps
+DEBUG: Request: {unbind,[]}
+DEBUG: Response: {unbind_resp,0,3,[]}
+INFO:  Unbound
+
+# send 1 message with random body
+$ ./pagload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211
+
+# send 100 messages with random body
+$ ./pagload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --count 100
+
+# send 100 messages with random body length 25
+$ ./pagload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --count 100 --length 25
+
+# send messages from file test/messages.txt
+cat test/messages.txt
+375296660002,1,1;375291112233,1,1;Message #1;true
+375296660002,1,1;375291112233,1,1;Message #2;true
+375296660002,1,1;375291112233,1,1;Message #3;true
+375296660002,1,1;375291112233,1,1;Message #4;true
+375296660002,1,1;375291112233,1,1;Message #5;true
+
+$ ./pagload --port 2775 --system_type "" --system_id user --password password --file test/messages.txt
+
+# send messages from standard input
+$ cat test/messages.txt | ./pagload --port 2775 --system_type "" --system_id user --password password --file -
+
+
+# send messages dynamically generated messages from standard input
+$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./pagload --port 2775 --system_type "" --system_id user --password password --file -
