@@ -161,14 +161,28 @@ send_seq_messages(State0, Stats0) ->
 			{ok, State1, Stats1}
 	end.
 
+-include_lib("oserl/include/smpp_globals.hrl").
+
 send_message(Submit) ->
 	Source = Submit#submit_message.source,
 	Destination = Submit#submit_message.destination,
 	Body = Submit#submit_message.body,
 	Delivery = Submit#submit_message.delivery,
 
-	Opts = [{registered_delivery, Delivery}],
-	case pagload_esme:submit_sm(Source, Destination, Body, Opts) of
+	Params = [
+		%{source_addr_ton, ?TON_ALPHANUMERIC},
+		%{source_addr_npi, ?NPI_UNKNOWN},
+		{source_addr_ton, ?TON_INTERNATIONAL},
+		{source_addr_npi, ?NPI_ISDN},
+		{source_addr, Source},
+		{dest_addr_ton, ?TON_INTERNATIONAL},
+		{dest_addr_npi, ?NPI_ISDN},
+		{destination_addr, Destination},
+		{short_message, Body},
+		{registered_delivery, Delivery}
+	],
+
+	case pagload_esme:submit_sm(Params) of
 		{ok, _OutMsgId, no_delivery} ->
 			stats:inc_send_succ(stats:new());
 		{ok, _OutMsgId, delivery_timeout} ->

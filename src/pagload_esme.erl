@@ -14,7 +14,7 @@
 	bind_transceiver/1,
 	unbind/0,
 
-	submit_sm/4,
+	submit_sm/1,
 
 	get_avg_rps/0,
 	get_rps/0,
@@ -46,7 +46,6 @@
 
 -include("pagload.hrl").
 -include_lib("oserl/include/oserl.hrl").
--include_lib("oserl/include/smpp_globals.hrl").
 
 -define(HIGH, 0).
 -define(LOW, 10).
@@ -103,24 +102,8 @@ unbind() ->
 			{error, Reason}
 	end.
 
-submit_sm(Source, Destination, Body, Opts) ->
-	Params0 = [
-		%{source_addr_ton, ?TON_ALPHANUMERIC},
-		%{source_addr_npi, ?NPI_UNKNOWN},
-		{source_addr_ton, ?TON_INTERNATIONAL},
-		{source_addr_npi, ?NPI_ISDN},
-		{source_addr, Source},
-
-		{dest_addr_ton, ?TON_INTERNATIONAL},
-		{dest_addr_npi, ?NPI_ISDN},
-		{destination_addr, Destination}
-	],
-    Priority = ?gv(priority, Opts, ?LOW),
-	RegDlr = ?gv(registered_delivery, Opts, 0),
-	Params1 = [{registered_delivery, RegDlr} | Params0],
-	Params2 = [{short_message, Body} | Params1],
-    %submit(Body, Params1, [], Priority)
-	gen_esme:call(?MODULE, {submit_sm, Params2, [], Priority}, ?SUBMIT_TIMEOUT).
+submit_sm(Params) ->
+	gen_esme:call(?MODULE, {submit_sm, Params, [], ?LOW}, ?SUBMIT_TIMEOUT).
 
 get_avg_rps() ->
 	try gen_esme:rps_avg(?MODULE) of
