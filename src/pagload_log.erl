@@ -38,9 +38,9 @@
 init(Verbosity) ->
     case valid_level(Verbosity) of
         0 -> set_level(error);
-        1 -> set_level(warn);
-        2 -> set_level(info);
-        3 -> set_level(debug)
+        1 -> set_level(info);
+        2 -> set_level(debug);
+		_ -> set_level(debug)
     end.
 
 set_level(Level) ->
@@ -72,14 +72,10 @@ debug_level() -> 3.
 should_log(debug, _)     -> true;
 should_log(info, debug)  -> false;
 should_log(info, _)      -> true;
-should_log(warn, debug)  -> false;
-should_log(warn, info)   -> false;
-should_log(warn, _)      -> true;
 should_log(error, error) -> true;
 should_log(error, _)     -> false;
 should_log(_, _)         -> false.
 
 log_prefix(debug) -> "DEBUG: ";
 log_prefix(info)  -> "INFO:  ";
-log_prefix(warn)  -> "WARN:  ";
 log_prefix(error) -> "ERROR: ".

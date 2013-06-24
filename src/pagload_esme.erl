@@ -157,8 +157,8 @@ handle_info({timeout, TimerRef, ReqRef}, State) ->
 		cl_lists:keyextract(ReqRef, 3, SubmitReqs0),
 	{{ReqRef, TimerRef}, DeliveryReqs1} =
 			cl_lists:keyextract(ReqRef, 1, DeliveryReqs0),
-	?WARN("Request: ~p~n", [Req]),
-	?WARN("Delivery timeout~n", []),
+	?ERROR("Request: ~p~n", [Req]),
+	?ERROR("Delivery timeout~n", []),
 
 	%% reply to caller.
 	gen_esme:reply(From, {ok, OutMsgId, delivery_timeout}),
@@ -168,7 +168,7 @@ handle_info({timeout, TimerRef, ReqRef}, State) ->
 		delivery_reqs = DeliveryReqs1
 	}};
 handle_info(Info, State) ->
-	?WARN("Info: ~p~n", [Info]),
+	?ERROR("Info: ~p~n", [Info]),
     {noreply, State}.
 
 terminate(_Reason, _State) ->
@@ -231,7 +231,7 @@ handle_resp({error, {command_status, Status}}, ReqRef, State = #state{
 	bind_req = Req
 }) ->
 	?DEBUG("Request: ~p~n", [Req]),
-	?DEBUG("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	?ERROR("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
 	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	gen_esme:close(?MODULE),
 	{noreply, State#state{
@@ -245,7 +245,7 @@ handle_resp({error, {command_status, Status}}, ReqRef, State = #state{
 	unbind_req = Req
 }) ->
 	?DEBUG("Request: ~p~n", [Req]),
-	?DEBUG("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	?ERROR("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
 	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	gen_esme:close(?MODULE),
 	{noreply, State#state{
@@ -280,7 +280,7 @@ handle_resp({error, {command_status, Status}}, ReqRef, State) ->
 	{{Req, From, ReqRef, undefined}, Reqs} =
 		cl_lists:keyextract(ReqRef, 3, State#state.submit_reqs),
 	?DEBUG("Request: ~p~n", [Req]),
-	?DEBUG("Failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	?ERROR("Failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
 	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	{noreply, State#state{submit_reqs = Reqs}}.
 
@@ -305,7 +305,7 @@ handle_closed(Reason, State) ->
 	{stop, Reason, State}.
 
 handle_unbind(_Pdu, _From, State) ->
-	?WARN("Unbind~n", []),
+	?ERROR("Unexpected Unbind~n", []),
     {reply, ok, State}.
 
 handle_outbind(Pdu, State) ->
@@ -363,7 +363,7 @@ handle_receipt(Body, State) ->
 	}}.
 
 handle_message(Body, State) ->
-	?WARN("Message: ~p~n", [Body]),
+	?ERROR("Unexpected message: ~p~n", [Body]),
 	{{ok, []}, State}.
 
 receipt_data(Body) ->
