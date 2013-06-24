@@ -3,6 +3,8 @@ REBAR=./rebar
 OTP_PLT=~/.otp.plt
 PRJ_PLT=$(NAME).plt
 
+.PHONY: test
+
 all: generate escriptize
 
 generate: compile xref
@@ -27,7 +29,7 @@ update-deps:
 clean:
 	@$(REBAR) clean
 
-test:
+test: xref
 	@$(REBAR) eunit skip_deps=true
 
 dialyze: $(OTP_PLT) compile $(PRJ_PLT)
