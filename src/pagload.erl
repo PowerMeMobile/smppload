@@ -5,7 +5,7 @@
 ]).
 
 -include("pagload.hrl").
--include("submit_message.hrl").
+-include("message.hrl").
 
 %% Purely empirical values
 -define(MAX_OUTSTANDING_SUBMITS, 100).
@@ -163,11 +163,11 @@ send_seq_messages(State0, Stats0) ->
 
 -include_lib("oserl/include/smpp_globals.hrl").
 
-send_message(Submit) ->
-	Source = Submit#submit_message.source,
-	Destination = Submit#submit_message.destination,
-	Body = Submit#submit_message.body,
-	Delivery = Submit#submit_message.delivery,
+send_message(Message) ->
+	Source = Message#message.source,
+	Destination = Message#message.destination,
+	Body = Message#message.body,
+	Delivery = Message#message.delivery,
 
 	Params = [
 		%{source_addr_ton, ?TON_ALPHANUMERIC},

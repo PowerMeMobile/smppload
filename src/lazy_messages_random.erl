@@ -9,7 +9,7 @@
 ]).
 
 -include("lazy_messages.hrl").
--include("submit_message.hrl").
+-include("message.hrl").
 
 -ifdef(TEST).
    -include_lib("eunit/include/eunit.hrl").
@@ -45,7 +45,7 @@ init(Config) ->
 deinit(_State) ->
 	ok.
 
--spec get_next(state()) -> {ok, #submit_message{}, state()} | {no_more, state()}.
+-spec get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
 get_next(State = #state{count = Count}) when Count =< 0 ->
 	{no_more, State};
 get_next(State = #state{
@@ -57,7 +57,7 @@ get_next(State = #state{
 	delivery = Delivery
 }) ->
 	{Body, Seed1}  = build_random_body(Length, Seed0),
-	Message = #submit_message{
+	Message = #message{
 		source = Source,
 		destination = Destination,
 		body = Body,
@@ -95,14 +95,14 @@ one_test() ->
 	Config = [{seed, {1,1,1}}, {source, "s"}, {destination, "d"}, {delivery, true}, {count, 3}, {length, 5}],
 	{ok, State0} = lazy_messages_random:init(Config),
 	{ok, Msg, State1} = lazy_messages_random:get_next(State0),
-	#submit_message{source = Source, destination = Destination, body = Body1, delivery = Delivery} = Msg,
+	#message{source = Source, destination = Destination, body = Body1, delivery = Delivery} = Msg,
 	?assertEqual("s", Source),
 	?assertEqual("d", Destination),
 	?assert(Delivery),
 	?assertEqual("Plesn", Body1),
-	{ok, #submit_message{body = Body2}, State2} = lazy_messages_random:get_next(State1),
+	{ok, #message{body = Body2}, State2} = lazy_messages_random:get_next(State1),
 	?assertEqual("YPTRt", Body2),
-	{ok, #submit_message{body = Body3}, State3} = lazy_messages_random:get_next(State2),
+	{ok, #message{body = Body3}, State3} = lazy_messages_random:get_next(State2),
 	?assertEqual("4rIYy", Body3),
 	{no_more, State4} = lazy_messages_random:get_next(State3),
 	ok = lazy_messages_random:deinit(State4).

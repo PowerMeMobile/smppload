@@ -7,14 +7,11 @@
 ]).
 
 -include("lazy_messages.hrl").
--include("submit_message.hrl").
+-include("message.hrl").
 
 -callback init(config()) -> {ok, state()} | {error, reason()}.
 -callback deinit(state()) -> ok.
--callback get_next(state()) -> {ok, #submit_message{}, state()} | {no_more, state()}.
-
--include("lazy_messages.hrl").
--include("submit_message.hrl").
+-callback get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
 
 -record(state, {
 	mod,
@@ -36,7 +33,7 @@ deinit(State) ->
 	ModState = State#state.mod_state,
 	Module:deinit(ModState).
 
--spec get_next(state()) -> {ok, #submit_message{}, state()} | {no_more, state()}.
+-spec get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
 get_next(State) ->
 	Module = State#state.mod,
 	ModState0 = State#state.mod_state,

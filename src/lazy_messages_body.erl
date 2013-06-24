@@ -9,7 +9,7 @@
 ]).
 
 -include("lazy_messages.hrl").
--include("submit_message.hrl").
+-include("message.hrl").
 
 -ifdef(TEST).
    -include_lib("eunit/include/eunit.hrl").
@@ -42,7 +42,7 @@ init(Config) ->
 deinit(_State) ->
 	ok.
 
--spec get_next(state()) -> {ok, #submit_message{}, state()} | {no_more, state()}.
+-spec get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
 get_next(State = #state{count = Count}) when Count =< 0 ->
 	{no_more, State};
 get_next(State = #state{
@@ -52,7 +52,7 @@ get_next(State = #state{
 	count = Count,
 	delivery = Delivery
 }) ->
-	Message = #submit_message{
+	Message = #message{
 		source = Source,
 		destination = Destination,
 		body = Body,
@@ -70,7 +70,7 @@ one_test() ->
 	Config = [{source, "s"}, {destination, "d"}, {body, "b"}, {delivery, true}, {count, 3}],
 	{ok, State0} = lazy_messages_body:init(Config),
 	{ok, Msg, State1} = lazy_messages_body:get_next(State0),
-	#submit_message{source = Source, destination = Destination, body = Body, delivery = Delivery} = Msg,
+	#message{source = Source, destination = Destination, body = Body, delivery = Delivery} = Msg,
 	?assertEqual("s", Source),
 	?assertEqual("d", Destination),
 	?assertEqual("b", Body),
