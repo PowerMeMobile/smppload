@@ -170,7 +170,7 @@ send_message(Msg) ->
 		{dest_addr_npi      , Msg#message.destination#address.npi},
 		{destination_addr   , Msg#message.destination#address.addr},
 		{short_message      , Msg#message.body},
-		{registered_delivery, Msg#message.delivery}
+		{registered_delivery, if Msg#message.delivery -> 1; true -> 0 end}
 	],
 
 	case pagload_esme:submit_sm(Params) of

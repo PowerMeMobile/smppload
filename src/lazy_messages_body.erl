@@ -23,7 +23,7 @@
 %% API
 %% ===================================================================
 
--spec init(config()) -> state().
+-spec init(config()) -> {ok, state()}.
 init(Config) ->
 	Source = parser:parse_address(proplists:get_value(source, Config)),
 	Destination = parser:parse_address(proplists:get_value(destination, Config)),

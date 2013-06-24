@@ -1,7 +1,6 @@
 -module(parser_tests).
 
 -include("../src/message.hrl").
--include_lib("oserl/include/smpp_globals.hrl").
 
 -include_lib("eunit/include/eunit.hrl").
 

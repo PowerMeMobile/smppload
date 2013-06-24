@@ -24,7 +24,7 @@
 %% API
 %% ===================================================================
 
--spec init(config()) -> state().
+-spec init(config()) -> {ok, state()}.
 init(Config) ->
 	Seed = proplists:get_value(seed, Config, now()),
 	Source = parser:parse_address(proplists:get_value(source, Config)),
