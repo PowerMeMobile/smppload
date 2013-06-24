@@ -25,8 +25,8 @@
 
 -spec init(config()) -> state().
 init(Config) ->
-	Source = proplists:get_value(source, Config),
-	Destination = proplists:get_value(destination, Config),
+	Source = parser:parse_address(proplists:get_value(source, Config)),
+	Destination = parser:parse_address(proplists:get_value(destination, Config)),
 	Body = proplists:get_value(body, Config),
 	Count = proplists:get_value(count, Config),
 	Delivery = proplists:get_value(delivery, Config),
@@ -71,8 +71,8 @@ one_test() ->
 	{ok, State0} = lazy_messages_body:init(Config),
 	{ok, Msg, State1} = lazy_messages_body:get_next(State0),
 	#message{source = Source, destination = Destination, body = Body, delivery = Delivery} = Msg,
-	?assertEqual("s", Source),
-	?assertEqual("d", Destination),
+	?assertEqual(#address{addr = "s", ton = 1, npi = 1}, Source),
+	?assertEqual(#address{addr = "d", ton = 1, npi = 1}, Destination),
 	?assertEqual("b", Body),
 	?assert(Delivery),
 	{ok, Msg, State2} = lazy_messages_body:get_next(State1),

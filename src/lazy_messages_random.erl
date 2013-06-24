@@ -24,11 +24,15 @@
 	delivery
 }).
 
+%% ===================================================================
+%% API
+%% ===================================================================
+
 -spec init(config()) -> state().
 init(Config) ->
 	Seed = proplists:get_value(seed, Config, now()),
-	Source = proplists:get_value(source, Config),
-	Destination = proplists:get_value(destination, Config),
+	Source = parser:parse_address(proplists:get_value(source, Config)),
+	Destination = parser:parse_address(proplists:get_value(destination, Config)),
 	Count = proplists:get_value(count, Config),
 	Length = proplists:get_value(length, Config),
 	Delivery = proplists:get_value(delivery, Config),
@@ -96,8 +100,8 @@ one_test() ->
 	{ok, State0} = lazy_messages_random:init(Config),
 	{ok, Msg, State1} = lazy_messages_random:get_next(State0),
 	#message{source = Source, destination = Destination, body = Body1, delivery = Delivery} = Msg,
-	?assertEqual("s", Source),
-	?assertEqual("d", Destination),
+	?assertEqual(#address{addr = "s", ton = 1, npi = 1}, Source),
+	?assertEqual(#address{addr = "d", ton = 1, npi = 1}, Destination),
 	?assert(Delivery),
 	?assertEqual("Plesn", Body1),
 	{ok, #message{body = Body2}, State2} = lazy_messages_random:get_next(State1),
