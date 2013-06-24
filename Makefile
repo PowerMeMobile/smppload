@@ -30,7 +30,7 @@ clean:
 	@$(REBAR) clean
 
 test: xref
-	@$(REBAR) eunit skip_deps=true
+	@$(REBAR) eunit skip_deps=true -v
 
 dialyze: $(OTP_PLT) compile $(PRJ_PLT)
 	@dialyzer --plt $(PRJ_PLT) -r ./subapps/*/ebin
