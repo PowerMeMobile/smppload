@@ -52,6 +52,7 @@ opt_specs() ->
 		{length, $l, "length", {integer, 140}, "Randomly generated body length"},
 		{count, $c, "count", {integer, 1}, "Count of SMS to send with given body"},
 		{delivery, $D, "delivery", {integer, 0}, "Delivery receipt"},
+		{file, $f, "file", string, "Send messages from file"},
 		{sequentially, $S, "sequentially", undefined, "Send messages sequentially, parallel by default"},
 		{verbosity, $v, "verbosity", {integer, 0}, "Verbosity level"}
     ].
@@ -123,11 +124,16 @@ format_peer(Host, Port) when is_list(Host) ->
 	io_lib:format("~s:~p", [Host, Port]).
 
 get_lazy_messages_module(Opts) ->
-	case ?gv(body, Opts) of
+	case ?gv(file, Opts) of
 		undefined ->
-			lazy_messages_random;
+			case ?gv(body, Opts) of
+				undefined ->
+					lazy_messages_random;
+				_ ->
+					lazy_messages_body
+			end;
 		_ ->
-			lazy_messages_body
+			lazy_messages_file
 	end.
 
 send_messages(Module, Config, Sequentially) ->
