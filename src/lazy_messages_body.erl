@@ -23,6 +23,10 @@
 	delivery
 }).
 
+%% ===================================================================
+%% API
+%% ===================================================================
+
 -spec init(config()) -> state().
 init(Config) ->
 	Source = parser:parse_address(proplists:get_value(source, Config)),
