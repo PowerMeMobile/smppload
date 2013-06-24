@@ -46,6 +46,8 @@ init(Verbosity) ->
 set_level(Level) ->
     ok = application:set_env(pagload, log_level, Level).
 
+log(error, Str, Args) ->
+	io:format(log_prefix(error) ++ Str, Args);
 log(Level, Str, Args) ->
     {ok, LogLevel} = application:get_env(pagload, log_level),
     case should_log(LogLevel, Level) of
