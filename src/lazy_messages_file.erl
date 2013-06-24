@@ -22,15 +22,21 @@
 
 -spec init(config()) -> {ok, state()}.
 init(Config) ->
-	File = proplists:get_value(file, Config),
-	case file:open(File, [read]) of
-		{ok, Fd} ->
-			{ok, #state{fd = Fd}};
-		{error, Reason} ->
-			?ABORT("Open file ~p failed with: ~p~n", [File, Reason])
+	case string:strip(proplists:get_value(file, Config), both) of
+		"-" ->
+			{ok, #state{fd = standard_io}};
+		File ->
+			case file:open(File, [read]) of
+				{ok, Fd} ->
+					{ok, #state{fd = Fd}};
+				{error, Reason} ->
+					?ABORT("Open file ~p failed with: ~p~n", [File, Reason])
+			end
 	end.
 
 -spec deinit(state()) -> ok.
+deinit(#state{fd = standard_io}) ->
+	ok;
 deinit(#state{fd = Fd}) ->
 	file:close(Fd).
 

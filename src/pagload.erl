@@ -66,6 +66,9 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			pagload_log:init(?gv(verbosity, Opts)),
 			?DEBUG("Options: ~p~n", [Opts]),
 
+			Module = get_lazy_messages_module(Opts),
+			?DEBUG("Module: ~p~n", [Module]),
+
 			%% start needed applications.
 			ok = application:start(common_lib),
 			ok = application:start(pagload),
@@ -100,9 +103,6 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			Rps = ?gv(rps, Opts),
 			ok = pagload_esme:set_max_rps(Rps),
 
-			Module = get_lazy_messages_module(Opts),
-			?DEBUG("Module: ~p~n", [Module]),
-
 			Sequentially = ?gv(sequentially, Opts, false),
 			{ok, Stats} = send_messages(Module, Opts, Sequentially),
 
@@ -128,12 +128,30 @@ get_lazy_messages_module(Opts) ->
 		undefined ->
 			case ?gv(body, Opts) of
 				undefined ->
+					check_source(Opts), check_destination(Opts),
 					lazy_messages_random;
 				_ ->
+					check_source(Opts), check_destination(Opts),
 					lazy_messages_body
 			end;
 		_ ->
 			lazy_messages_file
+	end.
+
+check_source(Opts) ->
+	case ?gv(source, Opts) of
+		undefined ->
+			?ABORT("Source address is not provided~n", []);
+		_ ->
+			ok
+	end.
+
+check_destination(Opts) ->
+	case ?gv(destination, Opts) of
+		undefined ->
+			?ABORT("Destination address is not provided~n", []);
+		_ ->
+			ok
 	end.
 
 send_messages(Module, Config, Sequentially) ->
