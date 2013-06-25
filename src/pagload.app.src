@@ -1,6 +1,6 @@
 {application, pagload, [
 	{description, "Power Alley Gateway SMPP loader"},
-	{vsn, "0.0.1"},
+	{vsn, "0.7.0"},
 	{registered, []},
 	{applications, [
 		kernel,
