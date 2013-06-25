@@ -25,7 +25,7 @@ parse_address(String) ->
 			?ABORT("Bad address: ~p~n", [String])
 	end.
 
--spec parse_delivery(string()) -> 0 | 1.
+-spec parse_delivery(string()) -> true | false.
 parse_delivery("0")     -> false;
 parse_delivery("false") -> false;
 parse_delivery("1")     -> true;
