@@ -186,6 +186,16 @@ send_seq_messages(State0, Stats0) ->
 	end.
 
 send_message(Msg) ->
+	RegDlr = case Msg#message.delivery of
+				true  ->
+					1;
+				false ->
+					0;
+				Int when is_integer(Int), Int > 0 ->
+					1;
+				_Other ->
+					0
+			 end,
 	Params = [
 		{source_addr_ton    , Msg#message.source#address.ton},
 		{source_addr_npi    , Msg#message.source#address.npi},
@@ -194,7 +204,7 @@ send_message(Msg) ->
 		{dest_addr_npi      , Msg#message.destination#address.npi},
 		{destination_addr   , Msg#message.destination#address.addr},
 		{short_message      , Msg#message.body},
-		{registered_delivery, if Msg#message.delivery -> 1; true -> 0 end}
+		{registered_delivery, RegDlr}
 	],
 
 	case pagload_esme:submit_sm(Params) of
