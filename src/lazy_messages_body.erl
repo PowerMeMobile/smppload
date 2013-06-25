@@ -25,7 +25,13 @@
 
 -spec init(config()) -> {ok, state()}.
 init(Config) ->
-	Source = parser:parse_address(proplists:get_value(source, Config)),
+	Source =
+		case proplists:get_value(source, Config) of
+			undefined ->
+				undefined;
+			Address ->
+				parser:parse_address(Address)
+		end,
 	Destination = parser:parse_address(proplists:get_value(destination, Config)),
 	Body = proplists:get_value(body, Config),
 	Count = proplists:get_value(count, Config),

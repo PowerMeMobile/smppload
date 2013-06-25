@@ -128,22 +128,14 @@ get_lazy_messages_module(Opts) ->
 		undefined ->
 			case ?gv(body, Opts) of
 				undefined ->
-					check_source(Opts), check_destination(Opts),
+					check_destination(Opts),
 					lazy_messages_random;
 				_ ->
-					check_source(Opts), check_destination(Opts),
+					check_destination(Opts),
 					lazy_messages_body
 			end;
 		_ ->
 			lazy_messages_file
-	end.
-
-check_source(Opts) ->
-	case ?gv(source, Opts) of
-		undefined ->
-			?ABORT("Source address is not provided~n", []);
-		_ ->
-			ok
 	end.
 
 check_destination(Opts) ->
@@ -186,20 +178,29 @@ send_seq_messages(State0, Stats0) ->
 	end.
 
 send_message(Msg) ->
-	RegDlr = case Msg#message.delivery of
-				true  ->
-					1;
-				false ->
-					0;
-				Int when is_integer(Int), Int > 0 ->
-					1;
-				_Other ->
-					0
-			 end,
-	Params = [
-		{source_addr_ton    , Msg#message.source#address.ton},
-		{source_addr_npi    , Msg#message.source#address.npi},
-		{source_addr        , Msg#message.source#address.addr},
+	SourceAddr =
+		case Msg#message.source of
+			undefined ->
+				[];
+			_ ->
+				[
+					{source_addr_ton    , Msg#message.source#address.ton},
+					{source_addr_npi    , Msg#message.source#address.npi},
+					{source_addr        , Msg#message.source#address.addr}
+				]
+		end,
+	RegDlr =
+		case Msg#message.delivery of
+			true  ->
+				1;
+			false ->
+				0;
+			Int when is_integer(Int), Int > 0 ->
+				1;
+			_Other ->
+				0
+		end,
+	Params = SourceAddr ++ [
 		{dest_addr_ton      , Msg#message.destination#address.ton},
 		{dest_addr_npi      , Msg#message.destination#address.npi},
 		{destination_addr   , Msg#message.destination#address.addr},

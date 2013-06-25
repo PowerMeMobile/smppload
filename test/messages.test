@@ -1,5 +1,10 @@
-# this is a comment
-
-  375293332211;375291112233;Hello here;; there!;0
+# normal message
 FromBank,5,0;375293332211;Return our money, looser!;true
+# message with some spaces in front
+  375293332211;375291112233;Message 2;0
+# message with double semicolon in the body
+375293332211;375291112233;Hello here;; there!;0
+# message with an empty source
+;375291112233;Message 4;0
+# empty line
 

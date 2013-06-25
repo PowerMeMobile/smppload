@@ -35,6 +35,13 @@ parse_delivery(String)  -> ?ABORT("Bad delivery: ~p~n", [String]).
 -spec parse_message(string()) -> #message{}.
 parse_message(String) ->
 	case parse_message(String, [], []) of
+		[[], Destination, Body, Delivery] ->
+			#message{
+				source = undefined,
+				destination = parse_address(Destination),
+				body = Body,
+				delivery = parse_delivery(Delivery)
+			};
 		[Source, Destination, Body, Delivery] ->
 			#message{
 				source = parse_address(Source),
