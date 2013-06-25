@@ -52,8 +52,6 @@ parse_message(String) ->
 
 parse_message([], Chunk, Chunks) ->
 	lists:reverse([lists:reverse(Chunk) | Chunks]);
-parse_message([$\n | _], Chunk, Chunks) ->
-	lists:reverse([lists:reverse(Chunk) | Chunks]);
 parse_message([$;,$;,Char | Chars], Chunk, Chunks) ->
 	parse_message(Chars, [Char, $; | Chunk], Chunks);
 parse_message([$;,Char | Chars], Chunk, Chunks) ->

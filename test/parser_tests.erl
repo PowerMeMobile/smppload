@@ -47,7 +47,7 @@ parse_message2_test() ->
 	?assertEqual(Expected, Message).
 
 parse_message3_test() ->
-	String = "375293332211;375291112233;Hello there!;0\n ",
+	String = "375293332211;375291112233;Hello there!;0",
 	Message = parser:parse_message(String),
 
 	Expected = #message{

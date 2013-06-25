@@ -44,8 +44,12 @@ deinit(#state{fd = Fd}) ->
 get_next(State = #state{fd = Fd}) ->
 	case file:read_line(Fd) of
 		{ok, Line} ->
-			case string:strip(Line, both) of
-				"\n" ->
+			case string:strip(string:strip(Line, right, $\n), both) of
+				[] ->
+					%% handle empty strings.
+					get_next(State);
+				[$# | _] ->
+					%% handle comments.
 					get_next(State);
 				Stripped ->
 					Message = parser:parse_message(Stripped),
