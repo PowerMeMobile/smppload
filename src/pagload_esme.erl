@@ -56,6 +56,8 @@
 -define(DELIVERY_TIMEOUT, 100000).
 
 -record(state, {
+	bind_type,
+
 	bind_from,
 	bind_ref,
 	bind_req,
@@ -182,13 +184,13 @@ code_change(_OldVsn, State, _Extra) ->
 %% ===================================================================
 
 handle_req({bind_transmitter, _Params}, _Args, ReqRef, State) ->
-	{noreply, State#state{bind_ref = ReqRef}};
+	{noreply, State#state{bind_type = tx, bind_ref = ReqRef}};
 handle_req({bind_receiver, _Params}, _Args, ReqRef, State) ->
-	{noreply, State#state{bind_ref = ReqRef}};
+	{noreply, State#state{bind_type = rx, bind_ref = ReqRef}};
 handle_req({bind_transceiver, _Params}, _Args, ReqRef, State) ->
-	{noreply, State#state{bind_ref = ReqRef}};
+	{noreply, State#state{bind_type = trx, bind_ref = ReqRef}};
 handle_req({unbind, _Params}, _Args, ReqRef, State) ->
-	{noreply, State#state{unbind_ref = ReqRef}};
+	{noreply, State#state{bind_type = undefined, unbind_ref = ReqRef}};
 handle_req(Req, Args, ReqRef, State) ->
 	{{Req, From, undefined, undefined}, Reqs} =
 		cl_lists:keyextract(Req, 1, State#state.submit_reqs),
@@ -262,12 +264,24 @@ handle_resp({ok, PduResp}, ReqRef, State) ->
 	OutMsgId = smpp_operation:get_value(message_id, PduResp),
 
 	{_, Params} = Req,
+
+	RegDlr = ?gv(registered_delivery, Params, 0),
+	BindType = State#state.bind_type,
+	WaitForDelivery =
+		case {BindType, RegDlr} of
+			{rx, 1} ->
+				true;
+			{trx, 1} ->
+				true;
+			_ ->
+				false
+		end,
 	State1 =
-		case ?gv(registered_delivery, Params, 0) of
-			0 ->
+		case WaitForDelivery of
+			false ->
 				gen_esme:reply(From, {ok, OutMsgId, no_delivery}),
 				State#state{submit_reqs = Reqs};
-			1 ->
+			true ->
 				%% start wait for delivery timer.
 				TimerRef = erlang:start_timer(?DELIVERY_TIMEOUT, self(), ReqRef),
 				State#state{

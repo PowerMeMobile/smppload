@@ -42,7 +42,7 @@ opt_specs() ->
 		{help, $h, "help", undefined, "Show this message"},
 		{host, $H, "host", {string, "127.0.0.1"}, "SMSC server host name or IP address"},
 		{port, $P, "port", {integer, 2775}, "SMSC server port"},
-		{bind_type, $B, "bind_type", {string, "tx"}, "SMSC bind type: tx | trx"},
+		{bind_type, $B, "bind_type", {string, "trx"}, "SMSC bind type: tx | trx"},
 		{system_id, $u, "system_id", {string, "paguser"}, "SMSC username"},
 		{password, $p, "password", {string, "secret"}, "SMSC password"},
 		{system_type, $t, "system_type", {string, ""}, "SMSC service type"},
