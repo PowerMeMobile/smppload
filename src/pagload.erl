@@ -66,8 +66,8 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			pagload_log:init(?gv(verbosity, Opts)),
 			?DEBUG("Options: ~p~n", [Opts]),
 
-			Module = get_lazy_messages_module(Opts),
-			?DEBUG("Module: ~p~n", [Module]),
+			MessagesModule = get_lazy_messages_module(Opts),
+			?DEBUG("MessagesModule: ~p~n", [MessagesModule]),
 
 			%% start needed applications.
 			ok = application:start(common_lib),
@@ -104,7 +104,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			ok = pagload_esme:set_max_rps(Rps),
 
 			Sequentially = ?gv(sequentially, Opts, false),
-			{ok, Stats} = send_messages(Module, Opts, Sequentially),
+			{ok, Stats} = send_messages(MessagesModule, Opts, Sequentially),
 
 			?INFO("Stats:~n", []),
 			?INFO("   Send success:     ~p~n", [stats:send_succ(Stats)]),
