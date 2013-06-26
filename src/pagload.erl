@@ -42,6 +42,7 @@ opt_specs() ->
 		{help, $h, "help", undefined, "Show this message"},
 		{host, $H, "host", {string, "127.0.0.1"}, "SMSC server host name or IP address"},
 		{port, $P, "port", {integer, 2775}, "SMSC server port"},
+		{bind_type, $B, "bind_type", {string, "tx"}, "SMSC bind type: tx | trx"},
 		{system_id, $u, "system_id", {string, "paguser"}, "SMSC username"},
 		{password, $p, "password", {string, "secret"}, "SMSC password"},
 		{system_type, $t, "system_type", {string, ""}, "SMSC service type"},
@@ -65,6 +66,9 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			%% initialize the logger.
 			pagload_log:init(?gv(verbosity, Opts)),
 			?DEBUG("Options: ~p~n", [Opts]),
+
+			BindTypeFun = get_bind_type_fun(Opts),
+			?DEBUG("BindTypeFun: ~p~n", [BindTypeFun]),
 
 			MessagesModule = get_lazy_messages_module(Opts),
 			?DEBUG("MessagesModule: ~p~n", [MessagesModule]),
@@ -93,7 +97,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 				{system_id, SystemId},
 				{password, Password}
 			],
-			case pagload_esme:bind_transceiver(BindParams) of
+			case apply(pagload_esme, BindTypeFun, [BindParams]) of
 				{ok, RemoteSystemId} ->
 					?INFO("Bound to ~s~n", [RemoteSystemId]);
 				{error, Reason2} ->
@@ -122,6 +126,17 @@ format_peer({A, B, C, D}, Port) ->
 	io_lib:format("~p.~p.~p.~p:~p", [A, B, C, D, Port]);
 format_peer(Host, Port) when is_list(Host) ->
 	io_lib:format("~s:~p", [Host, Port]).
+
+get_bind_type_fun(Opts) ->
+	BindType = ?gv(bind_type, Opts),
+	case string:to_lower(BindType) of
+		"tx" ->
+			bind_transmitter;
+		"trx" ->
+			bind_transceiver;
+		_ ->
+			?ABORT("Unknown bind type: ~p~n", [BindType])
+	end.
 
 get_lazy_messages_module(Opts) ->
 	case ?gv(file, Opts) of

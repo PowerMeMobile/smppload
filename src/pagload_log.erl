@@ -49,7 +49,8 @@ set_level(Level) ->
 log(error, Str, Args) ->
 	io:format(log_prefix(error) ++ Str, Args);
 log(Level, Str, Args) ->
-    {ok, LogLevel} = application:get_env(pagload, log_level),
+	LogLevel = proplists:get_value(
+		log_level, application:get_all_env(pagload), default_level()),
     case should_log(LogLevel, Level) of
         true ->
             io:format(log_prefix(Level) ++ Str, Args);
