@@ -368,16 +368,6 @@ handle_alert_notification(Pdu, State) ->
 %% Internal
 %% ===================================================================
 
-submit(Msg, Params, Args, Priority) when length(Msg) > ?SM_MAX_SIZE ->
-    RefNum = smpp_ref_num:next(?MODULE),
-    L = smpp_sm:split([{short_message, Msg} | Params], RefNum, udh),
-    lists:foreach(fun(X) -> submit(X, Args, Priority) end, L);
-submit(Msg, Params, Args, Priority) ->
-    submit([{short_message, Msg} | Params], Args, Priority).
-
-submit(Params, Args, Priority) ->
-	gen_esme:queue_submit_sm(?MODULE, Params, Args, Priority).
-
 handle_receipt(Body, State) ->
 	?DEBUG("Receipt: ~p~n", [Body]),
 	{OutMsgId, DlrState} = receipt_data(Body),
