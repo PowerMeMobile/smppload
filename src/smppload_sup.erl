@@ -1,4 +1,4 @@
--module(pagload_sup).
+-module(smppload_sup).
 
 -behaviour(supervisor).
 

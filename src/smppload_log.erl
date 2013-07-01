@@ -23,7 +23,7 @@
 %% THE SOFTWARE.
 %% -------------------------------------------------------------------
 
--module(pagload_log).
+-module(smppload_log).
 
 -export([
     init/1,
@@ -44,13 +44,13 @@ init(Verbosity) ->
     end.
 
 set_level(Level) ->
-    ok = application:set_env(pagload, log_level, Level).
+    ok = application:set_env(smppload, log_level, Level).
 
 log(error, Str, Args) ->
 	io:format(log_prefix(error) ++ Str, Args);
 log(Level, Str, Args) ->
 	LogLevel = proplists:get_value(
-		log_level, application:get_all_env(pagload), default_level()),
+		log_level, application:get_all_env(smppload), default_level()),
     case should_log(LogLevel, Level) of
         true ->
             io:format(log_prefix(Level) ++ Str, Args);

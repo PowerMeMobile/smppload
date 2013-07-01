@@ -1,4 +1,4 @@
-NAME=pagload
+NAME=smppload
 REBAR=./rebar
 OTP_PLT=~/.otp.plt
 PRJ_PLT=$(NAME).plt
@@ -49,3 +49,6 @@ console:
 
 develop:
 	@./rel/$(NAME)/bin/$(NAME) develop
+
+tags:
+	find . -name "*.[e,h]rl" -print | etags -

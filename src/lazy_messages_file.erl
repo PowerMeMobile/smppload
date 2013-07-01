@@ -8,7 +8,7 @@
 	get_next/1
 ]).
 
--include("pagload.hrl").
+-include("smppload.hrl").
 -include("lazy_messages.hrl").
 -include("message.hrl").
 

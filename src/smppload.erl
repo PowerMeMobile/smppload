@@ -1,10 +1,10 @@
--module(pagload).
+-module(smppload).
 
 -export([
 	main/1
 ]).
 
--include("pagload.hrl").
+-include("smppload.hrl").
 -include("message.hrl").
 
 %% Purely empirical values
@@ -64,7 +64,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			print_usage(ScriptName, OptSpecs);
 		false ->
 			%% initialize the logger.
-			pagload_log:init(?gv(verbosity, Opts)),
+			smppload_log:init(?gv(verbosity, Opts)),
 			?DEBUG("Options: ~p~n", [Opts]),
 
 			BindTypeFun = get_bind_type_fun(Opts),
@@ -75,14 +75,14 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 
 			%% start needed applications.
 			ok = application:start(common_lib),
-			ok = application:start(pagload),
+			ok = application:start(smppload),
 
-			{ok, _} = pagload_esme:start(),
+			{ok, _} = smppload_esme:start(),
 
 			Host = ?gv(host, Opts),
 			Port = ?gv(port, Opts),
 			Peer = format_peer(Host, Port),
-			case pagload_esme:connect(Host, Port) of
+			case smppload_esme:connect(Host, Port) of
 				ok ->
 					?INFO("Connected to ~s~n", [Peer]);
 				{error, Reason1} ->
@@ -97,7 +97,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 				{system_id, SystemId},
 				{password, Password}
 			],
-			case apply(pagload_esme, BindTypeFun, [BindParams]) of
+			case apply(smppload_esme, BindTypeFun, [BindParams]) of
 				{ok, RemoteSystemId} ->
 					?INFO("Bound to ~s~n", [RemoteSystemId]);
 				{error, Reason2} ->
@@ -105,7 +105,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			end,
 
 			Rps = ?gv(rps, Opts),
-			ok = pagload_esme:set_max_rps(Rps),
+			ok = smppload_esme:set_max_rps(Rps),
 
 			Sequentially = ?gv(sequentially, Opts, false),
 			{ok, Stats} = send_messages(MessagesModule, Opts, Sequentially),
@@ -118,7 +118,7 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			?INFO("   Errors:           ~p~n", [stats:errors(Stats)]),
 			?INFO("   Avg Rps:          ~p mps~n", [stats:rps(Stats)]),
 
-			pagload_esme:unbind(),
+			smppload_esme:unbind(),
 			?INFO("Unbound~n", [])
 	end.
 
@@ -183,7 +183,7 @@ send_seq_messages(State0, Stats0) ->
 			send_seq_messages(State1, stats:add(Stats0, Stats));
 		{no_more, State1} ->
 			Stats1 =
-				case pagload_esme:get_avg_rps() of
+				case smppload_esme:get_avg_rps() of
 					{ok, AvgRps} ->
 						stats:inc_rps(Stats0, AvgRps);
 					{error, _} ->
@@ -223,7 +223,7 @@ send_message(Msg) ->
 		{registered_delivery, RegDlr}
 	],
 
-	case pagload_esme:submit_sm(Params) of
+	case smppload_esme:submit_sm(Params) of
 		{ok, _OutMsgId, no_delivery} ->
 			stats:inc_send_succ(stats:new());
 		{ok, _OutMsgId, delivery_timeout} ->
@@ -256,7 +256,7 @@ send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt, State0) ->
 %% collect and send new messages phase.
 send_par_messages_and_collect_replies(_ReplyTo, _ReplyRef, _Timeout, 0, State0, Stats0) ->
 	Stats1 =
-		case pagload_esme:get_avg_rps() of
+		case smppload_esme:get_avg_rps() of
 			{ok, AvgRps} ->
 				stats:inc_rps(Stats0, AvgRps);
 			{error, _} ->
@@ -290,7 +290,7 @@ send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, MsgSent, State
 	after
 		Timeout ->
 			Stats1 =
-				case pagload_esme:get_avg_rps() of
+				case smppload_esme:get_avg_rps() of
 					{ok, AvgRps} ->
 						stats:inc_rps(Stats0, AvgRps);
 					{error, _} ->

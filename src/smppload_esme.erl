@@ -1,4 +1,4 @@
--module(pagload_esme).
+-module(smppload_esme).
 -behaviour(gen_esme).
 
 %% API
@@ -44,7 +44,7 @@
 	code_change/3
 ]).
 
--include("pagload.hrl").
+-include("smppload.hrl").
 -include_lib("oserl/include/oserl.hrl").
 
 -define(HIGH, 0).

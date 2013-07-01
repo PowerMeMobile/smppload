@@ -1,4 +1,4 @@
--module(pagload_app).
+-module(smppload_app).
 
 -behaviour(application).
 
@@ -12,7 +12,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    pagload_sup:start_link().
+    smppload_sup:start_link().
 
 stop(_State) ->
     ok.

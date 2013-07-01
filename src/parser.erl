@@ -6,7 +6,7 @@
 	parse_message/1
 ]).
 
--include("pagload.hrl").
+-include("smppload.hrl").
 -include("message.hrl").
 -include_lib("oserl/include/smpp_globals.hrl").
 

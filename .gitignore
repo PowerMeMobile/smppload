@@ -2,5 +2,5 @@ TAGS
 deps/*
 ebin/*
 priv/*
-pagload
+smppload
 .eunit/*
