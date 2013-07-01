@@ -27,7 +27,7 @@
 
 -export([
     init/1,
-    set_level/1, default_level/0,
+    set_level/1,
     log/3
 ]).
 
@@ -35,6 +35,7 @@
 %% API
 %% ===================================================================
 
+-spec init(pos_integer()) -> ok.
 init(Verbosity) ->
     case valid_level(Verbosity) of
         0 -> set_level(error);
@@ -43,9 +44,11 @@ init(Verbosity) ->
 		_ -> set_level(debug)
     end.
 
+-spec set_level(atom()) -> ok.
 set_level(Level) ->
     ok = application:set_env(smppload, log_level, Level).
 
+-spec log(atom(), string(), string()) -> ok.
 log(error, Str, Args) ->
 	io:format(log_prefix(error) ++ Str, Args);
 log(Level, Str, Args) ->
@@ -58,11 +61,12 @@ log(Level, Str, Args) ->
             ok
     end.
 
-default_level() -> error_level().
 
 %% ===================================================================
 %% Internal
 %% ===================================================================
+
+default_level() -> error_level().
 
 valid_level(Level) ->
     erlang:max(error_level(), erlang:min(Level, debug_level())).

@@ -18,7 +18,7 @@ compile: get-deps
 	@$(REBAR) compile
 
 xref: compile
-	@$(REBAR) xref
+	@$(REBAR) xref skip_deps=true
 
 get-deps:
 	@$(REBAR) get-deps

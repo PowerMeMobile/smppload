@@ -1,4 +1,5 @@
 -module(smppload_esme).
+
 -behaviour(gen_esme).
 
 %% API
@@ -45,6 +46,7 @@
 ]).
 
 -include("smppload.hrl").
+-include("gen_server_spec.hrl").
 -include_lib("oserl/include/oserl.hrl").
 
 -define(HIGH, 0).
@@ -70,33 +72,48 @@
 	delivery_reqs = []
 }).
 
+-type reason() :: term().
+-type plist() :: [{atom(), term()}].
+-type remote_system_id() :: string().
+-type out_msg_id() :: binary() | string().
+-type delivery_status() :: atom().
+-type delivery_res() :: no_delivery | delivery_timeout | delivery_status().
+
 %% ===================================================================
 %% API
 %% ===================================================================
 
+-spec start_link() -> {ok, pid()} | {error, reason()}.
 start_link() ->
 	Opts = [], %[{rps, 1}, {file_queue, "./sample_esme.dqueue"}],
 	gen_esme:start_link({local, ?MODULE}, ?MODULE, [], Opts).
 
+-spec start() -> {ok, pid()} | {error, reason()}.
 start() ->
 	Opts = [],
 	gen_esme:start({local, ?MODULE}, ?MODULE, [], Opts).
 
+-spec stop() -> ok.
 stop() ->
 	gen_esme:cast(?MODULE, stop).
 
+-spec connect(inet:ip_address(), inet:port_number()) -> ok | {error, reason()}.
 connect(Host, Port) ->
 	gen_esme:open(?MODULE, Host, [{port, Port}]).
 
+-spec bind_transmitter(plist()) -> {ok, remote_system_id()} | {error, reason()}.
 bind_transmitter(Params) ->
 	gen_esme:call(?MODULE, {bind_transmitter, Params}, ?BIND_TIMEOUT).
 
+-spec bind_receiver(plist()) -> {ok, string()} | {error, reason()}.
 bind_receiver(Params) ->
 	gen_esme:call(?MODULE, {bind_receiver, Params}, ?BIND_TIMEOUT).
 
+-spec bind_transceiver(plist()) -> {ok, string()} | {error, reason()}.
 bind_transceiver(Params) ->
 	gen_esme:call(?MODULE, {bind_transceiver, Params}, ?BIND_TIMEOUT).
 
+-spec unbind() -> ok | {error, reason()}.
 unbind() ->
 	try gen_esme:call(?MODULE, {unbind, []}, ?UNBIND_TIMEOUT)
 	catch
@@ -104,9 +121,11 @@ unbind() ->
 			{error, Reason}
 	end.
 
+-spec submit_sm(plist()) -> {ok, out_msg_id(), delivery_res()} | {error, reason()}.
 submit_sm(Params) ->
 	gen_esme:call(?MODULE, {submit_sm, Params, [], ?LOW}, ?SUBMIT_TIMEOUT).
 
+-spec get_avg_rps() -> {ok, non_neg_integer()} | {error, reason()}.
 get_avg_rps() ->
 	try gen_esme:rps_avg(?MODULE) of
 		AvgRps ->
@@ -116,9 +135,11 @@ get_avg_rps() ->
 			{error, Reason}
 	end.
 
+-spec get_rps() -> non_neg_integer().
 get_rps() ->
     gen_esme:rps(?MODULE).
 
+-spec set_max_rps(non_neg_integer()) -> ok.
 set_max_rps(Rps) ->
     gen_esme:rps_max(?MODULE, Rps).
 
@@ -183,6 +204,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% gen_esme callbacks
 %% ===================================================================
 
+-spec handle_req(any(), any(), reference(), any()) -> any().
 handle_req({bind_transmitter, _Params}, _Args, ReqRef, State) ->
 	{noreply, State#state{bind_type = tx, bind_ref = ReqRef}};
 handle_req({bind_receiver, _Params}, _Args, ReqRef, State) ->
@@ -191,11 +213,12 @@ handle_req({bind_transceiver, _Params}, _Args, ReqRef, State) ->
 	{noreply, State#state{bind_type = trx, bind_ref = ReqRef}};
 handle_req({unbind, _Params}, _Args, ReqRef, State) ->
 	{noreply, State#state{bind_type = undefined, unbind_ref = ReqRef}};
-handle_req(Req, Args, ReqRef, State) ->
+handle_req(Req, _Args, ReqRef, State) ->
 	{{Req, From, undefined, undefined}, Reqs} =
 		cl_lists:keyextract(Req, 1, State#state.submit_reqs),
 	{noreply, State#state{submit_reqs = [{Req, From, ReqRef, undefined} | Reqs]}}.
 
+-spec handle_resp(any(), reference(), any()) -> any().
 handle_resp({ok, PduResp}, ReqRef, State = #state{
 	bind_from = From,
 	bind_ref = ReqRef,
@@ -298,6 +321,7 @@ handle_resp({error, {command_status, Status}}, ReqRef, State) ->
 	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	{noreply, State#state{submit_reqs = Reqs}}.
 
+-spec handle_deliver_sm(any(), any(), any()) -> any().
 handle_deliver_sm(PduDlr, _From, State0) ->
 	?DEBUG("Deliver: ~p~n", [prettify_pdu(PduDlr)]),
 	{?COMMAND_ID_DELIVER_SM, 0, _SeqNum, Body} = PduDlr,
@@ -314,23 +338,29 @@ handle_deliver_sm(PduDlr, _From, State0) ->
 	end,
 	{reply, Reply, State1}.
 
+-spec handle_closed(any(), any()) -> any().
 handle_closed(Reason, State) ->
 	?DEBUG("Session closed with: ~p~n", [Reason]),
 	{stop, Reason, State}.
 
+-spec handle_unbind(any(), any(), any()) -> any().
 handle_unbind(_Pdu, _From, State) ->
 	?ERROR("Unexpected Unbind~n", []),
     {reply, ok, State}.
 
+-spec handle_outbind(any(), any()) -> any().
 handle_outbind(Pdu, State) ->
 	erlang:error(function_clause, [Pdu, State]).
 
+-spec handle_data_sm(any(), any(), any()) -> any().
 handle_data_sm(Pdu, From, State) ->
     erlang:error(function_clause, [Pdu, From, State]).
 
+-spec handle_accept(any(), any(), any()) -> any().
 handle_accept(Addr, From, State) ->
     erlang:error(function_clause, [Addr, From, State]).
 
+-spec handle_alert_notification(any(), any()) -> any().
 handle_alert_notification(Pdu, State) ->
     erlang:error(function_clause, [Pdu, State]).
 
