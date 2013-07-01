@@ -4,13 +4,13 @@
 -include("../src/message.hrl").
 
 -include_lib("eunit/include/eunit.hrl").
+-spec test() -> ok | {error, term()}.
 
 %% ===================================================================
 %% Tests begin
 %% ===================================================================
 
--ifdef(TEST).
-
+-spec full_test() -> ok | {error, term()}.
 full_test() ->
 	Config = [{seed, {1,1,1}}, {source, "s"}, {destination, "d"}, {delivery, true}, {count, 3}, {length, 5}],
 	{ok, State0} = lazy_messages_random:init(Config),
@@ -27,6 +27,7 @@ full_test() ->
 	{no_more, State4} = lazy_messages_random:get_next(State3),
 	ok = lazy_messages_random:deinit(State4).
 
+-spec no_source_test() -> ok | {error, term()}.
 no_source_test() ->
 	Config = [{destination, "d"}, {body, "b"}, {delivery, true}, {count, 1}],
 	{ok, State0} = lazy_messages_body:init(Config),
@@ -35,8 +36,6 @@ no_source_test() ->
 	?assertEqual(undefined, Source),
 	{no_more, State2} = lazy_messages_body:get_next(State1),
 	ok = lazy_messages_body:deinit(State2).
-
--endif.
 
 %% ===================================================================
 %% Tests end

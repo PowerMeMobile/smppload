@@ -4,11 +4,13 @@
 -include("../src/message.hrl").
 
 -include_lib("eunit/include/eunit.hrl").
+-spec test() -> ok | {error, term()}.
 
 %% ===================================================================
 %% Tests begin
 %% ===================================================================
 
+-spec full_test() -> ok | {error, term()}.
 full_test() ->
 	Config = [{source, "s"}, {destination, "d"}, {body, "b"}, {delivery, true}, {count, 3}],
 	{ok, State0} = lazy_messages_body:init(Config),
@@ -23,6 +25,7 @@ full_test() ->
 	{no_more, State4} = lazy_messages_body:get_next(State3),
 	ok = lazy_messages_body:deinit(State4).
 
+-spec no_source_test() -> ok | {error, term()}.
 no_source_test() ->
 	Config = [{destination, "d"}, {body, "b"}, {delivery, true}, {count, 1}],
 	{ok, State0} = lazy_messages_body:init(Config),

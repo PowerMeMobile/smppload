@@ -4,11 +4,13 @@
 -include("../src/message.hrl").
 
 -include_lib("eunit/include/eunit.hrl").
+-spec test() -> ok | {error, term()}.
 
 %% ===================================================================
 %% Tests begin
 %% ===================================================================
 
+-spec file_test() -> ok | {error, term()}.
 file_test() ->
 	Config = [{file, "../test/messages.test"}],
 	{ok, State0} = lazy_messages_file:init(Config),

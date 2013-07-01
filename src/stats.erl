@@ -144,6 +144,9 @@ inc(Stats, Field, Inc) ->
 
 -ifdef(TEST).
 
+-spec test() -> ok | {error, term()}.
+
+-spec empty_test() -> ok | {error, term()}.
 empty_test() ->
 	Empty = new(),
 	?assertEqual(0, send_succ(Empty)),
@@ -153,6 +156,7 @@ empty_test() ->
 	?assertEqual(0, errors(Empty)),
 	?assertEqual(0, rps(Empty)).
 
+-spec inc1_test() -> ok | {error, term()}.
 inc1_test() ->
 	Stats0 = new(),
 	Stats1 = inc_send_succ(Stats0),
@@ -166,6 +170,7 @@ inc1_test() ->
 	?assertEqual(1, dlr_fail(Stats5)),
 	?assertEqual(1, errors(Stats5)).
 
+-spec inc2_test() -> ok | {error, term()}.
 inc2_test() ->
 	Stats0 = new(),
 	Stats1 = inc_send_succ(Stats0, 2),
