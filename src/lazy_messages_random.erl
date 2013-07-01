@@ -10,6 +10,8 @@
 
 -include("lazy_messages.hrl").
 -include("message.hrl").
+-include("smppload.hrl").
+-include_lib("oserl/include/oserl.hrl").
 
 -record(state, {
 	seed,
@@ -17,7 +19,9 @@
 	destination,
 	count,
 	length,
-	delivery
+	delivery,
+	%% for long messages
+	parts = []
 }).
 
 %% ===================================================================
@@ -26,18 +30,18 @@
 
 -spec init(config()) -> {ok, state()}.
 init(Config) ->
-	Seed = proplists:get_value(seed, Config, now()),
+	Seed = ?gv(seed, Config, now()),
 	Source =
-		case proplists:get_value(source, Config) of
+		case ?gv(source, Config) of
 			undefined ->
 				undefined;
 			Address ->
 				parser:parse_address(Address)
 		end,
-	Destination = parser:parse_address(proplists:get_value(destination, Config)),
-	Count = proplists:get_value(count, Config),
-	Length = proplists:get_value(length, Config),
-	Delivery = proplists:get_value(delivery, Config),
+	Destination = parser:parse_address(?gv(destination, Config)),
+	Count = ?gv(count, Config),
+	Length = ?gv(length, Config, ?SM_MAX_SIZE),
+	Delivery = ?gv(delivery, Config),
 	{ok, #state{
 		seed = Seed,
 		source = Source,
@@ -52,7 +56,10 @@ deinit(_State) ->
 	ok.
 
 -spec get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
-get_next(State = #state{count = Count}) when Count =< 0 ->
+get_next(State = #state{
+	count = Count,
+	parts = Parts
+}) when Count =< 0, length(Parts) =:= 0 ->
 	{no_more, State};
 get_next(State = #state{
 	seed = Seed0,
@@ -61,7 +68,7 @@ get_next(State = #state{
 	count = Count,
 	length = Length,
 	delivery = Delivery
-}) ->
+}) when Length =< ?SM_MAX_SIZE ->
 	{Body, Seed1}  = build_random_body(Length, Seed0),
 	Message = #message{
 		source = Source,
@@ -69,7 +76,47 @@ get_next(State = #state{
 		body = Body,
 		delivery = Delivery
 	},
-	{ok, Message, State#state{seed = Seed1, count = Count - 1}}.
+	{ok, Message, State#state{
+		seed = Seed1,
+		count = Count - 1
+	}};
+get_next(State = #state{
+	seed = Seed0,
+	source = Source,
+	destination = Destination,
+	count = Count,
+	length = Length,
+	delivery = Delivery,
+	parts = Parts0
+}) ->
+	case Parts0 of
+		[Part | Parts1] ->
+			Message = #message{
+				source = Source,
+				destination = Destination,
+				body = ?gv(short_message, Part),
+				esm_class = ?gv(esm_class, Part),
+				delivery = Delivery
+			},
+			{ok, Message, State#state{parts = Parts1}};
+		[] ->
+			{Body, Seed1} = build_random_body(Length, Seed0),
+			RefNum = smppload_ref_num:next(?MODULE),
+		    [Part | Parts1] =
+				smpp_sm:split([{short_message, Body}], RefNum, udh),
+			Message = #message{
+				source = Source,
+				destination = Destination,
+				body = ?gv(short_message, Part),
+				esm_class = ?gv(esm_class, Part),
+				delivery = Delivery
+			},
+			{ok, Message, State#state{
+				seed = Seed1,
+				count = Count - 1,
+				parts = Parts1
+			}}
+	end.
 
 %% ===================================================================
 %% Internal

@@ -39,6 +39,7 @@ file_test() ->
 	?assertEqual("Hello here; there!", Body3),
 	?assertNot(Delivery3),
 
+	%% message with an empty source
 	{ok, Msg4, State4} = lazy_messages_file:get_next(State3),
 	#message{source = Source4, destination = Destination4, body = Body4, delivery = Delivery4} = Msg4,
 	?assertEqual(undefined, Source4),
@@ -46,9 +47,29 @@ file_test() ->
 	?assertEqual("Message 4", Body4),
 	?assertNot(Delivery4),
 
-	{no_more, State5} = lazy_messages_file:get_next(State4),
+	%% long message part1
+	{ok, Msg5, State5} = lazy_messages_file:get_next(State4),
+	#message{body = Body5, esm_class = Class5} = Msg5,
+	Beginning = "EB8Muy7hqOSmO6vVc694aqNBCOr75gNg8wDikK7IoMak7L4HdTOtMiZFyTegBP"
+				"Xc2N8pujGaCjFkCQX0whI0yByj8kY0g0MpHYbtFfPI9O9OELzxKrb3upTjB9r2"
+				"pNoj2MqQbWWHTdYwo9IWftCc204rI",
+	%?debugFmt("~p~n", [Beginning]),
+	%?debugFmt("~p~n", [Body5]),
+	?assertMatch([_, _, _, _, _, _ | Beginning], Body5),
+	?assert(Class5 =/= 0),
 
-	ok = lazy_messages_body:deinit(State5).
+	%% long message part2
+	{ok, Msg6, State6} = lazy_messages_file:get_next(State5),
+	#message{body = Body6, esm_class = Class6} = Msg6,
+	Ending = "YyYPTRtPlesn",
+	%?debugFmt("~p~n", [Ending]),
+	%?debugFmt("~p~n", [Body6]),
+	?assertMatch([_, _, _, _, _, _ | Ending], Body6),
+	?assert(Class6 =/= 0),
+
+	{no_more, State7} = lazy_messages_file:get_next(State6),
+
+	ok = lazy_messages_body:deinit(State7).
 
 %% ===================================================================
 %% Tests end

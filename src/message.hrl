@@ -8,10 +8,11 @@
 }).
 
 -record(message, {
-	source 		:: #address{},
+	source :: #address{},
 	destination :: #address{},
-	body        :: binary(),
-	delivery	:: boolean()
+	body :: binary(),
+	esm_class = 0 :: integer(),
+	delivery :: boolean()
 }).
 
 -endif.
