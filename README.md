@@ -6,7 +6,7 @@ In order to run the smppload utility you need [Erlang](http://www.erlang.org/) i
 Usage
 -----
 
-* Send 1 message with the body "Hello there!" to localhost and the standard SMPP port
+* Send a message with the body "Hello there!" to localhost and the standard SMPP port
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
@@ -16,32 +16,32 @@ Usage
 ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
-* Send 1 message as TX
+* Send a message as TX
 <pre>
 ./smppload --bind_type tx --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
-* Send 1 message with defined TON and NPI
+* Send a message with defined TON and NPI
 <pre>
 ./smppload --source FromBank,5,0 --destination 375293332211 --body "Return our money, looser!"
 </pre>
 
-* Send 1 message with random body
+* Send a message with a random body
 <pre>
 ./smppload --source 375296660002 --destination 375293332211
 </pre>
 
-* Send 1 message with random body and length 25
+* Send a message with a random body and length 25
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --length 25
 </pre>
 
-* Send 1 multipart message with random body and length 160
+* Send a multipart message with a random body and length 160
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --length 160
 </pre>
 
-* Send 100 messages with random body
+* Send 100 messages with random bodys
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --count 100
 </pre>
@@ -71,15 +71,17 @@ cat test/messages.txt | ./smppload --file -
 
 * Send messages dynamically generated messages from standard input
 <pre>
-for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./smppload --file -
+for i in `seq 1 100`; do
+	printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i
+done | ./smppload --file -
 </pre>
 
-* Send 1 message with body "Hello there!" with log level ERROR
+* Send a message with ERROR (default) log level
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
-* Send 1 message with body "Hello there!" with log level INFO
+* Send a message with INFO log level
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -v
 INFO:  Connected to 127.0.0.1:2775
@@ -94,7 +96,7 @@ INFO:     Avg Rps:          20 mps
 INFO:  Unbound
 </pre>
 
-* Send 1 message with body "Hello there!" with log level DEBUG
+* Send a message with DEBUG log level
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
 DEBUG: Options: [{port,2775},
