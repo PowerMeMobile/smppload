@@ -75,11 +75,11 @@ cat test/messages.txt
 #   body :: string, to use double semicolon (;;) in the body
 #   delivery :: true | false | 1 | 0
 
-375296660002,1,1;375291112233,1,1;Message #1;true
-375296660002,1,1;375291112233,1,1;Message #2;true
+375296660002,1,1;375291112231,1,1;Message #1;true
+375296660002,1,1;375291112232,1,1;Message #2;true
 375296660002,1,1;375291112233,1,1;Message #3;true
-375296660002,1,1;375291112233,1,1;Message #4;true
-375296660002,1,1;375291112233,1,1;Message #5;true
+375296660002,1,1;375291112234,1,1;Message #4;true
+375296660002,1,1;375291112235,1,1;Message #5;true
 
 $ ./smppload --port 2775 --system_type "" --system_id user --password password --file test/messages.txt
 
