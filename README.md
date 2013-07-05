@@ -49,7 +49,7 @@ Usage
 * Send messages from file test/messages.txt
 <pre>
 cat test/messages.txt
-# source;destination;body;delivery
+\# source;destination;body;delivery
 # where
 #   source :: address
 #   destination :: address
