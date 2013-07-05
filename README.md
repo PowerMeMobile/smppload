@@ -1,10 +1,10 @@
 Installation
-============
+------------
 
 In order to run the smppload utility you need [Erlang](http://www.erlang.org/) installed
 
 Usage
-=====
+-----
 
 # send 1 message with the body "Hello there!" to localhost to standard SMPP port
 $ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
@@ -113,7 +113,7 @@ DEBUG: Response: {unbind_resp,0,3,[]}
 INFO:  Unbound
 
 Known issues and limitations
-============================
+----------------------------
 
 * Default encoding is Latin 1. Max message length is 140 chars, max segment length is 134 chars
 * Don't send multiple messages to the same destination number in the same session.
