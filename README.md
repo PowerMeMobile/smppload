@@ -48,10 +48,7 @@ Usage
 
 * Send messages from file test/messages.txt
 <pre>
-$ cat test/messages.txt
-</pre>
-
-<pre>
+cat test/messages.txt
 # source;destination;body;delivery
 # where
 #   source :: address
@@ -65,9 +62,7 @@ $ cat test/messages.txt
 375296660002,1,1;375291112233,1,1;Message #3;true
 375296660002,1,1;375291112234,1,1;Message #4;true
 375296660002,1,1;375291112235,1,1;Message #5;true
-</pre>
 
-<pre>
 ./smppload --file test/messages.txt
 </pre>
 
@@ -89,8 +84,6 @@ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;fals
 * Send 1 message with body "Hello there!" with log level INFO
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -v
-</pre>
-<pre>
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Stats:
@@ -106,8 +99,6 @@ INFO:  Unbound
 * Send 1 message with body "Hello there!" with log level DEBUG
 <pre>
 ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
-</pre>
-<pre>
 DEBUG: Options: [{port,2775},
                  {system_type,[]},
                  {system_id,"user"},
