@@ -1,7 +1,7 @@
 Installation
 ------------
 
-In order to run the smppload utility you need to have [Erlang](http://www.erlang.org/) installed
+In order to run the *smppload* utility you need to have [Erlang](http://www.erlang.org/) installed
 
 Usage
 -----
