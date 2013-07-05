@@ -23,7 +23,7 @@ Usage
 
 * Send a message with defined TON and NPI
 <pre>
-./smppload --source FromBank,5,0 --destination 375293332211 --body "Return our money, looser!"
+./smppload --source FromBank,5,0 --destination 375293332211,1,1 --body "Return our money, looser!"
 </pre>
 
 * Send a message with a random body
