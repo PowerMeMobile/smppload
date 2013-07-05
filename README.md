@@ -1,7 +1,7 @@
-Installation
-------------
+Prerequisites
+-------------
 
-In order to run the *smppload* utility you need to have [Erlang](http://www.erlang.org/), [rebar](https://github.com/basho/rebar), and make installed.
+In order to compile and run the *smppload* utility you need to have [Erlang](http://www.erlang.org/), [rebar](https://github.com/basho/rebar), and make installed.
 
 Compilation
 -----------
