@@ -1,8 +1,56 @@
+# send 1 message with the body "Hello there!" to localhost to standard SMPP port
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
+# the same as
+$ ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
+
+# send 1 message as TX
+$ ./smppload --bind_type tx --source 375296660002 --destination 375293332211 --body "Hello there!"
+
+# send 1 message with defined TON and NPI
+$ ./smppload --source FromBank,5,0 --destination 375293332211 --body "Return our money, looser!"
+
+# send 1 message with random body
+$ ./smppload --source 375296660002 --destination 375293332211
+
+# send 1 message with random body and length 25
+$ ./smppload --source 375296660002 --destination 375293332211 --length 25
+
+# send 1 multipart message with random body and length 160
+$ ./smppload --source 375296660002 --destination 375293332211 --length 160
+
+# send 100 messages with random body
+$ ./smppload --source 375296660002 --destination 375293332211 --count 100
+
+# send messages from file test/messages.txt
+$ cat test/messages.txt
+# source;destination;body;delivery
+# where
+#   source :: address
+#   destination :: address
+#   address :: addr[,ton,npi]
+#   body :: string, to use double semicolon (;;) in the body
+#   delivery :: true | false | 1 | 0
+
+375296660002,1,1;375291112231,1,1;Message #1;true
+375296660002,1,1;375291112232,1,1;Message #2;true
+375296660002,1,1;375291112233,1,1;Message #3;true
+375296660002,1,1;375291112234,1,1;Message #4;true
+375296660002,1,1;375291112235,1,1;Message #5;true
+
+$ ./smppload --file test/messages.txt
+
+# send messages from standard input
+$ cat test/messages.txt | ./smppload --file -
+
+
+# send messages dynamically generated messages from standard input
+$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./smppload --file -
+
 # send 1 message with body "Hello there!" with log level ERROR
-./smppload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
 
 # send 1 message with body "Hello there!" with log level INFO
-./smppload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!" -v
+./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -v
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Stats:
@@ -15,7 +63,7 @@ INFO:     Avg Rps:          20 mps
 INFO:  Unbound
 
 # send 1 message with body "Hello there!" with log level DEBUG
-./smppload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
 DEBUG: Options: [{port,2775},
                  {system_type,[]},
                  {system_id,"user"},
@@ -55,37 +103,3 @@ INFO:     Avg Rps:          23 mps
 DEBUG: Request: {unbind,[]}
 DEBUG: Response: {unbind_resp,0,3,[]}
 INFO:  Unbound
-
-# send 1 message with random body
-$ ./smppload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211
-
-# send 100 messages with random body
-$ ./smppload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --count 100
-
-# send 100 messages with random body length 25
-$ ./smppload --port 2775 --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --count 100 --length 25
-
-# send messages from file test/messages.txt
-cat test/messages.txt
-# source;destination;body;delivery
-# where
-#   source :: address
-#   destination :: address
-#   address :: addr[,ton,npi]
-#   body :: string, to use double semicolon (;;) in the body
-#   delivery :: true | false | 1 | 0
-
-375296660002,1,1;375291112231,1,1;Message #1;true
-375296660002,1,1;375291112232,1,1;Message #2;true
-375296660002,1,1;375291112233,1,1;Message #3;true
-375296660002,1,1;375291112234,1,1;Message #4;true
-375296660002,1,1;375291112235,1,1;Message #5;true
-
-$ ./smppload --port 2775 --system_type "" --system_id user --password password --file test/messages.txt
-
-# send messages from standard input
-$ cat test/messages.txt | ./smppload --port 2775 --system_type "" --system_id user --password password --file -
-
-
-# send messages dynamically generated messages from standard input
-$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./smppload --port 2775 --system_type "" --system_id user --password password --file -
