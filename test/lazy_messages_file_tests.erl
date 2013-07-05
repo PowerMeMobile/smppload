@@ -52,7 +52,7 @@ file_test() ->
 	#message{body = Body5, esm_class = Class5} = Msg5,
 	Beginning = "EB8Muy7hqOSmO6vVc694aqNBCOr75gNg8wDikK7IoMak7L4HdTOtMiZFyTegBP"
 				"Xc2N8pujGaCjFkCQX0whI0yByj8kY0g0MpHYbtFfPI9O9OELzxKrb3upTjB9r2"
-				"pNoj2MqQbWWHTdYwo9IWftCc204rI",
+				"pNoj2MqQbW",
 	%?debugFmt("~p~n", [Beginning]),
 	%?debugFmt("~p~n", [Body5]),
 	?assertMatch([_, _, _, _, _, _ | Beginning], Body5),
@@ -61,7 +61,7 @@ file_test() ->
 	%% long message part2
 	{ok, Msg6, State6} = lazy_messages_file:get_next(State5),
 	#message{body = Body6, esm_class = Class6} = Msg6,
-	Ending = "YyYPTRtPlesn",
+	Ending = "WHTdYwo9IWftCc204rIYyYPTRtPlesn",
 	%?debugFmt("~p~n", [Ending]),
 	%?debugFmt("~p~n", [Body6]),
 	?assertMatch([_, _, _, _, _, _ | Ending], Body6),

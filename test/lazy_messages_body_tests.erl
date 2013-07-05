@@ -33,7 +33,7 @@ long_body_test() ->
 
 	{ok, Msg1, State1} = lazy_messages_body:get_next(State0),
 	#message{body = Body1, esm_class = Class1} = Msg1,
-	Beginning = lists:seq(1, 153),
+	Beginning = lists:seq(1, 134),
 	%?debugFmt("~p~n", [Beginning]),
 	%?debugFmt("~p~n", [Body1]),
 	?assertMatch([_, _, _, _, _, _ | Beginning], Body1),
@@ -41,7 +41,7 @@ long_body_test() ->
 
 	{ok, Msg2, State2} = lazy_messages_body:get_next(State1),
 	#message{body = Body2, esm_class = Class2} = Msg2,
-	Ending = lists:seq(154, 165),
+	Ending = lists:seq(135, 165),
 	%?debugFmt("~p~n", [Ending]),
 	%?debugFmt("~p~n", [Body2]),
 	?assertMatch([_, _, _, _, _, _ | Ending], Body2),

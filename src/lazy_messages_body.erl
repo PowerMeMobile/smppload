@@ -11,7 +11,6 @@
 -include("lazy_messages.hrl").
 -include("smppload.hrl").
 -include("message.hrl").
--include_lib("oserl/include/oserl.hrl").
 
 -record(state, {
 	source,
@@ -65,7 +64,7 @@ get_next(State = #state{
 	count = Count,
 	delivery = Delivery,
 	parts = []
-}) when length(Body) =< ?SM_MAX_SIZE->
+}) when length(Body) =< ?MAX_MSG_LEN->
 	Message = #message{
 		source = Source,
 		destination = Destination,
@@ -94,7 +93,7 @@ get_next(State = #state{
 		[] ->
 			RefNum = smppload_ref_num:next(?MODULE),
 		    [Part | Parts1] =
-				smpp_sm:split([{short_message, Body}], RefNum, udh),
+				smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
 			Message = #message{
 				source = Source,
 				destination = Destination,

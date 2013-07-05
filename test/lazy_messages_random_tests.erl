@@ -36,7 +36,7 @@ long_body_test() ->
 	#message{body = Body1, esm_class = Class1} = Msg1,
 	Beginning = "EB8Muy7hqOSmO6vVc694aqNBCOr75gNg8wDikK7IoMak7L4HdTOtMiZFyTegBP"
 				"Xc2N8pujGaCjFkCQX0whI0yByj8kY0g0MpHYbtFfPI9O9OELzxKrb3upTjB9r2"
-				"pNoj2MqQbWWHTdYwo9IWftCc204rI",
+				"pNoj2MqQbW",
 	%?debugFmt("~p~n", [Beginning]),
 	%?debugFmt("~p~n", [Body1]),
 	?assertMatch([_, _, _, _, _, _ | Beginning], Body1),
@@ -44,7 +44,7 @@ long_body_test() ->
 
 	{ok, Msg2, State2} = lazy_messages_random:get_next(State1),
 	#message{body = Body2, esm_class = Class2} = Msg2,
-	Ending = "YyYPTRtPlesn",
+	Ending = "WHTdYwo9IWftCc204rIYyYPTRtPlesn",
 	%?debugFmt("~p~n", [Ending]),
 	%?debugFmt("~p~n", [Body2]),
 	?assertMatch([_, _, _, _, _, _ | Ending], Body2),

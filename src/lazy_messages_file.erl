@@ -65,13 +65,13 @@ get_next(State = #state{fd = Fd, parts = []}) ->
 					Body = Message0#message.body,
 					Delivery = Message0#message.delivery,
 
-					case length(Body) =< ?SM_MAX_SIZE of
+					case length(Body) =< ?MAX_MSG_LEN of
 						true ->
 							{ok, Message0, State};
 						false ->
 							RefNum = smppload_ref_num:next(?MODULE),
 						    [Part | Parts] =
-								smpp_sm:split([{short_message, Body}], RefNum, udh),
+								smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
 							Message1 = #message{
 								source = Source,
 								destination = Destination,
