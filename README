@@ -1,6 +1,7 @@
 # send 1 message with the body "Hello there!" to localhost to standard SMPP port
 $ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
-# the same as
+
+# the above is the same as
 $ ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
 
 # send 1 message as TX
@@ -41,7 +42,6 @@ $ ./smppload --file test/messages.txt
 
 # send messages from standard input
 $ cat test/messages.txt | ./smppload --file -
-
 
 # send messages dynamically generated messages from standard input
 $ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./smppload --file -
