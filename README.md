@@ -50,12 +50,12 @@ Usage
 <pre>
 cat test/messages.txt
 \# source;destination;body;delivery
-# where
-#   source :: address
-#   destination :: address
-#   address :: addr[,ton,npi]
-#   body :: string, to use double semicolon (;;) in the body
-#   delivery :: true | false | 1 | 0
+\# where
+\#   source :: address
+\#   destination :: address
+\#   address :: addr[,ton,npi]
+\#   body :: string, to use double semicolon (;;) in the body
+\#   delivery :: true | false | 1 | 0
 
 375296660002,1,1;375291112231,1,1;Message #1;true
 375296660002,1,1;375291112232,1,1;Message #2;true
