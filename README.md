@@ -7,11 +7,14 @@ Usage
 -----
 
 * Send 1 message with the body "Hello there!" to localhost and the standard SMPP port
-
+<pre>
 $ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
+</pre>
 
 * The above is the same as
+<pre>
 $ ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
+</pre>
 
 * Send 1 message as TX
 $ ./smppload --bind_type tx --source 375296660002 --destination 375293332211 --body "Hello there!"
