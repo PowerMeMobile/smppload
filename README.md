@@ -6,9 +6,9 @@ In order to run the smppload utility you need [Erlang](http://www.erlang.org/) i
 Usage
 -----
 
-Send 1 message with the body "Hello there!" to localhost to standard SMPP port
+Send 1 message with the body "Hello there!" to localhost and the standard SMPP port
 
-  $ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
+   $ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
 
 # the above is the same as
 $ ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
