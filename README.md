@@ -1,17 +1,16 @@
-Prerequisites
--------------
+## Prerequisites
 
-In order to compile and run the *smppload* utility you need to have [Erlang](http://www.erlang.org/), [rebar](https://github.com/basho/rebar), and make installed.
+In order to compile and run the **smppload** utility you need to have [Erlang](http://www.erlang.org/), [rebar](https://github.com/basho/rebar), and make installed.
 
-Compilation
------------
+## Compilation
 
 <pre>
+git clone https://github.com/PowerMeMobile/smppload.git
+cd smppload
 make escriptize
 </pre>
 
-Usage
------
+## Usage
 
 * Send a message with the body "Hello there!" to localhost and the standard SMPP port
 <pre>
@@ -147,8 +146,7 @@ DEBUG: Response: {unbind_resp,0,3,[]}
 INFO:  Unbound
 </pre>
 
-Known issues and limitations
-----------------------------
+## Known issues and limitations
 
 * Default encoding is Latin 1. Max message length is 140 chars, max segment length is 134 chars
 * Don't send multiple messages to the same destination number in the same session.
