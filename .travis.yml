@@ -1,0 +1,9 @@
+language: erlang
+otp_release:
+  - R15B03
+branches:
+  only:
+    - master
+notifications:
+  email:
+    - d.klionsky@dev.powermemobile.com
