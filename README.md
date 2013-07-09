@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/PowerMeMobile/smppload.png?branch=master)](https://travis-ci.org/PowerMeMobile/smppload)
+
 ## Prerequisites
 
 In order to compile and run the **smppload** utility you need to have [Erlang](http://www.erlang.org/), [rebar](https://github.com/basho/rebar), and make installed.
