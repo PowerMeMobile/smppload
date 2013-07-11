@@ -18,9 +18,17 @@
 parse_address(String) ->
 	case string:tokens(String, ",") of
 		[Addr, Ton, Npi] ->
-			#address{addr = Addr, ton = list_to_integer(Ton), npi = list_to_integer(Npi)};
+			#address{
+				addr = Addr,
+				ton = list_to_integer(Ton),
+				npi = list_to_integer(Npi)
+			};
 		[Addr] ->
-			#address{addr = Addr, ton = ?TON_INTERNATIONAL, npi = ?NPI_ISDN};
+			#address{
+				addr = Addr,
+				ton = ?TON_INTERNATIONAL,
+				npi = ?NPI_ISDN
+			};
 		_ ->
 			?ABORT("Bad address: ~p~n", [String])
 	end.

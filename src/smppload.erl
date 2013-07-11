@@ -199,9 +199,9 @@ send_message(Msg) ->
 				[];
 			_ ->
 				[
-					{source_addr_ton    , Msg#message.source#address.ton},
-					{source_addr_npi    , Msg#message.source#address.npi},
-					{source_addr        , Msg#message.source#address.addr}
+					{source_addr_ton , Msg#message.source#address.ton},
+					{source_addr_npi , Msg#message.source#address.npi},
+					{source_addr     , Msg#message.source#address.addr}
 				]
 		end,
 	RegDlr =
@@ -238,8 +238,12 @@ send_par_messages(State0) ->
 	process_flag(trap_exit, true),
 	ReplyTo = self(),
 	ReplyRef = make_ref(),
-	{ok, MsgSent, State1} = send_par_init_messages(ReplyTo, ReplyRef, ?MAX_OUTSTANDING_SUBMITS, 0, State0),
-	send_par_messages_and_collect_replies(ReplyTo, ReplyRef, ?FIRST_REPLY_TIMEOUT, MsgSent, State1, stats:new()).
+	{ok, MsgSent, State1} = send_par_init_messages(
+		ReplyTo, ReplyRef, ?MAX_OUTSTANDING_SUBMITS, 0, State0
+	),
+	send_par_messages_and_collect_replies(
+		ReplyTo, ReplyRef, ?FIRST_REPLY_TIMEOUT, MsgSent, State1, stats:new()
+	).
 
 %% start phase
 send_par_init_messages(_ReplyTo, _ReplyRef, MaxMsgCnt, MaxMsgCnt, State0) ->
@@ -247,14 +251,22 @@ send_par_init_messages(_ReplyTo, _ReplyRef, MaxMsgCnt, MaxMsgCnt, State0) ->
 send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt, State0) ->
 	case lazy_messages:get_next(State0) of
 		{ok, Submit, State1} ->
-			spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
-			send_par_init_messages(ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt + 1, State1);
+			spawn_link(
+				fun() ->
+					send_message_and_reply(ReplyTo, ReplyRef, Submit)
+				end
+			),
+			send_par_init_messages(
+				ReplyTo, ReplyRef, MaxMsgCnt, MsgCnt + 1, State1
+			);
 		{no_more, State1} ->
 			{ok, MsgCnt, State1}
 	end.
 
 %% collect and send new messages phase.
-send_par_messages_and_collect_replies(_ReplyTo, _ReplyRef, _Timeout, 0, State0, Stats0) ->
+send_par_messages_and_collect_replies(
+	_ReplyTo, _ReplyRef, _Timeout, 0, State0, Stats0
+) ->
 	Stats1 =
 		case smppload_esme:get_avg_rps() of
 			{ok, AvgRps} ->
@@ -263,11 +275,15 @@ send_par_messages_and_collect_replies(_ReplyTo, _ReplyRef, _Timeout, 0, State0, 
 				Stats0
 		end,
 	{ok, State0, Stats1};
-send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, MsgSent, State0, Stats0) ->
+send_par_messages_and_collect_replies(
+	ReplyTo, ReplyRef, Timeout, MsgSent, State0, Stats0
+) ->
 	receive
 		{ReplyRef, Stats} ->
 			send_par_messages_and_collect_replies(
-				ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, MsgSent, State0, stats:add(Stats0, Stats));
+				ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT,
+				MsgSent, State0, stats:add(Stats0, Stats)
+			);
 
 		{'EXIT', _Pid, Reason} ->
 			Stats1 =
@@ -280,12 +296,20 @@ send_par_messages_and_collect_replies(ReplyTo, ReplyRef, Timeout, MsgSent, State
 				end,
 			case lazy_messages:get_next(State0) of
 				{ok, Submit, State1} ->
-					spawn_link(fun() -> send_message_and_reply(ReplyTo, ReplyRef, Submit) end),
+					spawn_link(
+						fun() ->
+							send_message_and_reply(ReplyTo, ReplyRef, Submit)
+						end
+					),
 					send_par_messages_and_collect_replies(
-						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, MsgSent - 1 + 1, State1, Stats1);
+						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT,
+						MsgSent - 1 + 1, State1, Stats1
+					);
 				{no_more, State1} ->
 					send_par_messages_and_collect_replies(
-						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT, MsgSent - 1, State1, Stats0)
+						ReplyTo, ReplyRef, ?REST_REPLIES_TIMEOUT,
+						MsgSent - 1, State1, Stats0
+					)
 			end
 	after
 		Timeout ->

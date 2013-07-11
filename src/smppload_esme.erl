@@ -121,7 +121,8 @@ unbind() ->
 			{error, Reason}
 	end.
 
--spec submit_sm(plist()) -> {ok, out_msg_id(), delivery_res()} | {error, reason()}.
+-spec submit_sm(plist()) ->
+	{ok, out_msg_id(), delivery_res()} | {error, reason()}.
 submit_sm(Params) ->
 	gen_esme:call(?MODULE, {submit_sm, Params, [], ?LOW}, ?SUBMIT_TIMEOUT).
 
@@ -152,20 +153,32 @@ init([]) ->
 
 handle_call({bind_transmitter, Params}, From, State) ->
 	gen_esme:bind_transmitter(?MODULE, Params, []),
-	{noreply, State#state{bind_from = From, bind_req = {bind_transmitter, Params}}};
+	{noreply, State#state{
+		bind_from = From, bind_req = {bind_transmitter, Params}
+	}};
 handle_call({bind_receiver, Params}, From, State) ->
 	gen_esme:bind_receiver(?MODULE, Params, []),
-	{noreply, State#state{bind_from = From, bind_req = {bind_receiver, Params}}};
+	{noreply, State#state{
+		bind_from = From, bind_req = {bind_receiver, Params}
+	}};
 handle_call({bind_transceiver, Params}, From, State) ->
 	gen_esme:bind_transceiver(?MODULE, Params, []),
-	{noreply, State#state{bind_from = From, bind_req = {bind_transceiver, Params}}};
+	{noreply, State#state{
+		bind_from = From, bind_req = {bind_transceiver, Params}
+	}};
 handle_call({unbind, Params}, From, State) ->
 	gen_esme:unbind(?MODULE, Params),
-	{noreply, State#state{unbind_from = From, unbind_req = {unbind, Params}}};
+	{noreply, State#state{
+		unbind_from = From, unbind_req = {unbind, Params}
+	}};
 handle_call({submit_sm, Params, Args, Priority}, From, State) ->
 	gen_esme:queue_submit_sm(?MODULE, Params, Args, Priority),
 	Req = {submit_sm, Params},
-	{noreply, State#state{submit_reqs = [{Req, From, undefined, undefined} | State#state.submit_reqs]}}.
+	{noreply, State#state{
+		submit_reqs = [
+			{Req, From, undefined, undefined} | State#state.submit_reqs
+		]
+	}}.
 
 handle_cast(stop, State) ->
 	gen_esme:close(?MODULE),
@@ -309,7 +322,9 @@ handle_resp({ok, PduResp}, ReqRef, State) ->
 				TimerRef = erlang:start_timer(?DELIVERY_TIMEOUT, self(), ReqRef),
 				State#state{
 					submit_reqs = [{Req, From, ReqRef, OutMsgId} | Reqs],
-					delivery_reqs = [{ReqRef, TimerRef} | State#state.delivery_reqs]
+					delivery_reqs = [
+						{ReqRef, TimerRef} | State#state.delivery_reqs
+					]
 				}
 		end,
 	{noreply, State1};
