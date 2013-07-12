@@ -151,4 +151,3 @@ INFO:  Unbound
 ## Known issues and limitations
 
 * Default encoding is Latin 1. Max message length is 140 chars, max segment length is 134 chars
-* Don't send multiple messages to the same destination number in the same session.
