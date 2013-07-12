@@ -192,7 +192,7 @@ handle_info({timeout, TimerRef, ReqRef}, State) ->
 	{{Req, From, ReqRef, OutMsgId}, SubmitReqs1} =
 		cl_lists:keyextract(ReqRef, 3, SubmitReqs0),
 	{{ReqRef, TimerRef}, DeliveryReqs1} =
-			cl_lists:keyextract(ReqRef, 1, DeliveryReqs0),
+		cl_lists:keyextract(ReqRef, 1, DeliveryReqs0),
 	?ERROR("Request: ~p~n", [Req]),
 	?ERROR("Delivery timeout~n", []),
 
@@ -354,8 +354,13 @@ handle_deliver_sm(PduDlr, _From, State0) ->
 	{reply, Reply, State1}.
 
 -spec handle_closed(any(), any()) -> any().
+handle_closed(normal, State) ->
+	{stop, normal, State};
+handle_closed(closed, State) ->
+	?ERROR("Session closed by remote host~n", []),
+	{stop, closed, State};
 handle_closed(Reason, State) ->
-	?DEBUG("Session closed with: ~p~n", [Reason]),
+	?ERROR("Session closed with: ~p~n", [Reason]),
 	{stop, Reason, State}.
 
 -spec handle_unbind(any(), any(), any()) -> any().
