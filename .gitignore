@@ -4,3 +4,4 @@ ebin/*
 priv/*
 smppload
 .eunit/*
+erl_crash.dump
