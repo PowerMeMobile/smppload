@@ -283,7 +283,7 @@ handle_resp({error, {command_status, Status}}, ReqRef, State = #state{
 	unbind_req = Req
 }) ->
 	?DEBUG("Request: ~p~n", [Req]),
-	?ERROR("Bind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
+	?ERROR("Unbind failed with: (~p) ~s~n", [Status, smpp_error:format(Status)]),
 	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	gen_esme:close(?MODULE),
 	{noreply, State#state{
