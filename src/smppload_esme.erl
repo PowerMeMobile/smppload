@@ -269,7 +269,7 @@ handle_resp({error, {command_status, Status}}, ReqRef, State = #state{
 	bind_req = Req
 }) ->
 	?DEBUG("Request: ~p~n", [Req]),
-	?ERROR("Bind failed with: (0x~8.16.0Bp) ~s~n", [Status, smppload_error:format(Status)]),
+	?ERROR("Bind failed with: (0x~8.16.0B) ~s~n", [Status, smppload_error:format(Status)]),
 	gen_esme:reply(From, {error, {error_status_code, Status}}),
 	gen_esme:close(?MODULE),
 	{noreply, State#state{
