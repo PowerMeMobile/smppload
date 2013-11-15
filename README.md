@@ -7,9 +7,9 @@ In order to compile and run the **smppload** utility you need to have [Erlang](h
 ## Compilation
 
 <pre>
-git clone https://github.com/PowerMeMobile/smppload.git
-cd smppload
-make escriptize
+$ git clone https://github.com/PowerMeMobile/smppload.git
+$ cd smppload
+$ make escriptize
 </pre>
 
 ## Usage
@@ -17,8 +17,8 @@ make escriptize
 * Help message
 
 <pre>
-./smppload
-SMPP Loader from Power Alley Gateway Suite (0.10.3)
+$ ./smppload
+SMPP Loader from Power Alley Gateway Suite (0.10.4)
 Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-B [&lt;bind_type&gt;]] [-u [&lt;system_id&gt;]]
                                 [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
@@ -51,47 +51,47 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
 
 * Send a message with the body "Hello there!" to localhost and the standard SMPP port
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
 * The above is the same as
 <pre>
-./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
+$ ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type "" --system_id user --password password --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
 * Send a message as TX
 <pre>
-./smppload --bind_type tx --source 375296660002 --destination 375293332211 --body "Hello there!"
+$ ./smppload --bind_type tx --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
 * Send a message with defined TON and NPI
 <pre>
-./smppload --source FromBank,5,0 --destination 375293332211,1,1 --body "Return our money, looser!"
+$ ./smppload --source FromBank,5,0 --destination 375293332211,1,1 --body "Return our money, looser!"
 </pre>
 
 * Send a message with a random body
 <pre>
-./smppload --source 375296660002 --destination 375293332211
+$ ./smppload --source 375296660002 --destination 375293332211
 </pre>
 
 * Send a message with a random body and length 25
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --length 25
+$ ./smppload --source 375296660002 --destination 375293332211 --length 25
 </pre>
 
 * Send a multipart message with a random body and length 160
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --length 160
+$ ./smppload --source 375296660002 --destination 375293332211 --length 160
 </pre>
 
 * Send 100 messages with random bodys
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --count 100
+$ ./smppload --source 375296660002 --destination 375293332211 --count 100
 </pre>
 
 * Send messages from file test/messages.txt
 <pre>
-cat test/messages.txt
+$ cat test/messages.txt
 # source;destination;body;delivery
 # where
 #   source :: address
@@ -104,29 +104,27 @@ cat test/messages.txt
 375296660002,1,1;375291112233,1,1;Message #3;true
 375296660002,1,1;375291112234,1,1;Message #4;true
 375296660002,1,1;375291112235,1,1;Message #5;true
-./smppload --file test/messages.txt
+$ ./smppload --file test/messages.txt
 </pre>
 
 * Send messages from standard input
 <pre>
-cat test/messages.txt | ./smppload --file -
+$ cat test/messages.txt | ./smppload --file -
 </pre>
 
 * Send messages dynamically generated messages from standard input
 <pre>
-for i in `seq 1 100`; do
-	printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i
-done | ./smppload --file -
+$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./smppload --file -
 </pre>
 
 * Send a message with ERROR (default) log level
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!"
 </pre>
 
 * Send a message with INFO log level
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -v
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -v
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Stats:
@@ -141,7 +139,7 @@ INFO:  Unbound
 
 * Send a message with DEBUG log level
 <pre>
-./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Hello there!" -vv
 DEBUG: Options: [{port,2775},
                  {system_type,[]},
                  {system_id,"user"},
