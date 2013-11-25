@@ -228,8 +228,20 @@ handle_req({unbind, _Params}, _Args, ReqRef, State) ->
 	{noreply, State#state{bind_type = undefined, unbind_ref = ReqRef}};
 handle_req(Req, _Args, ReqRef, State) ->
 	{{Req, From, undefined, undefined}, Reqs} =
-		cl_lists:keyextract(Req, 1, State#state.submit_reqs),
+		extract_unref_req(Req, State#state.submit_reqs),
 	{noreply, State#state{submit_reqs = [{Req, From, ReqRef, undefined} | Reqs]}}.
+
+extract_unref_req(Req, SmReqs) ->
+	extract_unref_req(Req, SmReqs, []).
+
+extract_unref_req(Req, [{Req, _, undefined, _} = SmReq | SmReqs], Acc) ->
+	{SmReq, SmReqs ++ Acc};
+extract_unref_req(Req, [{Req, _, _ReqRef, _} = SmReq | SmReqs], Acc) ->
+	extract_unref_req(Req, SmReqs, [SmReq | Acc]);
+extract_unref_req(Req, [SmReq | SmReqs], Acc) ->
+	extract_unref_req(Req, SmReqs, [SmReq | Acc]);
+extract_unref_req(_, [], _) ->
+	false.
 
 -spec handle_resp(any(), reference(), any()) -> any().
 handle_resp({ok, PduResp}, ReqRef, State = #state{
