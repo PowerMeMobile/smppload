@@ -74,8 +74,8 @@ process_opts(ScriptName, Opts, OptSpecs) ->
 			?DEBUG("MessagesModule: ~p~n", [MessagesModule]),
 
 			%% start needed applications.
-			ok = application:start(common_lib),
-			ok = application:start(smppload),
+			application:start(common_lib),
+			application:start(smppload),
 
 			{ok, _} = smppload_esme:start(),
 
