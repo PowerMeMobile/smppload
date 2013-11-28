@@ -1,6 +1,6 @@
--module(lazy_messages_random).
+-module(smppload_lazy_messages_random).
 
--behaviour(lazy_messages).
+-behaviour(smppload_lazy_messages).
 
 -export([
 	init/1,
@@ -8,7 +8,7 @@
 	get_next/1
 ]).
 
--include("lazy_messages.hrl").
+-include("smppload_lazy_messages.hrl").
 -include("message.hrl").
 -include("smppload.hrl").
 
@@ -33,9 +33,9 @@ init(Config) ->
 			undefined ->
 				undefined;
 			Address ->
-				parser:parse_address(Address)
+				smppload_parser:parse_address(Address)
 		end,
-	Destination = parser:parse_address(?gv(destination, Config)),
+	Destination = smppload_parser:parse_address(?gv(destination, Config)),
 	Count = ?gv(count, Config),
 	Length = ?gv(length, Config, ?MAX_MSG_LEN),
 	Delivery = ?gv(delivery, Config),

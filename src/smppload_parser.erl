@@ -1,4 +1,4 @@
--module(parser).
+-module(smppload_parser).
 
 -export([
 	parse_address/1,

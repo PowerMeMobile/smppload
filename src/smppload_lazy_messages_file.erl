@@ -1,6 +1,6 @@
--module(lazy_messages_file).
+-module(smppload_lazy_messages_file).
 
--behaviour(lazy_messages).
+-behaviour(smppload_lazy_messages).
 
 -export([
 	init/1,
@@ -9,7 +9,7 @@
 ]).
 
 -include("smppload.hrl").
--include("lazy_messages.hrl").
+-include("smppload_lazy_messages.hrl").
 -include("message.hrl").
 -include_lib("oserl/include/oserl.hrl").
 
@@ -58,7 +58,7 @@ get_next(State = #state{fd = Fd, parts = []}) ->
 					%% handle comments.
 					get_next(State);
 				Stripped ->
-					Message0 = parser:parse_message(Stripped),
+					Message0 = smppload_parser:parse_message(Stripped),
 
 					Source = Message0#message.source,
 					Destination = Message0#message.destination,

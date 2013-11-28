@@ -1,5 +1,5 @@
--ifndef(lazy_messages_hrl).
--define(lazy_messages_hrl, 1).
+-ifndef(smppload_lazy_messages_hrl).
+-define(smppload_lazy_messages_hrl, 1).
 
 -type key() :: atom().
 -type value() :: term().

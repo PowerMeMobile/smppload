@@ -1,4 +1,4 @@
--module(lazy_messages).
+-module(smppload_lazy_messages).
 
 -export([
 	init/2,
@@ -6,7 +6,7 @@
 	get_next/1
 ]).
 
--include("lazy_messages.hrl").
+-include("smppload_lazy_messages.hrl").
 -include("message.hrl").
 
 -callback init(config()) -> {ok, state()} | {error, reason()}.

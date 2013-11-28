@@ -1,4 +1,4 @@
--module(stats).
+-module(smppload_stats).
 
 -export([
 	new/0,
