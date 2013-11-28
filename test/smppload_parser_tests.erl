@@ -14,6 +14,28 @@ parse_simple_address_test() ->
 	Address = smppload_parser:parse_address("375293332211"),
 	?assertEqual(#address{addr = "375293332211", ton = 1, npi = 1}, Address).
 
+-spec parse_random_address_with_prefix_test() -> ok | {error, term()}.
+parse_random_address_with_prefix_test() ->
+	Address = smppload_parser:parse_address("37529:7"),
+
+	Expected = #address{
+		addr = #rand_addr{prefix = "37529", rand_len = 7},
+		ton = 1,
+		npi = 1
+	},
+	?assertEqual(Expected, Address).
+
+-spec parse_random_address_without_prefix_test() -> ok | {error, term()}.
+parse_random_address_without_prefix_test() ->
+	Address = smppload_parser:parse_address(":12"),
+
+	Expected = #address{
+		addr = #rand_addr{prefix = "", rand_len = 12},
+		ton = 1,
+		npi = 1
+	},
+	?assertEqual(Expected, Address).
+
 -spec parse_full_address_test() -> ok | {error, term()}.
 parse_full_address_test() ->
 	Address = smppload_parser:parse_address("FromBank,5,0"),

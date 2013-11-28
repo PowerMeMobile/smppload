@@ -66,8 +66,8 @@ get_next(State = #state{
 }) when Length =< ?MAX_MSG_LEN ->
 	Body = smppload_random:get_alnum_string(Length),
 	Message = #message{
-		source = Source,
-		destination = Destination,
+		source = smppload_utils:process_address(Source),
+		destination = smppload_utils:process_address(Destination),
 		body = Body,
 		delivery = Delivery
 	},
@@ -83,8 +83,8 @@ get_next(State = #state{
 	case Parts0 of
 		[Part | Parts1] ->
 			Message = #message{
-				source = Source,
-				destination = Destination,
+				source = smppload_utils:process_address(Source),
+				destination = smppload_utils:process_address(Destination),
 				body = ?gv(short_message, Part),
 				esm_class = ?gv(esm_class, Part),
 				delivery = Delivery
@@ -96,8 +96,8 @@ get_next(State = #state{
 		    [Part | Parts1] =
 				smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
 			Message = #message{
-				source = Source,
-				destination = Destination,
+				source = smppload_utils:process_address(Source),
+				destination = smppload_utils:process_address(Destination),
 				body = ?gv(short_message, Part),
 				esm_class = ?gv(esm_class, Part),
 				delivery = Delivery

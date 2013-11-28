@@ -19,13 +19,13 @@ parse_address(String) ->
 	case string:tokens(String, ",") of
 		[Addr, Ton, Npi] ->
 			#address{
-				addr = Addr,
+				addr = parse_addr(Addr),
 				ton = list_to_integer(Ton),
 				npi = list_to_integer(Npi)
 			};
 		[Addr] ->
 			#address{
-				addr = Addr,
+				addr = parse_addr(Addr),
 				ton = ?TON_INTERNATIONAL,
 				npi = ?NPI_ISDN
 			};
@@ -73,3 +73,31 @@ parse_message([$;,Char | Chars], Chunk, Chunks) ->
 	parse_message(Chars, [Char], [lists:reverse(Chunk) | Chunks]);
 parse_message([Char | Chars], Chunk, Chunks) ->
 	parse_message(Chars, [Char | Chunk], Chunks).
+
+parse_addr(Addr) ->
+	case lists:member($:, Addr) of
+		false ->
+			Addr;
+		true ->
+			case lists:splitwith(fun(C) -> C =/= $: end, Addr) of
+				{_, ":"} ->
+					?ABORT("Bad addr: ~p~n", [Addr]);
+				{Prefix, ":" ++ RandLen} ->
+					case check_integer(RandLen) of
+						true ->
+							#rand_addr{
+								prefix = Prefix,
+								rand_len = list_to_integer(RandLen)
+							};
+						false ->
+							?ABORT("Bad addr: ~p~n", [Addr])
+					end
+			end
+	end.
+
+check_integer(Str) ->
+	try list_to_integer(Str) of
+		_ -> true
+	catch
+		_:_ -> false
+	end.

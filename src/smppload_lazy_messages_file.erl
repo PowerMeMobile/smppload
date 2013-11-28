@@ -73,8 +73,8 @@ get_next(State = #state{fd = Fd, parts = []}) ->
 						    [Part | Parts] =
 								smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
 							Message1 = #message{
-								source = Source,
-								destination = Destination,
+								source = smppload_utils:process_address(Source),
+								destination = smppload_utils:process_address(Destination),
 								body = ?gv(short_message, Part),
 								esm_class = ?gv(esm_class, Part),
 								delivery = Delivery
@@ -97,8 +97,8 @@ get_next(State = #state{
 	delivery = Delivery
 }) ->
 	Message = #message{
-		source = Source,
-		destination = Destination,
+		source = smppload_utils:process_address(Source),
+		destination = smppload_utils:process_address(Destination),
 		body = ?gv(short_message, Part),
 		esm_class = ?gv(esm_class, Part),
 		delivery = Delivery
@@ -116,8 +116,8 @@ get_next(State = #state{
 	delivery = Delivery
 }) ->
 	Message = #message{
-		source = Source,
-		destination = Destination,
+		source = smppload_utils:process_address(Source),
+		destination = smppload_utils:process_address(Destination),
 		body = ?gv(short_message, Part),
 		esm_class = ?gv(esm_class, Part),
 		delivery = Delivery
