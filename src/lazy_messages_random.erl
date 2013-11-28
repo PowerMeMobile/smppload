@@ -13,7 +13,6 @@
 -include("smppload.hrl").
 
 -record(state, {
-	seed,
 	source,
 	destination,
 	count,
@@ -29,7 +28,6 @@
 
 -spec init(config()) -> {ok, state()}.
 init(Config) ->
-	Seed = ?gv(seed, Config, now()),
 	Source =
 		case ?gv(source, Config) of
 			undefined ->
@@ -42,7 +40,6 @@ init(Config) ->
 	Length = ?gv(length, Config, ?MAX_MSG_LEN),
 	Delivery = ?gv(delivery, Config),
 	{ok, #state{
-		seed = Seed,
 		source = Source,
 		destination = Destination,
 		count = Count,
@@ -61,26 +58,21 @@ get_next(State = #state{
 }) when Count =< 0, length(Parts) =:= 0 ->
 	{no_more, State};
 get_next(State = #state{
-	seed = Seed0,
 	source = Source,
 	destination = Destination,
 	count = Count,
 	length = Length,
 	delivery = Delivery
 }) when Length =< ?MAX_MSG_LEN ->
-	{Body, Seed1}  = build_random_body(Length, Seed0),
+	Body = smppload_random:get_alnum_string(Length),
 	Message = #message{
 		source = Source,
 		destination = Destination,
 		body = Body,
 		delivery = Delivery
 	},
-	{ok, Message, State#state{
-		seed = Seed1,
-		count = Count - 1
-	}};
+	{ok, Message, State#state{count = Count - 1}};
 get_next(State = #state{
-	seed = Seed0,
 	source = Source,
 	destination = Destination,
 	count = Count,
@@ -99,7 +91,7 @@ get_next(State = #state{
 			},
 			{ok, Message, State#state{parts = Parts1}};
 		[] ->
-			{Body, Seed1} = build_random_body(Length, Seed0),
+			Body = smppload_random:get_alnum_string(Length),
 			RefNum = smppload_ref_num:next(?MODULE),
 		    [Part | Parts1] =
 				smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
@@ -110,29 +102,5 @@ get_next(State = #state{
 				esm_class = ?gv(esm_class, Part),
 				delivery = Delivery
 			},
-			{ok, Message, State#state{
-				seed = Seed1,
-				count = Count - 1,
-				parts = Parts1
-			}}
-	end.
-
-%% ===================================================================
-%% Internal
-%% ===================================================================
-
-build_random_body(Length, Seed) ->
-	build_random_body(Length, "", Seed).
-
-build_random_body(Length, Body, Seed) when length(Body) =:= Length ->
-	{Body, Seed};
-build_random_body(Length, Body, Seed0) ->
-	{R, Seed1} = random:uniform_s($z, Seed0),
-	if
-		(R >= $0 andalso R =< $9) orelse
-		(R >= $A andalso R =< $Z) orelse
-		(R >= $a andalso R =< $z) ->
-			build_random_body(Length, [R | Body], Seed1);
-		true ->
-			build_random_body(Length, Body, Seed1)
+			{ok, Message, State#state{count = Count - 1, parts = Parts1}}
 	end.

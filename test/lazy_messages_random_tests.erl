@@ -12,7 +12,8 @@
 
 -spec full_test() -> ok | {error, term()}.
 full_test() ->
-	Config = [{seed, {1,1,1}}, {source, "s"}, {destination, "d"}, {delivery, true}, {count, 3}, {length, 5}],
+	Config = [{source, "s"}, {destination, "d"}, {delivery, true}, {count, 3}, {length, 5}],
+	{ok, _} = smppload_random:start_link({1, 1, 1}),
 	{ok, State0} = lazy_messages_random:init(Config),
 	{ok, Msg, State1} = lazy_messages_random:get_next(State0),
 	#message{source = Source, destination = Destination, body = Body1, delivery = Delivery} = Msg,
@@ -25,11 +26,13 @@ full_test() ->
 	{ok, #message{body = Body3}, State3} = lazy_messages_random:get_next(State2),
 	?assertEqual("4rIYy", Body3),
 	{no_more, State4} = lazy_messages_random:get_next(State3),
-	ok = lazy_messages_random:deinit(State4).
+	ok = lazy_messages_random:deinit(State4),
+	ok = smppload_random:stop().
 
 -spec long_body_test() -> ok | {error, term()}.
 long_body_test() ->
-	Config = [{seed, {1,1,1}}, {source, "s"}, {destination, "d"}, {count, 1}, {length, 165}],
+	Config = [{source, "s"}, {destination, "d"}, {count, 1}, {length, 165}],
+	{ok, _} = smppload_random:start_link({1, 1, 1}),
 	{ok, State0} = lazy_messages_random:init(Config),
 
 	{ok, Msg1, State1} = lazy_messages_random:get_next(State0),
@@ -51,17 +54,20 @@ long_body_test() ->
 	?assert(Class2 =/= 0),
 
 	{no_more, State3} = lazy_messages_random:get_next(State2),
-	ok = lazy_messages_body:deinit(State3).
+	ok = lazy_messages_body:deinit(State3),
+	ok = smppload_random:stop().
 
 -spec no_source_test() -> ok | {error, term()}.
 no_source_test() ->
 	Config = [{destination, "d"}, {body, "b"}, {delivery, true}, {count, 1}],
+	{ok, _} = smppload_random:start_link({1, 1, 1}),
 	{ok, State0} = lazy_messages_random:init(Config),
 	{ok, Msg, State1} = lazy_messages_random:get_next(State0),
 	#message{source = Source} = Msg,
 	?assertEqual(undefined, Source),
 	{no_more, State2} = lazy_messages_random:get_next(State1),
-	ok = lazy_messages_random:deinit(State2).
+	ok = lazy_messages_random:deinit(State2),
+	ok = smppload_random:stop().
 
 %% ===================================================================
 %% Tests end
