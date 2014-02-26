@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-In order to compile and run the **smppload** utility you need to have [Erlang](http://www.erlang.org/), [rebar](https://github.com/basho/rebar), and make installed.
+In order to compile and run the **smppload** utility you need to have [Erlang](http://www.erlang.org/) and make installed.
 
 ## Compilation
 
@@ -18,7 +18,7 @@ $ make escriptize
 
 <pre>
 $ ./smppload
-SMPP Loader from Power Alley Gateway Suite (0.10.6)
+SMPP Loader from Power Alley Gateway Suite (0.10.8)
 Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-B [&lt;bind_type&gt;]] [-u [&lt;system_id&gt;]]
                                 [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
