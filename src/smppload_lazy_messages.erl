@@ -9,9 +9,12 @@
 -include("smppload_lazy_messages.hrl").
 -include("message.hrl").
 
--callback init(config()) -> {ok, state()} | {error, reason()}.
--callback deinit(state()) -> ok.
--callback get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
+-export([behaviour_info/1]).
+-spec behaviour_info(atom()) -> [{atom(), arity()}] | undefined.
+behaviour_info(callbacks) ->
+    [{init, 1}, {deinit, 1}, {get_next, 1}];
+behaviour_info(_) ->
+    undefined.
 
 -record(state, {
 	mod,
