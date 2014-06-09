@@ -1,12 +1,12 @@
 {application, smppload, [
-	{description, "SMPP Loader from Power Alley Gateway Suite"},
-	{vsn, "0.10.8"},
-	{registered, []},
-	{applications, [
-		kernel,
-		stdlib,
-		common_lib
-	]},
-	{mod, {smppload_app, []}},
-	{env, []}
+    {description, "SMPP Loader from Power Alley Gateway Suite"},
+    {vsn, "0.10.8"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib,
+        common_lib
+    ]},
+    {mod, {smppload_app, []}},
+    {env, []}
 ]}.

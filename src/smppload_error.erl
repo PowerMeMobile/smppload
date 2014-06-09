@@ -1,7 +1,7 @@
 -module(smppload_error).
 
 -export([
-	format/1
+    format/1
 ]).
 
 -type error_status() :: pos_integer().
@@ -13,40 +13,40 @@
 
 -spec format(error_status()) -> error_description().
 format(16#00000009) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000010) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000012) ->
-	"Reserved.";
+    "Reserved.";
 format(Status) when Status >= 16#00000016 andalso Status =< 16#00000032 ->
-	"Reserved.";
+    "Reserved.";
 format(Status) when Status >= 16#00000035 andalso Status =< 16#0000003F ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000041) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000046) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000047) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000052) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000056) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000057) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000059) ->
-	"Reserved.";
+    "Reserved.";
 format(16#00000060) ->
-	"Reserved.";
+    "Reserved.";
 format(Status) when Status >= 16#00000068 andalso Status =< 16#000000BF ->
-	"Reserved.";
+    "Reserved.";
 format(Status) when Status >= 16#000000C5 andalso Status =< 16#000000FD ->
-	"Reserved.";
+    "Reserved.";
 format(Status) when Status >= 16#00000100 andalso Status =< 16#000003FF ->
-	"Reserved for SMPP extension.";
+    "Reserved for SMPP extension.";
 format(Status) when Status >= 16#00000400 andalso Status =< 16#000004FF ->
-	"Reserved for SMSC vendor specific errors.";
+    "Reserved for SMSC vendor specific errors.";
 format(Status) when Status >= 16#00000500 andalso Status =< 16#FFFFFFFF ->
-	"Reserved.";
+    "Reserved.";
 format(Status) ->
-	smpp_error:format(Status).
+    smpp_error:format(Status).

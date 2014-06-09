@@ -41,7 +41,7 @@ init(Verbosity) ->
         0 -> set_level(error);
         1 -> set_level(info);
         2 -> set_level(debug);
-		_ -> set_level(debug)
+        _ -> set_level(debug)
     end.
 
 -spec set_level(atom()) -> ok.
@@ -50,10 +50,10 @@ set_level(Level) ->
 
 -spec log(atom(), string(), string()) -> ok.
 log(error, Str, Args) ->
-	io:format(log_prefix(error) ++ Str, Args);
+    io:format(log_prefix(error) ++ Str, Args);
 log(Level, Str, Args) ->
-	LogLevel = proplists:get_value(
-		log_level, application:get_all_env(smppload), default_level()),
+    LogLevel = proplists:get_value(
+        log_level, application:get_all_env(smppload), default_level()),
     case should_log(LogLevel, Level) of
         true ->
             io:format(log_prefix(Level) ++ Str, Args);

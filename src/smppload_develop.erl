@@ -4,4 +4,4 @@
 
 -spec init() -> void.
 init() ->
-	smppload_log:init(3).
+    smppload_log:init(3).

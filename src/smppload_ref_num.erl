@@ -1,7 +1,7 @@
 -module(smppload_ref_num).
 
 -export([
-	next/1
+    next/1
 ]).
 
 %% ===================================================================
@@ -16,8 +16,8 @@
 -spec next(atom()) -> pos_integer().
 -ifndef(TEST).
 next(Key) ->
-   	smpp_ref_num:next(Key).
+    smpp_ref_num:next(Key).
 -else.
 next(_Key) ->
-	1.
+    1.
 -endif.

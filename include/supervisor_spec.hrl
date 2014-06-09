@@ -8,12 +8,12 @@
 -type supervisor_mfargs() :: {M :: module(), F :: atom(), A :: [term()] | undefined}.
 
 -type supervisor_child_spec() :: {
-	Id :: supervisor_child_id(),
-	StartFunc :: supervisor_mfargs(),
-	Restart :: supervisor_restart(),
-	Shutdown :: supervisor_shutdown(),
-	Type :: supervisor_child_type(),
-	Modules :: [ atom() ]
+    Id :: supervisor_child_id(),
+    StartFunc :: supervisor_mfargs(),
+    Restart :: supervisor_restart(),
+    Shutdown :: supervisor_shutdown(),
+    Type :: supervisor_child_type(),
+    Modules :: [ atom() ]
 }.
 
 -type supervisor_restart_policy() :: { restart_strategy(), integer(), integer() }.
