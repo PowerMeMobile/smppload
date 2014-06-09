@@ -1,6 +1,6 @@
 {application, smppload, [
     {description, "SMPP Loader from Power Alley Gateway Suite"},
-    {vsn, "0.10.8"},
+    {vsn, "0.10.9"},
     {registered, []},
     {applications, [
         kernel,
