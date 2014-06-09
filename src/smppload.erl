@@ -220,6 +220,7 @@ send_message(Msg) ->
         {dest_addr_npi      , Msg#message.destination#address.npi},
         {destination_addr   , Msg#message.destination#address.addr},
         {short_message      , Msg#message.body},
+        {esm_class          , Msg#message.esm_class},
         {registered_delivery, RegDlr}
     ],
 
