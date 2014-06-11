@@ -21,6 +21,7 @@
     destination :: #address{},
     body :: binary(),
     esm_class = 0 :: integer(),
+    data_coding :: integer(),
     delivery :: boolean()
 }).
 

@@ -18,6 +18,7 @@
     body,
     count,
     delivery,
+    data_coding,
     %% for long messages
     parts = []
 }).
@@ -39,12 +40,14 @@ init(Config) ->
     Body = ?gv(body, Config),
     Count = ?gv(count, Config),
     Delivery = ?gv(delivery, Config),
+    DataCoding = ?gv(data_coding, Config),
     {ok, #state{
         source = Source,
         destination = Destination,
         body = Body,
         count = Count,
-        delivery = Delivery
+        delivery = Delivery,
+        data_coding = DataCoding
     }}.
 
 -spec deinit(state()) -> ok.
@@ -63,13 +66,15 @@ get_next(State = #state{
     body = Body,
     count = Count,
     delivery = Delivery,
+    data_coding = DataCoding,
     parts = []
 }) when length(Body) =< ?MAX_MSG_LEN->
     Message = #message{
         source = smppload_utils:process_address(Source),
         destination = smppload_utils:process_address(Destination),
         body = Body,
-        delivery = Delivery
+        delivery = Delivery,
+        data_coding = DataCoding
     },
     {ok, Message, State#state{count = Count - 1}};
 get_next(State = #state{
@@ -78,6 +83,7 @@ get_next(State = #state{
     body = Body,
     count = Count,
     delivery = Delivery,
+    data_coding = DataCoding,
     parts = Parts0
 }) ->
     case Parts0 of
@@ -87,7 +93,8 @@ get_next(State = #state{
                 destination = smppload_utils:process_address(Destination),
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
-                delivery = Delivery
+                delivery = Delivery,
+                data_coding = DataCoding
             },
             {ok, Message, State#state{parts = Parts1}};
         [] ->
@@ -99,7 +106,8 @@ get_next(State = #state{
                 destination = smppload_utils:process_address(Destination),
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
-                delivery = Delivery
+                delivery = Delivery,
+                data_coding = DataCoding
             },
             {ok, Message, State#state{
                 count = Count - 1,

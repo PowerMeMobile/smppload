@@ -1,12 +1,12 @@
 # normal message
-FromBank,5,0;375293332211;Return our money, looser!;true
+FromBank,5,0;375293332211;Return our money, looser!;true;0
 # message with some spaces in front
-  375293332211;375291112233;Message 2;0
+  375293332211;375291112233;Message 2;0;3
 # message with double semicolon in the body
-375293332211;375291112233;Hello here;; there!;0
+375293332211;375291112233;Hello here;; there!;0;16
 # message with an empty source
-;375291112233;Message 4;0
+;375291112233;Message 4;0;20
 # long message
-375293332211;375291112233;EB8Muy7hqOSmO6vVc694aqNBCOr75gNg8wDikK7IoMak7L4HdTOtMiZFyTegBPXc2N8pujGaCjFkCQX0whI0yByj8kY0g0MpHYbtFfPI9O9OELzxKrb3upTjB9r2pNoj2MqQbWWHTdYwo9IWftCc204rIYyYPTRtPlesn;0
+375293332211;375291112233;EB8Muy7hqOSmO6vVc694aqNBCOr75gNg8wDikK7IoMak7L4HdTOtMiZFyTegBPXc2N8pujGaCjFkCQX0whI0yByj8kY0g0MpHYbtFfPI9O9OELzxKrb3upTjB9r2pNoj2MqQbWWHTdYwo9IWftCc204rIYyYPTRtPlesn;0;240
 # empty line
 

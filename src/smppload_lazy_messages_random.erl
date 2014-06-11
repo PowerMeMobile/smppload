@@ -18,6 +18,7 @@
     count,
     length,
     delivery,
+    data_coding,
     %% for long messages
     parts = []
 }).
@@ -39,12 +40,14 @@ init(Config) ->
     Count = ?gv(count, Config),
     Length = ?gv(length, Config, ?MAX_MSG_LEN),
     Delivery = ?gv(delivery, Config),
+    DataCoding = ?gv(data_coding, Config),
     {ok, #state{
         source = Source,
         destination = Destination,
         count = Count,
         length = Length,
-        delivery = Delivery
+        delivery = Delivery,
+        data_coding = DataCoding
     }}.
 
 -spec deinit(state()) -> ok.
@@ -62,14 +65,16 @@ get_next(State = #state{
     destination = Destination,
     count = Count,
     length = Length,
-    delivery = Delivery
+    delivery = Delivery,
+    data_coding = DataCoding
 }) when Length =< ?MAX_MSG_LEN ->
     Body = smppload_random:get_alnum_string(Length),
     Message = #message{
         source = smppload_utils:process_address(Source),
         destination = smppload_utils:process_address(Destination),
         body = Body,
-        delivery = Delivery
+        delivery = Delivery,
+        data_coding = DataCoding
     },
     {ok, Message, State#state{count = Count - 1}};
 get_next(State = #state{
@@ -78,6 +83,7 @@ get_next(State = #state{
     count = Count,
     length = Length,
     delivery = Delivery,
+    data_coding = DataCoding,
     parts = Parts0
 }) ->
     case Parts0 of
@@ -87,7 +93,8 @@ get_next(State = #state{
                 destination = smppload_utils:process_address(Destination),
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
-                delivery = Delivery
+                delivery = Delivery,
+                data_coding = DataCoding
             },
             {ok, Message, State#state{parts = Parts1}};
         [] ->
@@ -100,7 +107,8 @@ get_next(State = #state{
                 destination = smppload_utils:process_address(Destination),
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
-                delivery = Delivery
+                delivery = Delivery,
+                data_coding = DataCoding
             },
             {ok, Message, State#state{count = Count - 1, parts = Parts1}}
     end.

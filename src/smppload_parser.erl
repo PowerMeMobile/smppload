@@ -43,19 +43,21 @@ parse_delivery(String)  -> ?ABORT("Bad delivery: ~p~n", [String]).
 -spec parse_message(string()) -> #message{}.
 parse_message(String) ->
     case parse_message(String, [], []) of
-        [[], Destination, Body, Delivery] ->
+        [[], Destination, Body, Delivery, DataCoding] ->
             #message{
                 source = undefined,
                 destination = parse_address(Destination),
                 body = Body,
-                delivery = parse_delivery(Delivery)
+                delivery = parse_delivery(Delivery),
+                data_coding = parse_data_coding(DataCoding)
             };
-        [Source, Destination, Body, Delivery] ->
+        [Source, Destination, Body, Delivery, DataCoding] ->
             #message{
                 source = parse_address(Source),
                 destination = parse_address(Destination),
                 body = Body,
-                delivery = parse_delivery(Delivery)
+                delivery = parse_delivery(Delivery),
+                data_coding = parse_data_coding(DataCoding)
             };
         _ ->
             ?ABORT("Bad message: ~p~n", [String])
@@ -84,20 +86,28 @@ parse_addr(Addr) ->
                     ?ABORT("Bad addr: ~p~n", [Addr]);
                 {Prefix, ":" ++ RandLen} ->
                     case check_integer(RandLen) of
-                        true ->
+                        {ok, Int} ->
                             #rand_addr{
                                 prefix = Prefix,
-                                rand_len = list_to_integer(RandLen)
+                                rand_len = Int
                             };
-                        false ->
+                        error ->
                             ?ABORT("Bad addr: ~p~n", [Addr])
                     end
             end
     end.
 
+parse_data_coding(Str) ->
+    case check_integer(Str) of
+        {ok, Int} ->
+            Int;
+        error ->
+            ?ABORT("Bad data coding: ~p~n", [Str])
+    end.
+
 check_integer(Str) ->
     try list_to_integer(Str) of
-        _ -> true
+        Int -> {ok, Int}
     catch
-        _:_ -> false
+        _:_ -> error
     end.

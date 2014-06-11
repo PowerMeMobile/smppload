@@ -25,8 +25,8 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-r [&lt;rps&gt;]] [-s &lt;source&gt;]
                                 [-d &lt;destination&gt;] [-b &lt;body&gt;]
                                 [-l [&lt;length&gt;]] [-c [&lt;count&gt;]]
-                                [-D [&lt;delivery&gt;]] [-f &lt;file&gt;] [-S]
-                                [-v [&lt;verbosity&gt;]]
+                                [-D [&lt;delivery&gt;]] [-C [&lt;data_coding&gt;]]
+                                [-f &lt;file&gt;] [-S] [-v [&lt;verbosity&gt;]]
 
   -h, --help          Show this message
   -H, --host          SMSC server host name or IP address [default:
@@ -44,6 +44,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -c, --count         Count of SMS to send with given or random body
                       [default: 1]
   -D, --delivery      Delivery receipt [default: 0]
+  -C, --data_coding   Data coding [default: 3]
   -f, --file          Send messages from file
   -S, --sequentially  Send messages sequentially, parallel by default
   -v, --verbosity     Verbosity level [default: 0]
@@ -56,7 +57,7 @@ $ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello ther
 
 * The above is the same as
 <pre>
-$ ./smppload --host 127.0.0.1 --port 2775 --bind-type trx --system_type '' --system_id user --password password --source 375296660002 --destination 375293332211 --body 'Hello there!'
+$ ./smppload --host 127.0.0.1 --port 2775 --bind_type trx --system_type '' --system_id user --password password --source 375296660002 --destination 375293332211 --body 'Hello there!'
 </pre>
 
 * Send a message as TX
@@ -94,21 +95,27 @@ $ ./smppload --source 375296660002 --destination 375293332211 --length 160
 $ ./smppload --source 375296660002 --destination 375293332211 --count 100
 </pre>
 
+* Send a message with a random body and data_coding 16
+<pre>
+$ ./smppload --source 375296660002 --destination 375293332211 --data_coding 16
+</pre>
+
 * Send messages from file test/messages.txt
 <pre>
 $ cat test/messages.txt
 # source;destination;body;delivery
 # where
-#   source :: address
+#   source      :: address
 #   destination :: address
-#   address :: addr[,ton,npi]
-#   body :: string, use double semicolon (;;) in the body
-#   delivery :: true | false | 1 | 0
-375296660002,1,1;375291112231,1,1;Message #1;true
-375296660002,1,1;375291112232,1,1;Message #2;true
-375296660002,1,1;375291112233,1,1;Message #3;true
-375296660002,1,1;375291112234,1,1;Message #4;true
-375296660002,1,1;375291112235,1,1;Message #5;true
+#   address     :: addr[,ton,npi]
+#   body        :: string, use double semicolon (;;) in the body
+#   delivery    :: true | false | 1 | 0
+#   data_coding :: integer
+375296660002,1,1;375291112231,1,1;Message #1;true;3
+375296660002,1,1;375291112232,1,1;Message #2;true;3
+375296660002,1,1;375291112233,1,1;Message #3;true;3
+375296660002,1,1;375291112234,1,1;Message #4;true;3
+375296660002,1,1;375291112235,1,1;Message #5;true;3
 $ ./smppload --file test/messages.txt
 </pre>
 
@@ -119,7 +126,7 @@ $ cat test/messages.txt | ./smppload --file -
 
 * Send dynamically generated messages from standard input
 <pre>
-$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false\n" $i $i; done | ./smppload --file -
+$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false;3\n" $i $i; done | ./smppload --file -
 </pre>
 
 * Send a message with ERROR (default) log level
@@ -157,7 +164,8 @@ DEBUG: Options: [{port,2775},
                  {rps,1000},
                  {length,140},
                  {count,1},
-                 {delivery,0}]
+                 {delivery,0},
+                 {data_coding,3}]
 DEBUG: Module: lazy_messages_body
 INFO:  Connected to 127.0.0.1:2775
 DEBUG: Request: {bind_transceiver,[{system_type,[]},
@@ -172,6 +180,8 @@ DEBUG: Request: {submit_sm,[{source_addr_ton,1},
                             {dest_addr_npi,1},
                             {destination_addr,"375293332211"},
                             {short_message,"Hello there"},
+                            {esm_class, 0},
+                            {data_coding,3},
                             {registered_delivery,0}]}
 DEBUG: Response: {submit_sm_resp,0,2,[{message_id,"190602"}]}
 INFO:  Stats:

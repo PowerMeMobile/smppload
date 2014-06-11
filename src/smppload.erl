@@ -6,6 +6,7 @@
 
 -include("smppload.hrl").
 -include("message.hrl").
+-include_lib("oserl/include/smpp_globals.hrl").
 
 %% Purely empirical values
 -define(MAX_OUTSTANDING_SUBMITS, 100).
@@ -53,6 +54,7 @@ opt_specs() ->
         {length, $l, "length", {integer, ?MAX_MSG_LEN}, "Randomly generated body length"},
         {count, $c, "count", {integer, 1}, "Count of SMS to send with given or random body"},
         {delivery, $D, "delivery", {integer, 0}, "Delivery receipt"},
+        {data_coding, $C, "data_coding", {integer, ?ENCODING_SCHEME_LATIN_1}, "Data coding"},
         {file, $f, "file", string, "Send messages from file"},
         {sequentially, $S, "sequentially", undefined, "Send messages sequentially, parallel by default"},
         {verbosity, $v, "verbosity", {integer, 0}, "Verbosity level"}
@@ -221,6 +223,7 @@ send_message(Msg) ->
         {destination_addr   , Msg#message.destination#address.addr},
         {short_message      , Msg#message.body},
         {esm_class          , Msg#message.esm_class},
+        {data_coding        , Msg#message.data_coding},
         {registered_delivery, RegDlr}
     ],
 

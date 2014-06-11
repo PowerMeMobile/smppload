@@ -19,7 +19,8 @@
     parts = [],
     source,
     destination,
-    delivery
+    delivery,
+    data_coding
 }).
 
 %% ===================================================================
@@ -58,32 +59,35 @@ get_next(State = #state{fd = Fd, parts = []}) ->
                     %% handle comments.
                     get_next(State);
                 Stripped ->
-                    Message0 = smppload_parser:parse_message(Stripped),
+                    Message = smppload_parser:parse_message(Stripped),
 
-                    Source = Message0#message.source,
-                    Destination = Message0#message.destination,
-                    Body = Message0#message.body,
-                    Delivery = Message0#message.delivery,
+                    Source      = Message#message.source,
+                    Destination = Message#message.destination,
+                    Body        = Message#message.body,
+                    Delivery    = Message#message.delivery,
+                    DataCoding  = Message#message.data_coding,
 
                     case length(Body) =< ?MAX_MSG_LEN of
                         true ->
-                            {ok, Message0, State};
+                            {ok, Message, State};
                         false ->
                             RefNum = smppload_ref_num:next(?MODULE),
                             [Part | Parts] =
                                 smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
-                            Message1 = #message{
+                            Message2 = #message{
                                 source = smppload_utils:process_address(Source),
                                 destination = smppload_utils:process_address(Destination),
                                 body = ?gv(short_message, Part),
                                 esm_class = ?gv(esm_class, Part),
-                                delivery = Delivery
+                                delivery = Delivery,
+                                data_coding = DataCoding
                             },
-                            {ok, Message1, State#state{
+                            {ok, Message2, State#state{
                                 parts = Parts,
                                 source = Source,
                                 destination = Destination,
-                                delivery = Delivery
+                                delivery = Delivery,
+                                data_coding = DataCoding
                             }}
                     end
             end;
@@ -94,33 +98,38 @@ get_next(State = #state{
     parts = [Part],
     source = Source,
     destination = Destination,
-    delivery = Delivery
+    delivery = Delivery,
+    data_coding = DataCoding
 }) ->
     Message = #message{
         source = smppload_utils:process_address(Source),
         destination = smppload_utils:process_address(Destination),
         body = ?gv(short_message, Part),
         esm_class = ?gv(esm_class, Part),
-        delivery = Delivery
+        delivery = Delivery,
+        data_coding = DataCoding
     },
     {ok, Message, State#state{
         parts = [],
         source = undefined,
         destination = undefined,
-        delivery = undefined
+        delivery = undefined,
+        data_coding = undefined
     }};
 get_next(State = #state{
     parts = [Part | Parts],
     source = Source,
     destination = Destination,
-    delivery = Delivery
+    delivery = Delivery,
+    data_coding = DataCoding
 }) ->
     Message = #message{
         source = smppload_utils:process_address(Source),
         destination = smppload_utils:process_address(Destination),
         body = ?gv(short_message, Part),
         esm_class = ?gv(esm_class, Part),
-        delivery = Delivery
+        delivery = Delivery,
+        data_coding = DataCoding
     },
     {ok, Message, State#state{
         parts = Parts

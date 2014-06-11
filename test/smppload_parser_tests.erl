@@ -50,53 +50,57 @@ parse_delivery_test() ->
 
 -spec parse_message_without_ton_npi_test() -> ok | {error, term()}.
 parse_message_without_ton_npi_test() ->
-    String = "375293332211;375291112233;Hello there!;0",
+    String = "375293332211;375291112233;Hello there!;0;3",
     Message = smppload_parser:parse_message(String),
 
     Expected = #message{
         source = #address{addr = "375293332211", ton = 1, npi = 1},
         destination = #address{addr = "375291112233", ton = 1, npi = 1},
         body = "Hello there!",
-        delivery = false
+        delivery = false,
+        data_coding = 3
     },
     ?assertEqual(Expected, Message).
 
 -spec parse_full_message_test() -> ok | {error, term()}.
 parse_full_message_test() ->
-    String = "FromBank,5,0;375291112233,2,3;We want our money back, looser!;true",
+    String = "FromBank,5,0;375291112233,2,3;We want our money back, looser!;true;3",
     Message = smppload_parser:parse_message(String),
 
     Expected = #message{
         source = #address{addr = "FromBank", ton = 5, npi = 0},
         destination = #address{addr = "375291112233", ton = 2, npi = 3},
         body = "We want our money back, looser!",
-        delivery = true
+        delivery = true,
+        data_coding = 3
     },
     ?assertEqual(Expected, Message).
 
 -spec parse_message_with_double_semicolon_test() -> ok | {error, term()}.
 parse_message_with_double_semicolon_test() ->
-    String = "375293332211;375291112233;Hello here;; there!;0",
+    String = "375293332211;375291112233;Hello here;; there!;0;3",
     Message = smppload_parser:parse_message(String),
 
     Expected = #message{
         source = #address{addr = "375293332211", ton = 1, npi = 1},
         destination = #address{addr = "375291112233", ton = 1, npi = 1},
         body = "Hello here; there!",
-        delivery = false
+        delivery = false,
+        data_coding = 3
     },
     ?assertEqual(Expected, Message).
 
 -spec parse_message_without_source_test() -> ok | {error, term()}.
 parse_message_without_source_test() ->
-    String = ";375291112233;Hello there!;0",
+    String = ";375291112233;Hello there!;0;3",
     Message = smppload_parser:parse_message(String),
 
     Expected = #message{
         source = undefined,
         destination = #address{addr = "375291112233", ton = 1, npi = 1},
         body = "Hello there!",
-        delivery = false
+        delivery = false,
+        data_coding = 3
     },
     ?assertEqual(Expected, Message).
 
