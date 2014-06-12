@@ -44,20 +44,24 @@ parse_delivery(String)  -> ?ABORT("Bad delivery: ~p~n", [String]).
 parse_message(String) ->
     case parse_message(String, [], []) of
         [[], Destination, Body, Delivery, DataCoding] ->
+            DataCoding2 = parse_data_coding(DataCoding),
+            Body2 = smppload_utils:encode(Body, DataCoding2),
             #message{
                 source = undefined,
                 destination = parse_address(Destination),
-                body = Body,
+                body = Body2,
                 delivery = parse_delivery(Delivery),
-                data_coding = parse_data_coding(DataCoding)
+                data_coding = DataCoding2
             };
         [Source, Destination, Body, Delivery, DataCoding] ->
+            DataCoding2 = parse_data_coding(DataCoding),
+            Body2 = smppload_utils:encode(Body, DataCoding2),
             #message{
                 source = parse_address(Source),
                 destination = parse_address(Destination),
-                body = Body,
+                body = Body2,
                 delivery = parse_delivery(Delivery),
-                data_coding = parse_data_coding(DataCoding)
+                data_coding = DataCoding2
             };
         _ ->
             ?ABORT("Bad message: ~p~n", [String])

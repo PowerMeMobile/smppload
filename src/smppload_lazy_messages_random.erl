@@ -11,12 +11,15 @@
 -include("smppload_lazy_messages.hrl").
 -include("message.hrl").
 -include("smppload.hrl").
+-include_lib("oserl/include/smpp_globals.hrl").
 
 -record(state, {
     source,
     destination,
     count,
     length,
+    max_msg_len,
+    max_seg_len,
     delivery,
     data_coding,
     %% for long messages
@@ -38,14 +41,17 @@ init(Config) ->
         end,
     Destination = smppload_parser:parse_address(?gv(destination, Config)),
     Count = ?gv(count, Config),
-    Length = ?gv(length, Config, ?MAX_MSG_LEN),
     Delivery = ?gv(delivery, Config),
-    DataCoding = ?gv(data_coding, Config),
+    DataCoding = ?ENCODING_SCHEME_LATIN_1,
+    {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
+    Length = ?gv(length, Config, MaxMsgLen),
     {ok, #state{
         source = Source,
         destination = Destination,
         count = Count,
         length = Length,
+        max_msg_len = MaxMsgLen,
+        max_seg_len = MaxSegLen,
         delivery = Delivery,
         data_coding = DataCoding
     }}.
@@ -65,9 +71,10 @@ get_next(State = #state{
     destination = Destination,
     count = Count,
     length = Length,
+    max_msg_len = MaxMsgLen,
     delivery = Delivery,
     data_coding = DataCoding
-}) when Length =< ?MAX_MSG_LEN ->
+}) when Length =< MaxMsgLen ->
     Body = smppload_random:get_alnum_string(Length),
     Message = #message{
         source = smppload_utils:process_address(Source),
@@ -82,6 +89,7 @@ get_next(State = #state{
     destination = Destination,
     count = Count,
     length = Length,
+    max_seg_len = MaxSegLen,
     delivery = Delivery,
     data_coding = DataCoding,
     parts = Parts0
@@ -101,7 +109,7 @@ get_next(State = #state{
             Body = smppload_random:get_alnum_string(Length),
             RefNum = smppload_ref_num:next(?MODULE),
             [Part | Parts1] =
-                smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
+                smpp_sm:split([{short_message, Body}], RefNum, udh, MaxSegLen),
             Message = #message{
                 source = smppload_utils:process_address(Source),
                 destination = smppload_utils:process_address(Destination),

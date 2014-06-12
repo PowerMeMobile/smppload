@@ -198,4 +198,5 @@ INFO:  Unbound
 
 ## Known issues and limitations
 
-* Default encoding is Latin 1. Max message length is 140 chars, max segment length is 134 chars
+* Randomly generated message body encoding is Latin1.
+* Message body encoding from files or command line is expected to be in UTF-8.

@@ -19,6 +19,8 @@
     count,
     delivery,
     data_coding,
+    max_msg_len,
+    max_seg_len,
     %% for long messages
     parts = []
 }).
@@ -37,17 +39,21 @@ init(Config) ->
                 smppload_parser:parse_address(Address)
         end,
     Destination = smppload_parser:parse_address(?gv(destination, Config)),
-    Body = ?gv(body, Config),
+    BodyUtf8 = ?gv(body, Config),
     Count = ?gv(count, Config),
     Delivery = ?gv(delivery, Config),
     DataCoding = ?gv(data_coding, Config),
+    BodyEncoded = smppload_utils:encode(BodyUtf8, DataCoding),
+    {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     {ok, #state{
         source = Source,
         destination = Destination,
-        body = Body,
+        body = BodyEncoded,
         count = Count,
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        max_msg_len = MaxMsgLen,
+        max_seg_len = MaxSegLen
     }}.
 
 -spec deinit(state()) -> ok.
@@ -67,8 +73,9 @@ get_next(State = #state{
     count = Count,
     delivery = Delivery,
     data_coding = DataCoding,
+    max_msg_len = MaxMsgLen,
     parts = []
-}) when length(Body) =< ?MAX_MSG_LEN->
+}) when length(Body) =< MaxMsgLen->
     Message = #message{
         source = smppload_utils:process_address(Source),
         destination = smppload_utils:process_address(Destination),
@@ -84,6 +91,7 @@ get_next(State = #state{
     count = Count,
     delivery = Delivery,
     data_coding = DataCoding,
+    max_seg_len = MaxSegLen,
     parts = Parts0
 }) ->
     case Parts0 of
@@ -100,7 +108,7 @@ get_next(State = #state{
         [] ->
             RefNum = smppload_ref_num:next(?MODULE),
             [Part | Parts1] =
-                smpp_sm:split([{short_message, Body}], RefNum, udh, ?MAX_SEG_LEN),
+                smpp_sm:split([{short_message, Body}], RefNum, udh, MaxSegLen),
             Message = #message{
                 source = smppload_utils:process_address(Source),
                 destination = smppload_utils:process_address(Destination),
