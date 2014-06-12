@@ -95,9 +95,9 @@ $ ./smppload --source 375296660002 --destination 375293332211 --length 160
 $ ./smppload --source 375296660002 --destination 375293332211 --count 100
 </pre>
 
-* Send a message with a random body and data_coding 16
+* Send a message in data_coding 8 (UCS2-BE)
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --data_coding 16
+$ ./smppload --source 375296660002 --destination 375293332211 --body "Привет" --data_coding 8
 </pre>
 
 * Send messages from file test/messages.txt
