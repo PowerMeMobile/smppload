@@ -18,7 +18,7 @@ $ make
 
 <pre>
 $ ./smppload
-SMPP Loader from Power Alley Gateway Suite (0.12.0)
+SMPP Loader from Power Alley Gateway Suite (0.12.1)
 Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-B [&lt;bind_type&gt;]] [-i [&lt;system_id&gt;]]
                                 [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
