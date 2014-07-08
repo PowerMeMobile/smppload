@@ -46,7 +46,7 @@ opt_specs() ->
         {host, $H, "host", {string, "127.0.0.1"}, "SMSC server host name or IP address"},
         {port, $P, "port", {integer, 2775}, "SMSC server port"},
         {bind_type, $B, "bind_type", {string, "trx"}, "SMSC bind type: tx | trx"},
-        {system_id, $i, "system_id", {string, "system_id"}, "SMSC system_id"},
+        {system_id, $i, "system_id", {string, "user"}, "SMSC system_id"},
         {password, $p, "password", {string, "password"}, "SMSC password"},
         {system_type, $t, "system_type", {string, ""}, "SMSC service_type"},
         {rps, $r, "rps", {integer, 1000}, "Number of requests per second"},
