@@ -20,7 +20,7 @@ $ make
 $ ./smppload
 SMPP Loader from Power Alley Gateway Suite (0.11.0)
 Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
-                                [-B [&lt;bind_type&gt;]] [-u [&lt;system_id&gt;]]
+                                [-B [&lt;bind_type&gt;]] [-i [&lt;system_id&gt;]]
                                 [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
                                 [-r [&lt;rps&gt;]] [-s &lt;source&gt;]
                                 [-d &lt;destination&gt;] [-b &lt;body&gt;]
@@ -33,9 +33,9 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                       127.0.0.1]
   -P, --port          SMSC server port [default: 2775]
   -B, --bind_type     SMSC bind type: tx | trx [default: trx]
-  -u, --system_id     SMSC username [default: user]
+  -i, --system_id     SMSC system_id [default: user]
   -p, --password      SMSC password [default: password]
-  -t, --system_type   SMSC service type [default: ]
+  -t, --system_type   SMSC service_type [default: ]
   -r, --rps           Number of requests per second [default: 1000]
   -s, --source        SMS source address Addr[:Len][,Ton=1,Npi=1]
   -d, --destination   SMS destination address Addr[:Len][,Ton=1,Npi=1]
@@ -53,11 +53,16 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
 * Send a message with the body 'Hello there!' to localhost and the standard SMPP port
 <pre>
 $ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
+OR short
+$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
 </pre>
+
 
 * The above is the same as
 <pre>
 $ ./smppload --host 127.0.0.1 --port 2775 --bind_type trx --system_type '' --system_id user --password password --source 375296660002 --destination 375293332211 --body 'Hello there!'
+OR short
+$ ./smppload -H127.0.0.1 -P2775 -Btrx -t'' -iuser -ppassword -s375296660002 -d375293332211 -b'Hello there!'
 </pre>
 
 * Send a message as TX
