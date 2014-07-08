@@ -54,7 +54,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
 <pre>
 $ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
 OR short
-$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
+$ ./smppload -s 375296660002 -d 375293332211 -b 'Hello there!'
 </pre>
 
 
@@ -62,7 +62,7 @@ $ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello ther
 <pre>
 $ ./smppload --host 127.0.0.1 --port 2775 --bind_type trx --system_type '' --system_id user --password password --source 375296660002 --destination 375293332211 --body 'Hello there!'
 OR short
-$ ./smppload -H127.0.0.1 -P2775 -Btrx -t'' -iuser -ppassword -s375296660002 -d375293332211 -b'Hello there!'
+$ ./smppload -H 127.0.0.1 -P 2775 -B trx -t '' -i user -p password -s 375296660002 -d 375293332211 -b 'Hello there!'
 </pre>
 
 * Send a message as TX
