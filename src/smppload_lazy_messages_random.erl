@@ -34,8 +34,8 @@
 init(Config) ->
     Source =
         case ?gv(source, Config) of
-            undefined ->
-                undefined;
+            [] ->
+                [];
             Address ->
                 smppload_parser:parse_address(Address)
         end,

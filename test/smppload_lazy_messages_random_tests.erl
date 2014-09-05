@@ -59,12 +59,12 @@ long_body_test() ->
 
 -spec no_source_test() -> ok | {error, term()}.
 no_source_test() ->
-    Config = [{destination, "d"}, {body, "b"}, {delivery, true}, {count, 1}],
+    Config = [{source, ""}, {destination, "d"}, {body, "b"}, {delivery, true}, {count, 1}],
     {ok, _} = smppload_random:start_link({1, 1, 1}),
     {ok, State0} = smppload_lazy_messages_random:init(Config),
     {ok, Msg, State1} = smppload_lazy_messages_random:get_next(State0),
     #message{source = Source} = Msg,
-    ?assertEqual(undefined, Source),
+    ?assertEqual("", Source),
     {no_more, State2} = smppload_lazy_messages_random:get_next(State1),
     ok = smppload_lazy_messages_random:deinit(State2),
     ok = smppload_random:stop().

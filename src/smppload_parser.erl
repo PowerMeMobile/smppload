@@ -23,6 +23,12 @@ parse_address(String) ->
                 ton = list_to_integer(Ton),
                 npi = list_to_integer(Npi)
             };
+        [Ton, Npi] ->
+            #address{
+                addr = "",
+                ton = list_to_integer(Ton),
+                npi = list_to_integer(Npi)
+            };
         [Addr] ->
             #address{
                 addr = parse_addr(Addr),
