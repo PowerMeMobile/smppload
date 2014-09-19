@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-In order to compile and run the **smppload** utility you need to have [Erlang](http://www.erlang.org/) and make installed.
+In order to compile **smppload** you need to have [Erlang](http://www.erlang.org/) and **GNU make* installed.
 
 ## Compilation
 
