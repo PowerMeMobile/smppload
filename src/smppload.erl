@@ -1,6 +1,7 @@
 -module(smppload).
 
 -export([
+    main/0,
     main/1
 ]).
 
@@ -17,18 +18,30 @@
 %% API
 %% ===================================================================
 
+-spec main() -> no_return().
+main() ->
+    PlainArgs = init:get_plain_arguments(),
+    case PlainArgs of
+        ["--", Args] ->
+            main(Args);
+        _ ->
+            main([])
+    end.
+
 -spec main([string()]) -> no_return().
 main([]) ->
-    ScriptName = escript:script_name(),
+    AppName = app_name(),
     OptSpecs = opt_specs(),
-    print_usage(ScriptName, OptSpecs);
+    print_usage(AppName, OptSpecs);
+main("--") ->
+    main([]);
 main(Args) ->
-    ScriptName = escript:script_name(),
+    AppName = app_name(),
     OptSpecs = opt_specs(),
 
     case getopt:parse(OptSpecs, Args) of
         {ok, {Opts, _NonOptArgs}} ->
-            process_opts(ScriptName, Opts, OptSpecs);
+            process_opts(AppName, Opts, OptSpecs);
         {error, {Reason, Data}} ->
             ?ABORT("Parse data ~p failed with: ~s~n", [Data, Reason])
     end.
@@ -62,10 +75,10 @@ opt_specs() ->
         {verbosity, $v, "verbosity", {integer, 0}, "Verbosity level"}
     ].
 
-process_opts(ScriptName, Opts, OptSpecs) ->
+process_opts(AppName, Opts, OptSpecs) ->
     case ?gv(help, Opts, false) of
         true ->
-            print_usage(ScriptName, OptSpecs);
+            print_usage(AppName, OptSpecs);
         false ->
             %% initialize the logger.
             smppload_log:init(?gv(verbosity, Opts)),
@@ -333,20 +346,20 @@ send_message_and_reply(ReplyTo, ReplyRef, Submit) ->
     Stats = send_message(Submit),
     ReplyTo ! {ReplyRef, Stats}.
 
-print_usage(ScriptName, OptSpecs) ->
-    print_description_vsn(ScriptName),
-    getopt:usage(OptSpecs, ScriptName).
+print_usage(AppName, OptSpecs) ->
+    print_description_vsn(AppName),
+    getopt:usage(OptSpecs, AppName).
 
-print_description_vsn(ScriptName) ->
-    case description_vsn(ScriptName) of
+print_description_vsn(AppName) ->
+    case description_vsn(AppName) of
         {Description, Vsn} ->
             io:format("~s (~s)~n", [Description, Vsn]);
         _ ->
             ok
     end.
 
-description_vsn(ScriptName) ->
-    case script_options(ScriptName) of
+description_vsn(AppName) ->
+    case app_options(AppName) of
         undefined ->
             undefined;
         Options ->
@@ -355,7 +368,32 @@ description_vsn(ScriptName) ->
             {Description, Vsn}
     end.
 
-script_options(ScriptName) ->
+is_escript() ->
+    case init:get_argument(mode) of
+        {ok, [["embedded"]]} ->
+            false;
+        _ ->
+            true
+    end.
+
+app_name() ->
+    case is_escript() of
+        true ->
+            escript:script_name();
+        false ->
+            {ok, [[AppName]]} = init:get_argument(progname),
+            AppName
+    end.
+
+app_options(AppName) ->
+    case is_escript() of
+        true ->
+            escript_options(AppName);
+        false ->
+            application_options(AppName)
+    end.
+
+escript_options(ScriptName) ->
     {ok, Sections} = escript:extract(ScriptName, []),
     ZipArchive = ?gv(archive, Sections),
     AppName = lists:flatten(io_lib:format("~p/ebin/~p.app", [?MODULE, ?MODULE])),
@@ -366,4 +404,12 @@ script_options(ScriptName) ->
             Options;
         _ ->
             undefined
+    end.
+
+application_options(_AppName) ->
+    case application:get_all_key(?MODULE) of
+        undefined ->
+            undefined;
+        {ok, Options} ->
+            Options
     end.

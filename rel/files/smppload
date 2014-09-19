@@ -223,11 +223,16 @@ case "$1" in
         $ERTS_PATH/escript $RUNNER_BASE_DIR/bin/install_upgrade.escript $node_name $erlang_cookie $2
         ;;
 
-    console|develop|console_clean|console_boot)
+    script|console|develop|console_clean|console_boot)
         # .boot file typically just $SCRIPT (ie, the app name)
         # however, for debugging, sometimes start_clean.boot is useful.
         # For e.g. 'setup', one may even want to name another boot script.
         case "$1" in
+            script)
+                BOOTFILE=$SCRIPT
+                shift
+                PARAMS="-noshell -s smppload main -s init stop -extra"
+                ;;
             console)        BOOTFILE=$SCRIPT ;;
             console_clean)  BOOTFILE=start_clean ;;
             develop)
@@ -244,15 +249,15 @@ case "$1" in
         BINDIR=$ROOTDIR/erts-$ERTS_VSN/bin
         EMU=beam
         PROGNAME=`echo $0 | sed 's/.*\\///'`
-        CMD="$BINDIR/erlexec -boot $RUNNER_BASE_DIR/releases/$APP_VSN/$BOOTFILE -mode embedded -config $CONFIG_PATH -args_file $VMARGS_PATH"
+        CMD="$BINDIR/erlexec -boot $RUNNER_BASE_DIR/releases/$APP_VSN/$BOOTFILE -mode embedded -config $CONFIG_PATH -args_file $VMARGS_PATH $PARAMS"
         export EMU
         export ROOTDIR
         export BINDIR
         export PROGNAME
 
         # Dump environment info for logging purposes
-        echo "Exec: $CMD" -- ${1+"$@"}
-        echo "Root: $ROOTDIR"
+        #echo "Exec: $CMD" -- ${1+"$@"}
+        #echo "Root: $ROOTDIR"
 
         # Log the startup
         logger -t "$SCRIPT[$$]" "Starting up"
@@ -287,7 +292,7 @@ case "$1" in
         exec $CMD -- ${1+"$@"}
         ;;
     *)
-        echo "Usage: $SCRIPT {start|start_boot <file>|foreground|stop|restart|reboot|ping|console|develop|console_clean|console_boot <file>|attach|remote_console|upgrade}"
+        echo "Usage: $SCRIPT {script|start|start_boot <file>|foreground|stop|restart|reboot|ping|console|develop|console_clean|console_boot <file>|attach|remote_console|upgrade}"
         exit 1
         ;;
 esac
