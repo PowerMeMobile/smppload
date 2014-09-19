@@ -91,6 +91,7 @@ process_opts(AppName, Opts, OptSpecs) ->
             ?DEBUG("MessagesModule: ~p~n", [MessagesModule]),
 
             %% start needed applications.
+            error_logger:tty(false),
             application:start(common_lib),
             application:start(smppload),
 
@@ -136,7 +137,12 @@ process_opts(AppName, Opts, OptSpecs) ->
             ?INFO("   Avg Rps:          ~p mps~n", [smppload_stats:rps(Stats)]),
 
             smppload_esme:unbind(),
-            ?INFO("Unbound~n", [])
+            ?INFO("Unbound~n", []),
+
+            %% stop applications.
+            error_logger:tty(false),
+            application:stop(smppload),
+            application:stop(common_lib)
     end.
 
 format_peer({A, B, C, D}, Port) ->
