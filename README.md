@@ -14,6 +14,18 @@ $ make
 
 ## Usage
 
+Now it's possible to launch **smppload** as an escript, which is faster, but Erlang needs to be installed:
+
+<pre>
+$ ./smppload
+</pre>
+
+or as a release, which is slower, but has greater portability:
+
+<pre>
+$ ./rel/smppload/smppload
+</pre>
+
 * Help message
 
 <pre>
