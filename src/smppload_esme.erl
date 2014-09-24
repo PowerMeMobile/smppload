@@ -13,7 +13,7 @@
     bind_transmitter/1,
     bind_receiver/1,
     bind_transceiver/1,
-    unbind/0,
+    unbind/1,
 
     submit_sm/1,
 
@@ -51,11 +51,6 @@
 
 -define(HIGH, 0).
 -define(LOW, 10).
-
--define(BIND_TIMEOUT, 30000).
--define(UNBIND_TIMEOUT, 30000).
--define(SUBMIT_TIMEOUT, 120000).
--define(DELIVERY_TIMEOUT, 100000).
 
 -record(state, {
     bind_type,
@@ -103,19 +98,23 @@ connect(Host, Port) ->
 
 -spec bind_transmitter(plist()) -> {ok, remote_system_id()} | {error, reason()}.
 bind_transmitter(Params) ->
-    gen_esme:call(?MODULE, {bind_transmitter, Params}, ?BIND_TIMEOUT).
+    Timeout = proplists:get_value(bind_timeout, Params),
+    gen_esme:call(?MODULE, {bind_transmitter, Params}, Timeout).
 
 -spec bind_receiver(plist()) -> {ok, string()} | {error, reason()}.
 bind_receiver(Params) ->
-    gen_esme:call(?MODULE, {bind_receiver, Params}, ?BIND_TIMEOUT).
+    Timeout = proplists:get_value(bind_timeout, Params),
+    gen_esme:call(?MODULE, {bind_receiver, Params}, Timeout).
 
 -spec bind_transceiver(plist()) -> {ok, string()} | {error, reason()}.
 bind_transceiver(Params) ->
-    gen_esme:call(?MODULE, {bind_transceiver, Params}, ?BIND_TIMEOUT).
+    Timeout = proplists:get_value(bind_timeout, Params),
+    gen_esme:call(?MODULE, {bind_transceiver, Params}, Timeout).
 
--spec unbind() -> ok | {error, reason()}.
-unbind() ->
-    try gen_esme:call(?MODULE, {unbind, []}, ?UNBIND_TIMEOUT)
+-spec unbind(plist()) -> ok | {error, reason()}.
+unbind(Params) ->
+    Timeout = proplists:get_value(unbind_timeout, Params),
+    try gen_esme:call(?MODULE, {unbind, []}, Timeout)
     catch
         exit:Reason ->
             {error, Reason}
@@ -124,7 +123,8 @@ unbind() ->
 -spec submit_sm(plist()) ->
     {ok, out_msg_id(), delivery_res()} | {error, reason()}.
 submit_sm(Params) ->
-    gen_esme:call(?MODULE, {submit_sm, Params, [], ?LOW}, ?SUBMIT_TIMEOUT).
+    Timeout = proplists:get_value(submit_timeout, Params),
+    gen_esme:call(?MODULE, {submit_sm, Params, [], ?LOW}, Timeout).
 
 -spec get_avg_rps() -> {ok, non_neg_integer()} | {error, reason()}.
 get_avg_rps() ->
@@ -331,7 +331,8 @@ handle_resp({ok, PduResp}, ReqRef, State) ->
                 State#state{submit_reqs = Reqs};
             true ->
                 %% start wait for delivery timer.
-                TimerRef = erlang:start_timer(?DELIVERY_TIMEOUT, self(), ReqRef),
+                Timeout = proplists:get_value(delivery_timeout, Params),
+                TimerRef = erlang:start_timer(Timeout, self(), ReqRef),
                 State#state{
                     submit_reqs = [{Req, From, ReqRef, OutMsgId} | Reqs],
                     delivery_reqs = [

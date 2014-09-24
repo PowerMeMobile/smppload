@@ -10,9 +10,14 @@
 -include_lib("oserl/include/smpp_globals.hrl").
 
 %% Purely empirical values
+-define(BIND_TIMEOUT, 30000).
+-define(UNBIND_TIMEOUT, 30000).
+-define(SUBMIT_TIMEOUT, 120000).
+-define(DELIVERY_TIMEOUT, 100000).
+
 -define(MAX_OUTSTANDING_SUBMITS, 100).
--define(FIRST_REPLY_TIMEOUT, 150000).
--define(REST_REPLIES_TIMEOUT, 30000).
+-define(FIRST_REPLY_TIMEOUT, ?BIND_TIMEOUT + ?SUBMIT_TIMEOUT).
+-define(REST_REPLIES_TIMEOUT, ?SUBMIT_TIMEOUT).
 
 %% ===================================================================
 %% API
@@ -113,7 +118,8 @@ process_opts(AppName, Opts, OptSpecs) ->
             BindParams = [
                 {system_type, SystemType},
                 {system_id, SystemId},
-                {password, Password}
+                {password, Password},
+                {bind_timeout, ?BIND_TIMEOUT}
             ],
             case apply(smppload_esme, BindTypeFun, [BindParams]) of
                 {ok, RemoteSystemId} ->
@@ -136,7 +142,10 @@ process_opts(AppName, Opts, OptSpecs) ->
             ?INFO("   Errors:           ~p~n", [smppload_stats:errors(Stats)]),
             ?INFO("   Avg Rps:          ~p mps~n", [smppload_stats:rps(Stats)]),
 
-            smppload_esme:unbind(),
+            UnbindParams = [
+                {unbind_timeout, ?UNBIND_TIMEOUT}
+            ],
+            smppload_esme:unbind(UnbindParams),
             ?INFO("Unbound~n", []),
 
             %% stop applications.
@@ -245,7 +254,9 @@ send_message(Msg) ->
         {short_message      , Msg#message.body},
         {esm_class          , Msg#message.esm_class},
         {data_coding        , Msg#message.data_coding},
-        {registered_delivery, RegDlr}
+        {registered_delivery, RegDlr},
+        {submit_timeout     , ?SUBMIT_TIMEOUT},
+        {delivery_timeout   , ?DELIVERY_TIMEOUT}
     ],
 
     case smppload_esme:submit_sm(Params) of
