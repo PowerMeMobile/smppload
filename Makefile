@@ -51,4 +51,4 @@ develop:
 	@./rel/$(NAME)/bin/$(NAME) develop
 
 tags:
-	find . -name "*.[e,h]rl" -print | etags -
+	@find . -name "*.[e,h]rl" -print | etags -
