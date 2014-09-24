@@ -71,10 +71,10 @@ opt_specs() ->
         {file, $f, "file", string, "Send messages from file"},
         {sequentially, $S, "sequentially", undefined, "Send messages sequentially, parallel by default"},
         {verbosity, $v, "verbosity", {integer, 0}, "Verbosity level"},
-        {bind_timeout, undefined, "bind_timeout", {integer, 5}, "Bind timeout, sec"},
+        {bind_timeout, undefined, "bind_timeout", {integer, 10}, "Bind timeout, sec"},
         {unbind_timeout, undefined, "unbind_timeout", {integer, 5}, "Unbind timeout, sec"},
         {submit_timeout, undefined, "submit_timeout", {integer, 20}, "Submit timeout, sec"},
-        {delivery_timeout, undefined, "delivery_timeout", {integer, 60}, "Delivery timeout, sec"}
+        {delivery_timeout, undefined, "delivery_timeout", {integer, 80}, "Delivery timeout, sec"}
     ].
 
 process_opts(AppName, Opts, OptSpecs) ->
