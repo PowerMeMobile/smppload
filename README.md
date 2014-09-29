@@ -230,3 +230,4 @@ INFO:  Unbound
 
 * Randomly generated message body encoding is Latin1.
 * Message body encoding from files or command line is expected to be in UTF-8.
+* Thread count is 1 by default until the https://github.com/iamaleksey/oserl/issues/1 issue is fixed.
