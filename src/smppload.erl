@@ -9,9 +9,6 @@
 -include("smppload.hrl").
 -include_lib("oserl/include/smpp_globals.hrl").
 
-%% Purely empirical values
--define(MAX_OUTSTANDING_SUBMITS, 100).
-
 %% ===================================================================
 %% API
 %% ===================================================================
@@ -69,8 +66,8 @@ opt_specs() ->
         {delivery, $D, "delivery", {integer, 0}, "Delivery receipt"},
         {data_coding, $C, "data_coding", {integer, DC}, "Data coding"},
         {file, $f, "file", string, "Send messages from file"},
-        {sequentially, $S, "sequentially", undefined, "Send messages sequentially, parallel by default"},
         {verbosity, $v, "verbosity", {integer, 0}, "Verbosity level"},
+        {thread_count, $T, "thread_count", {integer, 10}, "Thread/process count"},
         {bind_timeout, undefined, "bind_timeout", {integer, 10}, "Bind timeout, sec"},
         {unbind_timeout, undefined, "unbind_timeout", {integer, 5}, "Unbind timeout, sec"},
         {submit_timeout, undefined, "submit_timeout", {integer, 20}, "Submit timeout, sec"},
@@ -193,36 +190,120 @@ check_destination(Opts) ->
 
 send_messages(Module, Opts) ->
     {ok, State0} = smppload_lazy_messages:init(Module, Opts),
-    Fun = case ?gv(sequentially, Opts, false) of
-        true ->
-            fun send_seq_messages/2;
-        false ->
-            fun send_par_messages/2
-    end,
-    {ok, State1, Stats} = Fun(State0, Opts),
+    {ok, State1, Stats} = send_parallel_messages(State0, Opts),
     ok = smppload_lazy_messages:deinit(State1),
     {ok, Stats}.
 
-send_seq_messages(State0, Opts) ->
-    send_seq_messages(State0, smppload_stats:new(), Opts).
+send_parallel_messages(State0, Opts) ->
+    process_flag(trap_exit, true),
+    ReplyTo = self(),
+    ReplyRef = make_ref(),
+    ThreadCount = ?gv(thread_count, Opts),
+    {ok, MsgSent, State1} = send_parallel_init_messages(
+        ReplyTo, ReplyRef, Opts, ThreadCount, 0, State0
+    ),
+    send_parallel_messages_and_collect_replies(
+        ReplyTo, ReplyRef, Opts,
+        MsgSent, State1, smppload_stats:new()
+    ).
 
-send_seq_messages(State0, Stats0, Opts) ->
+%% start phase
+send_parallel_init_messages(_ReplyTo, _ReplyRef, _Opts, MaxMsgCnt, MaxMsgCnt, State0) ->
+    {ok, MaxMsgCnt, State0};
+send_parallel_init_messages(ReplyTo, ReplyRef, Opts, MaxMsgCnt, MsgCnt, State0) ->
     case smppload_lazy_messages:get_next(State0) of
         {ok, Submit, State1} ->
-            SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
-            DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
-            Stats = send_message(Submit, SubmitTimeout, DeliveryTimeout),
-            send_seq_messages(State1, smppload_stats:add(Stats0, Stats), Opts);
+            spawn_link(
+                fun() ->
+                    SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
+                    DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
+                    send_message_and_reply(ReplyTo, ReplyRef, Submit, SubmitTimeout, DeliveryTimeout)
+                end
+            ),
+            send_parallel_init_messages(
+                ReplyTo, ReplyRef, Opts, MaxMsgCnt, MsgCnt + 1, State1
+            );
         {no_more, State1} ->
+            {ok, MsgCnt, State1}
+    end.
+
+%% collect and send new messages phase.
+send_parallel_messages_and_collect_replies(
+    _ReplyTo, _ReplyRef, _Opts, 0, State0, Stats0
+) ->
+    Stats1 =
+        case smppload_esme:get_avg_rps() of
+            {ok, AvgRps} ->
+                smppload_stats:inc_rps(Stats0, AvgRps);
+            {error, _} ->
+                Stats0
+        end,
+    {ok, State0, Stats1};
+send_parallel_messages_and_collect_replies(
+    ReplyTo, ReplyRef, Opts, MsgSent, State0, Stats0
+) ->
+    SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
+    DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
+    Timeout =
+        case ?gv(delivery, Opts, 0) of
+            0 ->
+                SubmitTimeout + 1000;
+            _ ->
+                SubmitTimeout + DeliveryTimeout + 1000
+        end,
+    receive
+        {ReplyRef, Stats} ->
+            send_parallel_messages_and_collect_replies(
+                ReplyTo, ReplyRef, Opts,
+                MsgSent - 1 + 1, State0, smppload_stats:add(Stats0, Stats)
+            );
+
+        {'EXIT', _Pid, Reason} ->
+            Stats1 =
+                case Reason of
+                    normal ->
+                        Stats0;
+                    _Other ->
+                        ?ERROR("Submit failed with: ~p~n", [Reason]),
+                        smppload_stats:inc_errors(Stats0)
+                end,
+            case smppload_lazy_messages:get_next(State0) of
+                {ok, Submit, State1} ->
+                    spawn_link(
+                        fun() ->
+                            send_message_and_reply(ReplyTo, ReplyRef, Submit,
+                                SubmitTimeout, DeliveryTimeout)
+                        end
+                    ),
+                    send_parallel_messages_and_collect_replies(
+                        ReplyTo, ReplyRef, Opts,
+                        MsgSent - 1 + 1, State1, Stats1
+                    );
+                {no_more, State1} ->
+                    send_parallel_messages_and_collect_replies(
+                        ReplyTo, ReplyRef, Opts,
+                        MsgSent - 1, State1, Stats1
+                    )
+            end
+    after
+        Timeout ->
+            ?ERROR("Timeout~n", []),
             Stats1 =
                 case smppload_esme:get_avg_rps() of
                     {ok, AvgRps} ->
-                        smppload_stats:inc_rps(Stats0, AvgRps);
+                        smppload_stats:inc_rps(
+                            smppload_stats:inc_errors(
+                                smppload_stats:inc_send_fail(Stats0, MsgSent), MsgSent), AvgRps);
                     {error, _} ->
-                        Stats0
+                        smppload_stats:inc_errors(
+                            smppload_stats:inc_send_fail(Stats0, MsgSent), MsgSent)
                 end,
-            {ok, State1, Stats1}
+            {ok, State0, Stats1}
     end.
+
+send_message_and_reply(ReplyTo, ReplyRef, Submit, SubmitTimeout, DeliveryTimeout) ->
+    Stats = send_message(Submit, SubmitTimeout, DeliveryTimeout),
+    ReplyTo ! {ReplyRef, Stats}.
 
 send_message(Msg, SubmitTimeout, DeliveryTimeout) ->
     SourceAddr =
@@ -269,116 +350,6 @@ send_message(Msg, SubmitTimeout, DeliveryTimeout) ->
         {error, _Reason} ->
             smppload_stats:inc_send_fail(smppload_stats:new())
     end.
-
-send_par_messages(State0, Opts) ->
-    process_flag(trap_exit, true),
-    ReplyTo = self(),
-    ReplyRef = make_ref(),
-    {ok, MsgSent, State1} = send_par_init_messages(
-        ReplyTo, ReplyRef, Opts, ?MAX_OUTSTANDING_SUBMITS, 0, State0
-    ),
-    send_par_messages_and_collect_replies(
-        ReplyTo, ReplyRef, Opts,
-        MsgSent, State1, smppload_stats:new()
-    ).
-
-%% start phase
-send_par_init_messages(_ReplyTo, _ReplyRef, _Opts, MaxMsgCnt, MaxMsgCnt, State0) ->
-    {ok, MaxMsgCnt, State0};
-send_par_init_messages(ReplyTo, ReplyRef, Opts, MaxMsgCnt, MsgCnt, State0) ->
-    case smppload_lazy_messages:get_next(State0) of
-        {ok, Submit, State1} ->
-            spawn_link(
-                fun() ->
-                    SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
-                    DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
-                    send_message_and_reply(ReplyTo, ReplyRef, Submit, SubmitTimeout, DeliveryTimeout)
-                end
-            ),
-            send_par_init_messages(
-                ReplyTo, ReplyRef, Opts, MaxMsgCnt, MsgCnt + 1, State1
-            );
-        {no_more, State1} ->
-            {ok, MsgCnt, State1}
-    end.
-
-%% collect and send new messages phase.
-send_par_messages_and_collect_replies(
-    _ReplyTo, _ReplyRef, _Opts, 0, State0, Stats0
-) ->
-    Stats1 =
-        case smppload_esme:get_avg_rps() of
-            {ok, AvgRps} ->
-                smppload_stats:inc_rps(Stats0, AvgRps);
-            {error, _} ->
-                Stats0
-        end,
-    {ok, State0, Stats1};
-send_par_messages_and_collect_replies(
-    ReplyTo, ReplyRef, Opts, MsgSent, State0, Stats0
-) ->
-    SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
-    DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
-    Timeout =
-        case ?gv(delivery, Opts, 0) of
-            0 ->
-                SubmitTimeout + 1000;
-            _ ->
-                SubmitTimeout + DeliveryTimeout + 1000
-        end,
-    receive
-        {ReplyRef, Stats} ->
-            send_par_messages_and_collect_replies(
-                ReplyTo, ReplyRef, Opts,
-                MsgSent - 1 + 1, State0, smppload_stats:add(Stats0, Stats)
-            );
-
-        {'EXIT', _Pid, Reason} ->
-            Stats1 =
-                case Reason of
-                    normal ->
-                        Stats0;
-                    _Other ->
-                        ?ERROR("Submit failed with: ~p~n", [Reason]),
-                        smppload_stats:inc_errors(Stats0)
-                end,
-            case smppload_lazy_messages:get_next(State0) of
-                {ok, Submit, State1} ->
-                    spawn_link(
-                        fun() ->
-                            send_message_and_reply(ReplyTo, ReplyRef, Submit,
-                                SubmitTimeout, DeliveryTimeout)
-                        end
-                    ),
-                    send_par_messages_and_collect_replies(
-                        ReplyTo, ReplyRef, Opts,
-                        MsgSent - 1 + 1, State1, Stats1
-                    );
-                {no_more, State1} ->
-                    send_par_messages_and_collect_replies(
-                        ReplyTo, ReplyRef, Opts,
-                        MsgSent - 1, State1, Stats1
-                    )
-            end
-    after
-        Timeout ->
-            ?ERROR("Timeout~n", []),
-            Stats1 =
-                case smppload_esme:get_avg_rps() of
-                    {ok, AvgRps} ->
-                        smppload_stats:inc_rps(
-                            smppload_stats:inc_errors(
-                                smppload_stats:inc_send_fail(Stats0, MsgSent), MsgSent), AvgRps);
-                    {error, _} ->
-                        smppload_stats:inc_errors(
-                            smppload_stats:inc_send_fail(Stats0, MsgSent), MsgSent)
-                end,
-            {ok, State0, Stats1}
-    end.
-
-send_message_and_reply(ReplyTo, ReplyRef, Submit, SubmitTimeout, DeliveryTimeout) ->
-    Stats = send_message(Submit, SubmitTimeout, DeliveryTimeout),
-    ReplyTo ! {ReplyRef, Stats}.
 
 print_usage(AppName, OptSpecs) ->
     print_description_vsn(AppName),
