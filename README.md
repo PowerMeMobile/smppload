@@ -31,14 +31,19 @@ $ ./rel/smppload/smppload
 <pre>
 $ ./smppload
 SMPP Loader from Power Alley Gateway Suite (1.0.1)
-Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
-                                [-B [&lt;bind_type&gt;]] [-i [&lt;system_id&gt;]]
-                                [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
-                                [-r [&lt;rps&gt;]] [-s &lt;source&gt;]
-                                [-d &lt;destination&gt;] [-b &lt;body&gt;]
-                                [-l [&lt;length&gt;]] [-c [&lt;count&gt;]]
-                                [-D [&lt;delivery&gt;]] [-C [&lt;data_coding&gt;]]
-                                [-f &lt;file&gt;] [-S] [-v [&lt;verbosity&gt;]]
+Usage: /home/ten0s/bin/smppload [-h] [-H [<host>]] [-P [<port>]]
+                                [-B [<bind_type>]] [-i [<system_id>]]
+                                [-p [<password>]] [-t [<system_type>]]
+                                [-r [<rps>]] [-s [<source>]]
+                                [-d <destination>] [-b <body>]
+                                [-l [<length>]] [-c [<count>]]
+                                [-D [<delivery>]] [-C [<data_coding>]]
+                                [-f <file>] [-v [<verbosity>]]
+                                [-T [<thread_count>]]
+                                [--bind_timeout [<bind_timeout>]]
+                                [--unbind_timeout [<unbind_timeout>]]
+                                [--submit_timeout [<submit_timeout>]]
+                                [--delivery_timeout [<delivery_timeout>]]
 
   -h, --help          Show this message
   -H, --host          SMSC server host name or IP address [default:
@@ -59,8 +64,12 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -D, --delivery      Delivery receipt [default: 0]
   -C, --data_coding   Data coding [default: 3]
   -f, --file          Send messages from file
-  -S, --sequentially  Send messages sequentially, parallel by default
   -v, --verbosity     Verbosity level [default: 0]
+  -T, --thread_count  Thread/process count [default: 10]
+  --bind_timeout      Bind timeout, sec [default: 10]
+  --unbind_timeout    Unbind timeout, sec [default: 5]
+  --submit_timeout    Submit timeout, sec [default: 20]
+  --delivery_timeout  Delivery timeout, sec [default: 80]
 </pre>
 
 * Send a message with the body 'Hello there!' to localhost and the standard SMPP port
@@ -182,25 +191,32 @@ INFO:  Unbound
 * Send a message with DEBUG log level
 <pre>
 $ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -vv
-DEBUG: Options: [{port,2775},
-                 {system_type,[]},
-                 {system_id,"user"},
-                 {password,"password"},
-                 {source,"375296660002"},
+DEBUG: Options: [{source,"375296660002"},
                  {destination,"375293332211"},
-                 {body,"Hello there"},
+                 {body,"Hello there!"},
                  {verbosity,2},
                  {host,"127.0.0.1"},
+                 {port,2775},
+                 {bind_type,"trx"},
+                 {system_id,"user"},
+                 {password,"password"},
+                 {system_type,[]},
                  {rps,1000},
                  {length,140},
                  {count,1},
                  {delivery,0},
-                 {data_coding,3}]
+                 {data_coding,3},
+                 {thread_count,10},
+                 {bind_timeout,10},
+                 {unbind_timeout,5},
+                 {submit_timeout,20},
+                 {delivery_timeout,80}]
 DEBUG: Module: lazy_messages_body
 INFO:  Connected to 127.0.0.1:2775
 DEBUG: Request: {bind_transceiver,[{system_type,[]},
                                    {system_id,"user"},
-                                   {password,"password"}]}
+                                   {password,"password"},
+                                   {bind_timeout,10000}]}
 DEBUG: Response: {bind_transceiver_resp,0,1,[{system_id,"Funnel"}]}
 INFO:  Bound to Funnel
 DEBUG: Request: {submit_sm,[{source_addr_ton,1},
@@ -212,7 +228,9 @@ DEBUG: Request: {submit_sm,[{source_addr_ton,1},
                             {short_message,"Hello there"},
                             {esm_class, 0},
                             {data_coding,3},
-                            {registered_delivery,0}]}
+                            {registered_delivery,0},
+                            {submit_timeout,20000},
+                            {delivery_timeout,80000}]}
 DEBUG: Response: {submit_sm_resp,0,2,[{message_id,"190602"}]}
 INFO:  Stats:
 INFO:     Send success:     1
