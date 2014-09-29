@@ -31,19 +31,19 @@ $ ./rel/smppload/smppload
 <pre>
 $ ./smppload
 SMPP Loader from Power Alley Gateway Suite (1.1.0)
-Usage: /home/ten0s/bin/smppload [-h] [-H [<host>]] [-P [<port>]]
-                                [-B [<bind_type>]] [-i [<system_id>]]
-                                [-p [<password>]] [-t [<system_type>]]
-                                [-r [<rps>]] [-s [<source>]]
-                                [-d <destination>] [-b <body>]
-                                [-l [<length>]] [-c [<count>]]
-                                [-D [<delivery>]] [-C [<data_coding>]]
-                                [-f <file>] [-v [<verbosity>]]
-                                [-T [<thread_count>]]
-                                [--bind_timeout [<bind_timeout>]]
-                                [--unbind_timeout [<unbind_timeout>]]
-                                [--submit_timeout [<submit_timeout>]]
-                                [--delivery_timeout [<delivery_timeout>]]
+Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
+                                [-B [&lt;bind_type&gt;]] [-i [&lt;system_id&gt;]]
+                                [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
+                                [-r [&lt;rps&gt;]] [-s [&lt;source&gt;]]
+                                [-d &lt;destination&gt;] [-b &lt;body&gt;]
+                                [-l [&lt;length&gt;]] [-c [&lt;count&gt;]]
+                                [-D [&lt;delivery&gt;]] [-C [&lt;data_coding&gt;]]
+                                [-f &lt;file&gt;] [-v [&lt;verbosity&gt;]]
+                                [-T [&lt;thread_count&gt;]]
+                                [--bind_timeout [&lt;bind_timeout&gt;]]
+                                [--unbind_timeout [&lt;unbind_timeout&gt;]]
+                                [--submit_timeout [&lt;submit_timeout&gt;]]
+                                [--delivery_timeout [&lt;delivery_timeout&gt;]]
 
   -h, --help          Show this message
   -H, --host          SMSC server host name or IP address [default:
