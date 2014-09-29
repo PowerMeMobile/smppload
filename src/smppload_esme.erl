@@ -234,7 +234,7 @@ handle_req(Req, _Args, ReqRef, State) ->
 extract_unref_req(Req, SmReqs) ->
     extract_unref_req(Req, SmReqs, []).
 
-extract_unref_req(Req, [{Req, _, undefined, _} = SmReq | SmReqs], Acc) ->
+extract_unref_req(Req, [{Req, _, undefined, undefined} = SmReq | SmReqs], Acc) ->
     {SmReq, SmReqs ++ Acc};
 extract_unref_req(Req, [{Req, _, _ReqRef, _} = SmReq | SmReqs], Acc) ->
     extract_unref_req(Req, SmReqs, [SmReq | Acc]);

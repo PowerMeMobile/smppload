@@ -330,7 +330,7 @@ send_par_messages_and_collect_replies(
         {ReplyRef, Stats} ->
             send_par_messages_and_collect_replies(
                 ReplyTo, ReplyRef, Opts,
-                MsgSent, State0, smppload_stats:add(Stats0, Stats)
+                MsgSent - 1 + 1, State0, smppload_stats:add(Stats0, Stats)
             );
 
         {'EXIT', _Pid, Reason} ->
@@ -356,13 +356,13 @@ send_par_messages_and_collect_replies(
                     );
                 {no_more, State1} ->
                     send_par_messages_and_collect_replies(
-                        ReplyTo, ReplyRef, Opts, MsgSent - 1,
-                        State1, Stats0
+                        ReplyTo, ReplyRef, Opts,
+                        MsgSent - 1, State1, Stats1
                     )
             end
     after
         Timeout ->
-            ?ERROR("Timeout:~n", []),
+            ?ERROR("Timeout~n", []),
             Stats1 =
                 case smppload_esme:get_avg_rps() of
                     {ok, AvgRps} ->
