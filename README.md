@@ -65,7 +65,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -C, --data_coding   Data coding [default: 3]
   -f, --file          Send messages from file
   -v, --verbosity     Verbosity level [default: 0]
-  -T, --thread_count  Thread/process count [default: 10]
+  -T, --thread_count  Thread/process count [default: 1]
   --bind_timeout      Bind timeout, sec [default: 10]
   --unbind_timeout    Unbind timeout, sec [default: 5]
   --submit_timeout    Submit timeout, sec [default: 20]
