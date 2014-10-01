@@ -46,6 +46,11 @@ parse_address_with_ton_npi_only_test() ->
     Address = smppload_parser:parse_address(",5,0"),
     ?assertEqual(#address{addr = "", ton = 5, npi = 0}, Address).
 
+-spec parse_empty_address_test() -> ok | {error, term()}.
+parse_empty_address_test() ->
+    Address = smppload_parser:parse_address(""),
+    ?assertEqual(#address{addr = "", ton = 0, npi = 0}, Address).
+
 -spec parse_delivery_test() -> ok | {error, term()}.
 parse_delivery_test() ->
     ?assertNot(smppload_parser:parse_delivery("0")),

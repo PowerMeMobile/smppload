@@ -35,6 +35,12 @@ parse_address(String) ->
                 ton = ?TON_INTERNATIONAL,
                 npi = ?NPI_ISDN
             };
+        [] ->
+            #address{
+                addr = "",
+                ton = ?TON_UNKNOWN,
+                npi = ?NPI_UNKNOWN
+            };
         _ ->
             ?ABORT("Bad address: ~p~n", [String])
     end.
