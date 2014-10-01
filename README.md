@@ -175,12 +175,12 @@ $ cat test/messages.txt | ./smppload --file -
 $ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false;3\n" $i $i; done | ./smppload --file -
 </pre>
 
-* Send a message with ERROR (default) log level
+* Send a message with ERROR log level
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
+$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -v0
 </pre>
 
-* Send a message with INFO log level
+* Send a message with INFO (default) log level
 <pre>
 $ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -v
 INFO:  Connected to 127.0.0.1:2775
