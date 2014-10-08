@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]; then
+    echo "usage:   make_tar <version> <os>"
+    echo "example: make_tar 1.2.1 centos6"
+    exit 1
+fi
+
+version=$1
+os=$2
+
+arch=`uname -m`
+
+cp -r smppload smppload-${version}-${os}-${arch}
+tar cfz smppload-${version}-${os}-${arch}.tar.gz smppload-${version}-${os}-${arch}/*
