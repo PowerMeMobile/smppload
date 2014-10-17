@@ -66,7 +66,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -C, --data_coding   Data coding [default: 3]
   -f, --file          Send messages from file
   -v, --verbosity     Verbosity level [default: 0]
-  -T, --thread_count  Thread/process count [default: 1]
+  -T, --thread_count  Thread/process count [default: 10]
   --bind_timeout      Bind timeout, sec [default: 10]
   --unbind_timeout    Unbind timeout, sec [default: 5]
   --submit_timeout    Submit timeout, sec [default: 20]
@@ -255,4 +255,3 @@ INFO:  Unbound
 
 * Randomly generated message body encoding is Latin1.
 * Message body encoding from files or command line is expected to be in UTF-8.
-* Thread count is 1 by default until the https://github.com/iamaleksey/oserl/issues/1 issue is fixed.

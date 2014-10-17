@@ -67,7 +67,7 @@ opt_specs() ->
         {data_coding, $C, "data_coding", {integer, DC}, "Data coding"},
         {file, $f, "file", string, "Send messages from file"},
         {verbosity, $v, "verbosity", {integer, 1}, "Verbosity level"},
-        {thread_count, $T, "thread_count", {integer, 1}, "Thread/process count"},
+        {thread_count, $T, "thread_count", {integer, 10}, "Thread/process count"},
         {bind_timeout, undefined, "bind_timeout", {integer, 10}, "Bind timeout, sec"},
         {unbind_timeout, undefined, "unbind_timeout", {integer, 5}, "Unbind timeout, sec"},
         {submit_timeout, undefined, "submit_timeout", {integer, 20}, "Submit timeout, sec"},
