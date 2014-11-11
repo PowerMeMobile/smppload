@@ -11,5 +11,5 @@ os=$2
 
 arch=`uname -m`
 
-cp -r smppload smppload-${version}-${os}-${arch}
-tar cfz smppload-${version}-${os}-${arch}.tar.gz smppload-${version}-${os}-${arch}/*
+cp -r smppload smppload_${version}_${os}_${arch}
+tar cfz smppload_${version}_${os}_${arch}.tar.gz smppload_${version}_${os}_${arch}/*
