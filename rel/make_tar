@@ -8,7 +8,6 @@ fi
 
 version=$1
 os=$2
-
 arch=`uname -m`
 
 dir_name=smppload-${version}
@@ -18,6 +17,7 @@ cp -r smppload ${dir_name}
 
 cp -r meta ${dir_name}/
 echo ${version} > ${dir_name}/meta/VERSION
-echo ${os}.${arch} > ${dir_name}/meta/RELEASE
+echo ${os}      > ${dir_name}/meta/RELEASE
+echo ${arch}    > ${dir_name}/meta/TARGET
 
 tar cfz ${tar_name} ${dir_name}/*
