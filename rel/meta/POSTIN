@@ -8,8 +8,8 @@ if [ ! -z ${lnk_to} ]; then
    echo Link ${lnk_name} -> ${lnk_to} already exists
    echo unlink ${lnk_name}
    unlink ${lnk_name}
-   echo mv ${lnk_to} ${lnk_to}-${now_date}
-   mv ${lnk_to} ${lnk_to}-${now_date}
+   echo mv ${lnk_to} ${lnk_to%/}-${now_date}
+   mv ${lnk_to} ${lnk_to%/}-${now_date}
 else
    echo ln -s ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
    ln -s ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
