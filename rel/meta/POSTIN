@@ -1,5 +1,5 @@
 pkg_name=%{name}
-prj_name=${pkg_name#pmm-} # get rid of pmm- prefix
+prj_name=${pkg_name#pmm-}
 dir_name=/opt/${prj_name}-%{version}
 lnk_name=/opt/${prj_name}
 now_date=$(date +%Y-%m-%dT%H:%M:%S)
@@ -8,8 +8,8 @@ if [ ! -z ${lnk_to} ]; then
    echo "${lnk_name} -> ${lnk_to} already exists"
    echo "unlink ${lnk_name}"
    unlink ${lnk_name}
-   echo "cp -v ${lnk_to} ${lnk_to%/}-${now_date}/"
-   cp -v ${lnk_to} ${lnk_to%/}-${now_date}/
+   echo "cp -rv ${lnk_to} ${lnk_to%/}-${now_date}/"
+   cp -rv ${lnk_to} ${lnk_to%/}-${now_date}/
 else
    echo "ln -sv ${dir_name}/${prj_name} /usr/local/bin/${prj_name}"
    ln -sv ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
