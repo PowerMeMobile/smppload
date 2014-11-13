@@ -1,0 +1,11 @@
+pkg_name=%{name}
+prj_name=${pkg_name#pmm-} # get rid of pmm- prefix
+lnk_name=/opt/${prj_name}
+echo readlink ${lnk_name}
+readlink ${lnk_name}
+echo unlink ${lnk_name}
+unlink ${lnk_name}
+echo readlink /usr/local/bin/${prj_name}
+readlink /usr/local/bin/${prj_name}
+echo unlink /usr/local/bin/${prj_name}
+unlink /usr/local/bin/${prj_name}

@@ -1,0 +1,18 @@
+pkg_name=%{name}
+prj_name=${pkg_name#pmm-} # get rid of pmm- prefix
+dir_name=/opt/${prj_name}-%{version}
+lnk_name=/opt/${prj_name}
+now_date=$(date +%Y-%m-%dT%H:%M:%S)
+lnk_to=$(readlink ${lnk_name})
+if [ ! -z ${lnk_to} ]; then
+   echo Link ${lnk_name} -> ${lnk_to} already exists
+   echo unlink ${lnk_name}
+   unlink ${lnk_name}
+   echo mv ${lnk_to} ${lnk_to}-${now_date}
+   mv ${lnk_to} ${lnk_to}-${now_date}
+else
+   echo ln -s ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
+   ln -s ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
+fi
+echo ln -s ${dir_name}/ ${lnk_name}
+ln -s ${dir_name}/ ${lnk_name}
