@@ -1,5 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 
-SCRIPT_DIR=$(dirname ${BASH_SOURCE[0]})
+SELF=${0}
+SCRIPT_NAME=$(basename ${SELF})
 
-$SCRIPT_DIR/bin/smppload script "$*"
+LINK=$(readlink ${SELF})
+if [ ! -z ${LINK} ]; then
+    SCRIPT_DIR=$(dirname ${LINK})
+else
+    SCRIPT_DIR=$(dirname ${SELF})
+fi
+
+${SCRIPT_DIR}/bin/${SCRIPT_NAME} script "$*"
