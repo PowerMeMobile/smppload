@@ -11,8 +11,8 @@ if [ ! -z ${lnk_to} ]; then
    echo "mv ${lnk_to} ${lnk_to%/}-${now_date}/"
    mv ${lnk_to} ${lnk_to%/}-${now_date}/
 else
-   echo "ln -s ${dir_name}/${prj_name} /usr/local/bin/${prj_name}"
-   ln -s ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
+   echo "ln -sv ${dir_name}/${prj_name} /usr/local/bin/${prj_name}"
+   ln -sv ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
 fi
-echo "ln -s ${dir_name}/ ${lnk_name}"
-ln -s ${dir_name}/ ${lnk_name}
+echo "ln -sv ${dir_name}/ ${lnk_name}"
+ln -sv ${dir_name}/ ${lnk_name}
