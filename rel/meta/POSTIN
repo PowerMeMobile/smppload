@@ -1,3 +1,4 @@
+#!/bin/bash
 pkg_name=%{name}
 prj_name=${pkg_name#pmm-}
 dir_name=/opt/${prj_name}-%{version}
