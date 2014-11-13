@@ -4,7 +4,7 @@ dir_name=/opt/${prj_name}-%{version}
 lnk_name=/opt/${prj_name}
 lnk_to=$(readlink ${lnk_name})
 if [ ! -z ${lnk_to} ]; then
-   if [ ${lnk_to} == ${dir_name} ]; then
+   if [ ${lnk_to%/} == ${dir_name} ]; then
       echo "unlink ${lnk_name}"
       unlink ${lnk_name}
       echo "readlink /usr/local/bin/${prj_name}"
