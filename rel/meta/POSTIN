@@ -8,11 +8,13 @@ if [ ! -z ${lnk_to} ]; then
    echo "${lnk_name} -> ${lnk_to} already exists"
    echo "unlink ${lnk_name}"
    unlink ${lnk_name}
-   echo "cp -r ${lnk_to} ${lnk_to%/}-${now_date}/"
-   cp -r ${lnk_to} ${lnk_to%/}-${now_date}/
-else
-   echo "ln -sn ${dir_name}/${prj_name} /usr/local/bin/${prj_name}"
-   ln -sn ${dir_name}/${prj_name} /usr/local/bin/${prj_name}
+   echo "mv ${lnk_to} ${lnk_to%/}-${now_date}/"
+   mv ${lnk_to} ${lnk_to%/}-${now_date}/
 fi
 echo "ln -s ${dir_name}/ ${lnk_name}"
 ln -s ${dir_name}/ ${lnk_name}
+lnk_glb=$(readlink /usr/local/bin/${prj_name})
+if [ -z ${lnk_glb} ]; then
+   echo "ln -sn ${lnk_name}/${prj_name} /usr/local/bin/${prj_name}"
+   ln -sn ${lnk_name}/${prj_name} /usr/local/bin/${prj_name}
+fi
