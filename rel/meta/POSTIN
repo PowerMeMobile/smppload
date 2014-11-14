@@ -3,7 +3,7 @@ pkg_name=%{name}
 prj_name=${pkg_name#pmm-}
 dir_name=/opt/${prj_name}-%{version}
 lnk_name=/opt/${prj_name}
-now_date=$(date +%Y-%m-%dT%H:%M:%S)
+now_date=$(date +%FT%T)
 lnk_to=$(readlink ${lnk_name})
 if [ ! -z ${lnk_to} ]; then
    echo "${lnk_name} -> ${lnk_to} already exists"
