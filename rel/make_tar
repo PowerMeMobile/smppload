@@ -10,10 +10,11 @@ version=$1
 os=$2
 arch=`uname -m`
 
-dir_name=smppload-${version}
-tar_name=smppload-${version}-${os}.${arch}.tar.gz
+prj_name=`cat meta/NAME`
+dir_name=${prj_name}-${version}
+tar_name=${prj_name}-${version}-${os}.${arch}.tar.gz
 
-cp -r smppload ${dir_name}
+cp -r ${prj_name} ${dir_name}
 
 cp -r meta ${dir_name}/
 echo ${version} > ${dir_name}/meta/VERSION
