@@ -4,4 +4,5 @@
 
 -spec init() -> void.
 init() ->
+    application:ensure_started(sync),
     smppload_log:init(3).

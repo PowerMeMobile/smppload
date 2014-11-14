@@ -236,8 +236,8 @@ case "$1" in
             console)        BOOTFILE=$SCRIPT ;;
             console_clean)  BOOTFILE=start_clean ;;
             develop)
-                BOOTFILE=develop
-                DEV_HOOK="-run smppload_develop init" ;;
+                BOOTFILE=$SCRIPT
+                PARAMS="-run smppload_develop init" ;;
             console_boot)
                 shift
                 BOOTFILE="$1"
