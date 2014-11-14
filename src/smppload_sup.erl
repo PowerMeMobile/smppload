@@ -8,7 +8,7 @@
 %% supervisor callbacks
 -export([init/1]).
 
--include("supervisor_spec.hrl").
+-include_lib("alley_common/include/supervisor_spec.hrl").
 
 %% Helper macro for declaring children of supervisor
 -define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
@@ -29,4 +29,3 @@ init([]) ->
     {ok, {{one_for_one, 5, 10}, [
         ?CHILD(smppload_random, worker)
     ]}}.
-

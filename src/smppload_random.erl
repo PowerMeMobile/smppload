@@ -22,7 +22,7 @@
     code_change/3
 ]).
 
--include("gen_server_spec.hrl").
+-include_lib("alley_common/include/gen_server_spec.hrl").
 
 -record(state, {
     seed :: random:seed()

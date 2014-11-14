@@ -46,8 +46,8 @@
 ]).
 
 -include("smppload.hrl").
--include("gen_server_spec.hrl").
 -include_lib("oserl/include/oserl.hrl").
+-include_lib("alley_common/include/gen_server_spec.hrl").
 
 -define(HIGH, 0).
 -define(LOW, 10).
