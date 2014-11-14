@@ -1,14 +1,17 @@
 #!/bin/bash
 pkg_name=%{name}
+pkg_ver=%{version}
 prj_name=${pkg_name#pmm-}
-dir_name=/opt/${prj_name}-%{version}
+dir_name=/opt/${prj_name}-${pkg_ver}
 lnk_name=/opt/${prj_name}
 lnk_to=$(readlink ${lnk_name})
 if [ ! -z ${lnk_to} ]; then
-   if [ ${lnk_to%/} == ${dir_name} ]; then
-      echo "unlink /usr/local/bin/${prj_name}"
-      unlink /usr/local/bin/${prj_name}
-      echo "rm -rf ${lnk_name?}*"
-      rm -rf ${lnk_name?}*
-   fi
+    if [ ${lnk_to%/} == ${dir_name} ]; then
+        echo "unlink /usr/local/bin/${prj_name}"
+        unlink /usr/local/bin/${prj_name}
+        echo "unlink ${lnk_name}"
+        unlink ${lnk_name}
+    fi
 fi
+echo "rm -rf ${dir_name?}"
+rm -rf ${dir_name?}
