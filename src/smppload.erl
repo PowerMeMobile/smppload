@@ -68,10 +68,10 @@ opt_specs() ->
         {file, $f, "file", string, "Send messages from file"},
         {verbosity, $v, "verbosity", {integer, 1}, "Verbosity level"},
         {thread_count, $T, "thread_count", {integer, 10}, "Thread/process count"},
-        {bind_timeout, undefined, "bind_timeout", {integer, 10}, "Bind timeout, sec"},
-        {unbind_timeout, undefined, "unbind_timeout", {integer, 5}, "Unbind timeout, sec"},
-        {submit_timeout, undefined, "submit_timeout", {integer, 20}, "Submit timeout, sec"},
-        {delivery_timeout, undefined, "delivery_timeout", {integer, 80}, "Delivery timeout, sec"}
+        {bind_timeout, undefined, "bind_timeout", {integer, 10000}, "Bind timeout, ms"},
+        {unbind_timeout, undefined, "unbind_timeout", {integer, 5000}, "Unbind timeout, ms"},
+        {submit_timeout, undefined, "submit_timeout", {integer, 20000}, "Submit timeout, ms"},
+        {delivery_timeout, undefined, "delivery_timeout", {integer, 80000}, "Delivery timeout, ms"}
     ].
 
 process_opts(AppName, Opts, OptSpecs) ->
@@ -220,8 +220,8 @@ send_parallel_init_messages(ReplyTo, ReplyRef, Opts, MaxMsgCnt, MsgCnt, State0) 
         {ok, Submit, State1} ->
             spawn_link(
                 fun() ->
-                    SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
-                    DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
+                    SubmitTimeout = ?gv(submit_timeout, Opts),
+                    DeliveryTimeout = ?gv(delivery_timeout, Opts),
                     send_message_and_reply(ReplyTo, ReplyRef, Submit, SubmitTimeout, DeliveryTimeout)
                 end
             ),
@@ -247,14 +247,14 @@ send_parallel_messages_and_collect_replies(
 send_parallel_messages_and_collect_replies(
     ReplyTo, ReplyRef, Opts, MsgSent, State0, Stats0
 ) ->
-    SubmitTimeout = ?gv(submit_timeout, Opts) * 1000,
-    DeliveryTimeout = ?gv(delivery_timeout, Opts) * 1000,
+    SubmitTimeout = ?gv(submit_timeout, Opts),
+    DeliveryTimeout = ?gv(delivery_timeout, Opts),
     Timeout =
         case ?gv(delivery, Opts, 0) of
             0 ->
-                SubmitTimeout + 1000;
+                SubmitTimeout;
             _ ->
-                SubmitTimeout + DeliveryTimeout + 1000
+                SubmitTimeout + DeliveryTimeout
         end,
     receive
         {ReplyRef, Stats} ->

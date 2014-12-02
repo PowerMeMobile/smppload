@@ -67,10 +67,10 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -f, --file          Send messages from file
   -v, --verbosity     Verbosity level [default: 0]
   -T, --thread_count  Thread/process count [default: 10]
-  --bind_timeout      Bind timeout, sec [default: 10]
-  --unbind_timeout    Unbind timeout, sec [default: 5]
-  --submit_timeout    Submit timeout, sec [default: 20]
-  --delivery_timeout  Delivery timeout, sec [default: 80]
+  --bind_timeout      Bind timeout, ms [default: 10000]
+  --unbind_timeout    Unbind timeout, ms [default: 5000]
+  --submit_timeout    Submit timeout, ms [default: 20000]
+  --delivery_timeout  Delivery timeout, ms [default: 80000]
 </pre>
 
 * Bind only
@@ -214,10 +214,10 @@ DEBUG: Options: [{source,"375296660002"},
                  {delivery,0},
                  {data_coding,3},
                  {thread_count,10},
-                 {bind_timeout,10},
-                 {unbind_timeout,5},
-                 {submit_timeout,20},
-                 {delivery_timeout,80}]
+                 {bind_timeout,10000},
+                 {unbind_timeout,5000},
+                 {submit_timeout,20000},
+                 {delivery_timeout,80000}]
 DEBUG: Module: lazy_messages_body
 INFO:  Connected to 127.0.0.1:2775
 DEBUG: Request: {bind_transceiver,[{system_type,[]},

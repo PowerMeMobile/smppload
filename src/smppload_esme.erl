@@ -123,7 +123,6 @@ unbind(Params) ->
 -spec submit_sm(plist()) ->
     {ok, out_msg_id(), delivery_res()} | {error, reason()}.
 submit_sm(Params) ->
-    _Timeout = proplists:get_value(submit_timeout, Params),
     gen_esme:call(?MODULE, {submit_sm, Params, [], ?LOW}, infinity).
 
 -spec get_avg_rps() -> {ok, non_neg_integer()} | {error, reason()}.
