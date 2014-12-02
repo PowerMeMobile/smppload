@@ -251,6 +251,10 @@ DEBUG: Response: {unbind_resp,0,3,[]}
 INFO:  Unbound
 </pre>
 
+## Versioning
+
+**smppload** is versioned according to [semantic versioning](http://semver.org/).
+
 ## Known issues and limitations
 
 * Randomly generated message body encoding is Latin1.
