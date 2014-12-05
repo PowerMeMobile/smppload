@@ -109,14 +109,14 @@ $ ./smppload --source FromBank,5,0 --destination 375293332211,1,1 --body 'Return
 $ ./smppload --source 37529000:4 --destination 37529:7 --body 'Hi!'
 </pre>
 
-* Send a message with empty source
+* Send a message with an empty source
 <pre>
 $ ./smppload --source "" --destination 375293332211 --body 'Hi!'
 OR
 $ ./smppload --destination 375293332211 --body 'Hi!'
 </pre>
 
-* Send a message with empty source but defined TON and NPI
+* Send a message with an empty source, but TON and NPI defined
 <pre>
 $ ./smppload --source ",5,0" --destination 375293332211 --body 'Hi!'
 </pre>
@@ -149,7 +149,7 @@ $ ./smppload --source 375296660002 --destination 375293332211 --body "Приве
 * Send messages from file test/messages.txt
 <pre>
 $ cat test/messages.txt
-# source;destination;body;delivery
+# source;destination;body;delivery;data_coding
 # where
 #   source      :: address
 #   destination :: address

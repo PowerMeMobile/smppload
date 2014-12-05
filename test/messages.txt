@@ -1,4 +1,4 @@
-# source;destination;body;delivery
+# source;destination;body;delivery;data_coding
 # where
 #   source      :: address
 #   destination :: address
