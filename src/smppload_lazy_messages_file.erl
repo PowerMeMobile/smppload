@@ -51,7 +51,16 @@ deinit(#state{fd = Fd}) ->
 get_next(State = #state{fd = Fd, parts = []}) ->
     case file:read_line(Fd) of
         {ok, Line} ->
-            case string:strip(string:strip(Line, right, $\n), both) of
+            Line2 = string:strip(Line, right, $\n),
+            Line3 = string:strip(Line2, both),
+            Line4 = case Line3 of
+                        %% utf8 bom
+                        [239,187,191] ++ Rest ->
+                            Rest;
+                        Line3 ->
+                            Line3
+                    end,
+            case Line4 of
                 [] ->
                     %% handle empty strings.
                     get_next(State);

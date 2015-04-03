@@ -71,6 +71,23 @@ file_test() ->
 
     ok = smppload_lazy_messages_body:deinit(State7).
 
+-spec file_dos_bom_test() -> ok | {error, term()}.
+file_dos_bom_test() ->
+    Config = [{file, "../test/messages_utf8_dos_bom.txt"}],
+    {ok, State0} = smppload_lazy_messages_file:init(Config),
+
+    {ok, Msg1, State1} = smppload_lazy_messages_file:get_next(State0),
+    #message{source = Source1} = Msg1,
+    ?assertEqual(#address{addr = "uuu", ton = 1, npi = 1}, Source1),
+
+    {ok, Msg2, State2} = smppload_lazy_messages_file:get_next(State1),
+    #message{source = Source2} = Msg2,
+    ?assertEqual(#address{addr = "uuu", ton = 1, npi = 1}, Source2),
+
+    {no_more, State3} = smppload_lazy_messages_file:get_next(State2),
+
+    ok = smppload_lazy_messages_body:deinit(State3).
+
 %% ===================================================================
 %% Tests end
 %% ===================================================================
