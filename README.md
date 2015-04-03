@@ -30,7 +30,7 @@ $ ./rel/smppload/smppload
 
 <pre>
 $ ./smppload
-SMPP Loader from Power Alley Gateway Suite (2.0.0)
+SMPP Loader from Power Alley Gateway Suite (2.1.0)
 Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-B [&lt;bind_type&gt;]] [-i [&lt;system_id&gt;]]
                                 [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
