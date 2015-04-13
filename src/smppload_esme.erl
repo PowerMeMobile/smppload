@@ -369,16 +369,16 @@ handle_deliver_sm(PduDlr, _From, State0) ->
 handle_closed(normal, State) ->
     {stop, normal, State};
 handle_closed(closed, State) ->
-    ?ERROR("Session closed by remote host~n", []),
+    ?ABORT("Session closed by remote host~n", []),
     {stop, closed, State};
 handle_closed(Reason, State) ->
-    ?ERROR("Session closed with: ~p~n", [Reason]),
+    ?ABORT("Session closed with: ~p~n", [Reason]),
     {stop, Reason, State}.
 
 -spec handle_unbind(any(), any(), any()) -> any().
 handle_unbind(_Pdu, _From, State) ->
-    ?ERROR("Unexpected Unbind~n", []),
-    {reply, ok, State}.
+    ?ABORT("Unexpected Unbind~n", []),
+    {noreply, State}.
 
 -spec handle_outbind(any(), any()) -> any().
 handle_outbind(Pdu, State) ->
