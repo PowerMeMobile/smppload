@@ -109,7 +109,7 @@ process_opts(AppName, Opts, OptSpecs) ->
             SystemType = ?gv(system_type, Opts),
             SystemId = ?gv(system_id, Opts),
             Password = ?gv(password, Opts),
-            BindTimeout = ?gv(bind_timeout, Opts) * 1000,
+            BindTimeout = ?gv(bind_timeout, Opts),
             BindParams = [
                 {system_type, SystemType},
                 {system_id, SystemId},
@@ -136,7 +136,7 @@ process_opts(AppName, Opts, OptSpecs) ->
             ?INFO("   Errors:           ~p~n", [smppload_stats:errors(Stats)]),
             ?INFO("   Avg Rps:          ~p mps~n", [smppload_stats:rps(Stats)]),
 
-            UnbindTimeout = ?gv(unbind_timeout, Opts) * 1000,
+            UnbindTimeout = ?gv(unbind_timeout, Opts),
             UnbindParams = [
                 {unbind_timeout, UnbindTimeout}
             ],
