@@ -225,7 +225,12 @@ check_destination(Opts) ->
                         "rx" ->
                             ok;
                         _ ->
-                            ?ABORT("Destination address is not provided~n", [])
+                            case ?gv(file, Opts) of
+                                undefined ->
+                                    ?ABORT("Destination address is not provided~n", []);
+                                _ ->
+                                    ok
+                            end
                     end
             end;
         _ ->
