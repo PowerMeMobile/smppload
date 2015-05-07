@@ -98,22 +98,22 @@ connect(Host, Port) ->
 
 -spec bind_transmitter(plist()) -> {ok, remote_system_id()} | {error, reason()}.
 bind_transmitter(Params) ->
-    Timeout = proplists:get_value(bind_timeout, Params),
+    Timeout = ?gv(bind_timeout, Params),
     gen_esme:call(?MODULE, {bind_transmitter, Params}, Timeout).
 
 -spec bind_receiver(plist()) -> {ok, string()} | {error, reason()}.
 bind_receiver(Params) ->
-    Timeout = proplists:get_value(bind_timeout, Params),
+    Timeout = ?gv(bind_timeout, Params),
     gen_esme:call(?MODULE, {bind_receiver, Params}, Timeout).
 
 -spec bind_transceiver(plist()) -> {ok, string()} | {error, reason()}.
 bind_transceiver(Params) ->
-    Timeout = proplists:get_value(bind_timeout, Params),
+    Timeout = ?gv(bind_timeout, Params),
     gen_esme:call(?MODULE, {bind_transceiver, Params}, Timeout).
 
 -spec unbind(plist()) -> ok | {error, reason()}.
 unbind(Params) ->
-    Timeout = proplists:get_value(unbind_timeout, Params),
+    Timeout = ?gv(unbind_timeout, Params),
     try gen_esme:call(?MODULE, {unbind, []}, Timeout)
     catch
         exit:Reason ->
@@ -330,7 +330,7 @@ handle_resp({ok, PduResp}, ReqRef, State) ->
                 State#state{submit_reqs = Reqs};
             true ->
                 %% start wait for delivery timer.
-                Timeout = proplists:get_value(delivery_timeout, Params),
+                Timeout = ?gv(delivery_timeout, Params),
                 TimerRef = erlang:start_timer(Timeout, self(), ReqRef),
                 State#state{
                     submit_reqs = [{Req, From, ReqRef, OutMsgId} | Reqs],
