@@ -80,7 +80,7 @@
 
 -spec start_link() -> {ok, pid()} | {error, reason()}.
 start_link() ->
-    Opts = [], %[{rps, 1}, {file_queue, "./sample_esme.dqueue"}],
+    Opts = [],
     gen_esme:start_link({local, ?MODULE}, ?MODULE, [], Opts).
 
 -spec start() -> {ok, pid()} | {error, reason()}.
