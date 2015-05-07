@@ -361,7 +361,7 @@ handle_deliver_sm(PduDlr, _From, State0) ->
             true ->
                 handle_receipt(Body, State0);
             false ->
-                handle_message(Body, State0)
+                handle_incoming(Body, State0)
     end,
     {reply, Reply, State1}.
 
@@ -401,12 +401,21 @@ handle_alert_notification(Pdu, State) ->
 %% ===================================================================
 
 handle_receipt(Body, State) ->
-    ?DEBUG("Receipt: ~p~n", [Body]),
+    BindType = State#state.bind_type,
+    case BindType of
+        rx ->
+            ?INFO("Receipt: ~p~n", [Body]);
+        _ ->
+            ?DEBUG("Receipt: ~p~n", [Body])
+    end,
     {OutMsgId, DlrState} = receipt_data(Body),
     SubmitReqs0 = State#state.submit_reqs,
     DeliveryReqs0 = State#state.delivery_reqs,
     {SubmitReqs2, DeliveryReqs2}  =
         case lists:keyfind(OutMsgId, 4, SubmitReqs0) of
+            false when BindType =:= rx ->
+                smppload_stats:incr_dlr_succ(1),
+                {SubmitReqs0, DeliveryReqs0};
             false ->
                 ?DEBUG("Ignored~n", []),
                 {SubmitReqs0, DeliveryReqs0};
@@ -428,8 +437,9 @@ handle_receipt(Body, State) ->
         delivery_reqs = DeliveryReqs2
     }}.
 
-handle_message(Body, State) ->
-    ?ERROR("Unexpected message: ~p~n", [Body]),
+handle_incoming(Body, State) ->
+    ?INFO("Incoming: ~p~n", [Body]),
+    smppload_stats:incr_incomings(1),
     {{ok, []}, State}.
 
 receipt_data(Body) ->
