@@ -22,6 +22,7 @@
     max_seg_len,
     delivery,
     data_coding,
+    service_type,
     %% for long messages
     parts = []
 }).
@@ -45,6 +46,7 @@ init(Config) ->
     DataCoding = ?ENCODING_SCHEME_LATIN_1,
     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     Length = ?gv(length, Config, MaxMsgLen),
+    ServiceType = ?gv(service_type, Config, MaxMsgLen),
     {ok, #state{
         source = Source,
         destination = Destination,
@@ -53,7 +55,8 @@ init(Config) ->
         max_msg_len = MaxMsgLen,
         max_seg_len = MaxSegLen,
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        service_type = ServiceType
     }}.
 
 -spec deinit(state()) -> ok.
@@ -73,7 +76,8 @@ get_next(State = #state{
     length = Length,
     max_msg_len = MaxMsgLen,
     delivery = Delivery,
-    data_coding = DataCoding
+    data_coding = DataCoding,
+    service_type = ServiceType
 }) when Length =< MaxMsgLen ->
     Body = smppload_random:get_alnum_string(Length),
     Message = #message{
@@ -81,7 +85,8 @@ get_next(State = #state{
         destination = smppload_utils:process_address(Destination),
         body = Body,
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        service_type = ServiceType
     },
     {ok, Message, State#state{count = Count - 1}};
 get_next(State = #state{
@@ -92,6 +97,7 @@ get_next(State = #state{
     max_seg_len = MaxSegLen,
     delivery = Delivery,
     data_coding = DataCoding,
+    service_type = ServiceType,
     parts = Parts0
 }) ->
     case Parts0 of
@@ -102,7 +108,8 @@ get_next(State = #state{
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
                 delivery = Delivery,
-                data_coding = DataCoding
+                data_coding = DataCoding,
+                service_type = ServiceType
             },
             {ok, Message, State#state{parts = Parts1}};
         [] ->
@@ -116,7 +123,8 @@ get_next(State = #state{
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
                 delivery = Delivery,
-                data_coding = DataCoding
+                data_coding = DataCoding,
+                service_type = ServiceType
             },
             {ok, Message, State#state{count = Count - 1, parts = Parts1}}
     end.
