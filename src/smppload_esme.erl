@@ -8,7 +8,7 @@
     start/0,
     stop/0,
 
-    connect/2,
+    connect/3,
 
     bind_transmitter/1,
     bind_receiver/1,
@@ -92,9 +92,9 @@ start() ->
 stop() ->
     gen_esme:cast(?MODULE, stop).
 
--spec connect(inet:ip_address(), inet:port_number()) -> ok | {error, reason()}.
-connect(Host, Port) ->
-    gen_esme:open(?MODULE, Host, [{port, Port}]).
+-spec connect(inet:ip_address(), inet:port_number(), boolean()) -> ok | {error, reason()}.
+connect(Host, Port, UseSSL) ->
+    gen_esme:open(?MODULE, Host, [{port, Port}, {ssl, UseSSL}]).
 
 -spec bind_transmitter(plist()) -> {ok, remote_system_id()} | {error, reason()}.
 bind_transmitter(Params) ->

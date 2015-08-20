@@ -77,7 +77,8 @@ opt_specs() ->
         {submit_timeout, undefined, "submit_timeout", {integer, 20000}, "Submit timeout, ms. Ignored for RX"},
         {delivery_timeout, undefined, "delivery_timeout", integer,
             io_lib:format("Delivery timeout, ms [default: TX=~p, RX=~p]",
-                [?TX_DELIVERY_TIMEOUT, ?RX_DELIVERY_TIMEOUT])}
+                [?TX_DELIVERY_TIMEOUT, ?RX_DELIVERY_TIMEOUT])},
+        {ssl, undefined, "ssl", undefined, "Use ssl/tls connection"}
     ].
 
 process_opts(AppName, Opts, OptSpecs) ->
@@ -94,18 +95,18 @@ process_opts(AppName, Opts, OptSpecs) ->
 
             %% start needed applications.
             error_logger:tty(false),
-            application:start(common_lib),
-            application:start(smppload),
+            {ok, _} = application:ensure_all_started(smppload),
 
             %% initialize stats.
             ok = smppload_stats:init(),
 
             Host = ?gv(host, Opts),
             Port = ?gv(port, Opts),
-            Peer = format_peer(Host, Port),
+            UseSSL = lists:member(ssl, Opts),
+            Peer = format_peer(Host, Port, UseSSL),
 
             {ok, _} = smppload_esme:start(),
-            case smppload_esme:connect(Host, Port) of
+            case smppload_esme:connect(Host, Port, UseSSL) of
                 ok ->
                     ?INFO("Connected to ~s~n", [Peer]);
                 {error, Reason1} ->
@@ -183,10 +184,17 @@ add_default_opts([{Name, Value} | Defaults], Opts) ->
             add_default_opts(Defaults, Opts)
     end.
 
-format_peer({A, B, C, D}, Port) ->
-    io_lib:format("~p.~p.~p.~p:~p", [A, B, C, D, Port]);
-format_peer(Host, Port) when is_list(Host) ->
-    io_lib:format("~s:~p", [Host, Port]).
+format_peer(Host, Port, UseSSL) when is_boolean(UseSSL) ->
+  ConnectionType =
+  case UseSSL of
+    true -> ssl;
+    false -> tcp
+  end,
+  format_peer(Host, Port, ConnectionType);
+format_peer({A, B, C, D}, Port, ConnectionType) ->
+    io_lib:format("~p.~p.~p.~p:~p (~p)", [A, B, C, D, Port, ConnectionType]);
+format_peer(Host, Port, ConnectionType) when is_list(Host) ->
+    io_lib:format("~s:~p (~p)", [Host, Port, ConnectionType]).
 
 get_bind_type_fun(Opts) ->
     BindType = ?gv(bind_type, Opts),
