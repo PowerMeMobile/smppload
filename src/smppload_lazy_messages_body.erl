@@ -19,6 +19,7 @@
     count,
     delivery,
     data_coding,
+    service_type,
     max_msg_len,
     max_seg_len,
     %% for long messages
@@ -43,6 +44,7 @@ init(Config) ->
     Count = ?gv(count, Config),
     Delivery = ?gv(delivery, Config),
     DataCoding = ?gv(data_coding, Config),
+    ServiceType = ?gv(service_type, Config),
     BodyEncoded = smppload_utils:encode(BodyUtf8, DataCoding),
     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     {ok, #state{
@@ -52,6 +54,7 @@ init(Config) ->
         count = Count,
         delivery = Delivery,
         data_coding = DataCoding,
+        service_type = ServiceType,
         max_msg_len = MaxMsgLen,
         max_seg_len = MaxSegLen
     }}.
@@ -73,6 +76,7 @@ get_next(State = #state{
     count = Count,
     delivery = Delivery,
     data_coding = DataCoding,
+    service_type = ServiceType,
     max_msg_len = MaxMsgLen,
     parts = []
 }) when length(Body) =< MaxMsgLen->
@@ -81,7 +85,8 @@ get_next(State = #state{
         destination = smppload_utils:process_address(Destination),
         body = Body,
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        service_type = ServiceType
     },
     {ok, Message, State#state{count = Count - 1}};
 get_next(State = #state{
@@ -91,6 +96,7 @@ get_next(State = #state{
     count = Count,
     delivery = Delivery,
     data_coding = DataCoding,
+    service_type = ServiceType,
     max_seg_len = MaxSegLen,
     parts = Parts0
 }) ->
@@ -102,7 +108,8 @@ get_next(State = #state{
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
                 delivery = Delivery,
-                data_coding = DataCoding
+                data_coding = DataCoding,
+                service_type = ServiceType
             },
             {ok, Message, State#state{parts = Parts1}};
         [] ->
@@ -115,7 +122,8 @@ get_next(State = #state{
                 body = ?gv(short_message, Part),
                 esm_class = ?gv(esm_class, Part),
                 delivery = Delivery,
-                data_coding = DataCoding
+                data_coding = DataCoding,
+                service_type = ServiceType
             },
             {ok, Message, State#state{
                 count = Count - 1,
