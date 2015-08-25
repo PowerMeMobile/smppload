@@ -377,3 +377,4 @@ INFO:  Unbound
 
 * Randomly generated message body encoding is Latin1.
 * Message body encoding from files or command line is expected to be in UTF-8.
+* For data coding 2 and 4 the body is expected to be in hexdump.

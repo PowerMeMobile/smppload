@@ -57,7 +57,7 @@ parse_message(String) ->
     case parse_message(String, [], []) of
         [[], Destination, Body, Delivery, DataCoding] ->
             DataCoding2 = parse_data_coding(DataCoding),
-            Body2 = smppload_utils:encode(Body, DataCoding2),
+            Body2 = smppload_utils:encode_abort(Body, DataCoding2),
             #message{
                 source = undefined,
                 destination = parse_address(Destination),
@@ -67,7 +67,7 @@ parse_message(String) ->
             };
         [Source, Destination, Body, Delivery, DataCoding] ->
             DataCoding2 = parse_data_coding(DataCoding),
-            Body2 = smppload_utils:encode(Body, DataCoding2),
+            Body2 = smppload_utils:encode_abort(Body, DataCoding2),
             #message{
                 source = parse_address(Source),
                 destination = parse_address(Destination),

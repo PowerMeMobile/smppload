@@ -43,7 +43,7 @@ init(Config) ->
     Count = ?gv(count, Config),
     Delivery = ?gv(delivery, Config),
     DataCoding = ?gv(data_coding, Config),
-    BodyEncoded = smppload_utils:encode(BodyUtf8, DataCoding),
+    BodyEncoded = smppload_utils:encode_abort(BodyUtf8, DataCoding),
     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     {ok, #state{
         source = Source,
