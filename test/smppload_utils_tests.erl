@@ -90,6 +90,25 @@ encode_ucs2_test() ->
     ?assertEqual({ok, Exp1}, smppload_utils:encode(Inp1, 8)),
     ?assertEqual({ok, Exp1}, smppload_utils:encode(Inp1, 24)).
 
+-spec encode_udh_body_test() -> ok | {error, term()}.
+encode_udh_body_test() ->
+    %% concat 8-bit
+    Inp1 = "050003370201abc",
+    Exp1 = [5,0,3,55,2,1,97,98,99],
+    ?assertEqual({ok, Exp1}, smppload_utils:encode(Inp1, 3, 64)),
+    %% concat 16-bit
+    Inp2 = "06080400370201abc",
+    Exp2 = [6,8,4,0,55,2,1,97,98,99],
+    ?assertEqual({ok, Exp2}, smppload_utils:encode(Inp2, 3, 64)),
+    %% port addr 8-bit
+    Inp3 = "0404021515abc",
+    Exp3 = [4,4,2,21,21,97,98,99],
+    ?assertEqual({ok, Exp3}, smppload_utils:encode(Inp3, 3, 64)),
+    %% port addr 16bit
+    Inp4 = "06050415811581abc",
+    Exp4 = [6,5,4,21,129,21,129,97,98,99],
+    ?assertEqual({ok, Exp4}, smppload_utils:encode(Inp4, 3, 64)).
+
 %% ===================================================================
 %% Tests end
 %% ===================================================================

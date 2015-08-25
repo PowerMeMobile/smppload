@@ -69,6 +69,7 @@ opt_specs() ->
         {count, $c, "count", {integer, 1}, "Count of SMS to send. Ignored for RX"},
         {delivery, $D, "delivery", {integer, 0}, "Delivery receipt. Ignored for RX"},
         {data_coding, $C, "data_coding", {integer, DC}, "Data coding. Ignored for RX"},
+        {esm_class, $E, "esm_class", {integer, 0}, "ESM class. Ignored for RX"},
         {file, $f, "file", string, "Send messages from file. Ignored for RX"},
         {verbosity, $v, "verbosity", {integer, 1}, "Verbosity level"},
         {thread_count, $T, "thread_count", {integer, 10}, "Thread/process count. Ignored for RX"},
@@ -373,8 +374,8 @@ send_message(Msg, SubmitTimeout, DeliveryTimeout) ->
         {dest_addr_npi      , Msg#message.destination#address.npi},
         {destination_addr   , Msg#message.destination#address.addr},
         {short_message      , Msg#message.body},
-        {esm_class          , Msg#message.esm_class},
         {data_coding        , Msg#message.data_coding},
+        {esm_class          , Msg#message.esm_class},
         {registered_delivery, RegDlr},
         {submit_timeout     , SubmitTimeout},
         {delivery_timeout   , DeliveryTimeout}

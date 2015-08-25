@@ -19,6 +19,7 @@
     count,
     delivery,
     data_coding,
+    esm_class,
     max_msg_len,
     max_seg_len,
     %% for long messages
@@ -43,7 +44,8 @@ init(Config) ->
     Count = ?gv(count, Config),
     Delivery = ?gv(delivery, Config),
     DataCoding = ?gv(data_coding, Config),
-    BodyEncoded = smppload_utils:encode_abort(BodyUtf8, DataCoding),
+    EsmClass = ?gv(esm_class, Config),
+    BodyEncoded = smppload_utils:encode_or_abort(BodyUtf8, DataCoding, EsmClass),
     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     {ok, #state{
         source = Source,
@@ -52,6 +54,7 @@ init(Config) ->
         count = Count,
         delivery = Delivery,
         data_coding = DataCoding,
+        esm_class = EsmClass,
         max_msg_len = MaxMsgLen,
         max_seg_len = MaxSegLen
     }}.
@@ -73,6 +76,7 @@ get_next(State = #state{
     count = Count,
     delivery = Delivery,
     data_coding = DataCoding,
+    esm_class = EsmClass,
     max_msg_len = MaxMsgLen,
     parts = []
 }) when length(Body) =< MaxMsgLen->
@@ -81,7 +85,8 @@ get_next(State = #state{
         destination = smppload_utils:process_address(Destination),
         body = Body,
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        esm_class = EsmClass
     },
     {ok, Message, State#state{count = Count - 1}};
 get_next(State = #state{
