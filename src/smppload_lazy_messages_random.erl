@@ -46,7 +46,7 @@ init(Config) ->
     DataCoding = ?ENCODING_SCHEME_LATIN_1,
     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     Length = ?gv(length, Config, MaxMsgLen),
-    ServiceType = ?gv(service_type, Config, MaxMsgLen),
+    ServiceType = ?gv(service_type, Config),
     {ok, #state{
         source = Source,
         destination = Destination,

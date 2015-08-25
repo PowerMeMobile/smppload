@@ -43,7 +43,8 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [--bind_timeout [&lt;bind_timeout&gt;]]
                                 [--unbind_timeout [&lt;unbind_timeout&gt;]]
                                 [--submit_timeout [&lt;submit_timeout&gt;]]
-                                [--delivery_timeout [&lt;delivery_timeout&gt;]]
+                                [--delivery_timeout [&lt;delivery_timeout&gt;]] [--ssl]
+                                [--service_type [&lt;service_type&gt;]]
 
   -h, --help          Show this message
   -H, --host          SMSC server host name or IP address [default:
@@ -52,7 +53,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -B, --bind_type     SMSC bind type: TX | TRX | RX [default: TRX]
   -i, --system_id     SMSC system_id [default: user]
   -p, --password      SMSC password [default: password]
-  -t, --system_type   SMSC service_type [default: ]
+  -t, --system_type   SMSC system_type [default: ]
   -r, --rps           Number of requests per second. Ignored for RX
                       [default: 1000]
   -s, --source        SMS source address Addr[:Len=0][,Ton=1,Npi=1].
@@ -73,6 +74,8 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   --unbind_timeout    Unbind timeout, ms [default: 5000]
   --submit_timeout    Submit timeout, ms. Ignored for RX [default: 20000]
   --delivery_timeout  Delivery timeout, ms [default: TX=80000, RX=infinity]
+  --ssl               Use ssl/tls connection
+  --service_type      Service type [default: ]
 </pre>
 
 * Bind only
