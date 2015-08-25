@@ -15,6 +15,7 @@
 
 -record(state, {
     fd,
+    service_type,
     %% for long messages
     parts = [],
     source,
@@ -29,13 +30,14 @@
 
 -spec init(config()) -> {ok, state()}.
 init(Config) ->
+    ServiceType = ?gv(service_type, Config),
     case string:strip(?gv(file, Config), both) of
         "-" ->
-            {ok, #state{fd = standard_io}};
+            {ok, #state{fd = standard_io, service_type = ServiceType}};
         File ->
             case file:open(File, [read]) of
                 {ok, Fd} ->
-                    {ok, #state{fd = Fd}};
+                    {ok, #state{fd = Fd, service_type = ServiceType}};
                 {error, Reason} ->
                     ?ABORT("Open file ~p failed with: ~p~n", [File, Reason])
             end
@@ -79,7 +81,7 @@ get_next(State = #state{fd = Fd, parts = []}) ->
                     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
                     case length(Body) =< MaxMsgLen of
                         true ->
-                            {ok, Message, State};
+                            {ok, Message#message{service_type = State#state.service_type}, State};
                         false ->
                             RefNum = smppload_ref_num:next(?MODULE),
                             [Part | Parts] =
@@ -90,7 +92,8 @@ get_next(State = #state{fd = Fd, parts = []}) ->
                                 body = ?gv(short_message, Part),
                                 esm_class = ?gv(esm_class, Part),
                                 delivery = Delivery,
-                                data_coding = DataCoding
+                                data_coding = DataCoding,
+                                service_type = State#state.service_type
                             },
                             {ok, Message2, State#state{
                                 parts = Parts,
@@ -117,7 +120,8 @@ get_next(State = #state{
         body = ?gv(short_message, Part),
         esm_class = ?gv(esm_class, Part),
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        service_type = State#state.service_type
     },
     {ok, Message, State#state{
         parts = [],
@@ -139,7 +143,8 @@ get_next(State = #state{
         body = ?gv(short_message, Part),
         esm_class = ?gv(esm_class, Part),
         delivery = Delivery,
-        data_coding = DataCoding
+        data_coding = DataCoding,
+        service_type = State#state.service_type
     },
     {ok, Message, State#state{
         parts = Parts
