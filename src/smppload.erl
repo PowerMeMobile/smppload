@@ -351,6 +351,8 @@ send_message(Msg, SubmitTimeout, DeliveryTimeout) ->
         case Msg#message.source of
             [] ->
                 [];
+            undefined ->
+                [];
             _ ->
                 [
                     {source_addr_ton , Msg#message.source#address.ton},
