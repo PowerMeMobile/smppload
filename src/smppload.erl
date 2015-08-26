@@ -59,7 +59,7 @@ opt_specs() ->
         {bind_type, $B, "bind_type", {string, "TRX"}, "SMSC bind type: TX | TRX | RX"},
         {system_id, $i, "system_id", {string, "user"}, "SMSC system_id"},
         {password, $p, "password", {string, "password"}, "SMSC password"},
-        {system_type, $t, "system_type", {string, ""}, "SMSC service_type"},
+        {system_type, $t, "system_type", {string, ""}, "SMSC system_type"},
         {rps, $r, "rps", {integer, 1000}, "Number of requests per second. Ignored for RX"},
         {source, $s, "source", {string, ""}, "SMS source address Addr[:Len=0][,Ton=1,Npi=1]. Ignored for RX"},
         {destination , $d, "destination", string,
@@ -78,7 +78,8 @@ opt_specs() ->
         {delivery_timeout, undefined, "delivery_timeout", integer,
             io_lib:format("Delivery timeout, ms [default: TX=~p, RX=~p]",
                 [?TX_DELIVERY_TIMEOUT, ?RX_DELIVERY_TIMEOUT])},
-        {ssl, undefined, "ssl", undefined, "Use ssl/tls connection"}
+        {ssl, undefined, "ssl", undefined, "Use ssl/tls connection"},
+        {service_type, undefined, "service_type", {string, ""}, "Service type"}
     ].
 
 process_opts(AppName, Opts, OptSpecs) ->
@@ -350,6 +351,8 @@ send_message(Msg, SubmitTimeout, DeliveryTimeout) ->
         case Msg#message.source of
             [] ->
                 [];
+            undefined ->
+                [];
             _ ->
                 [
                     {source_addr_ton , Msg#message.source#address.ton},
@@ -375,6 +378,7 @@ send_message(Msg, SubmitTimeout, DeliveryTimeout) ->
         {short_message      , Msg#message.body},
         {esm_class          , Msg#message.esm_class},
         {data_coding        , Msg#message.data_coding},
+        {service_type       , Msg#message.service_type},
         {registered_delivery, RegDlr},
         {submit_timeout     , SubmitTimeout},
         {delivery_timeout   , DeliveryTimeout}

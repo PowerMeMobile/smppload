@@ -18,6 +18,7 @@
     body :: binary(),
     esm_class = 0 :: integer(),
     data_coding :: integer(),
+    service_type = "" :: string(),
     delivery :: boolean()
 }).
 
