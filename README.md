@@ -38,8 +38,8 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-d &lt;destination&gt;] [-b &lt;body&gt;]
                                 [-l [&lt;length&gt;]] [-c [&lt;count&gt;]]
                                 [-D [&lt;delivery&gt;]] [-C [&lt;data_coding&gt;]]
-                                [-f &lt;file&gt;] [-v [&lt;verbosity&gt;]]
-                                [-T [&lt;thread_count&gt;]]
+                                [-E [<esm_class>]] [-f &lt;file&gt;]
+                                [-v [&lt;verbosity&gt;]] [-T [&lt;thread_count&gt;]]
                                 [--bind_timeout [&lt;bind_timeout&gt;]]
                                 [--unbind_timeout [&lt;unbind_timeout&gt;]]
                                 [--submit_timeout [&lt;submit_timeout&gt;]]
@@ -66,6 +66,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   -c, --count         Count of SMS to send. Ignored for RX [default: 1]
   -D, --delivery      Delivery receipt. Ignored for RX [default: 0]
   -C, --data_coding   Data coding. Ignored for RX [default: 3]
+  -E, --esm_class     ESM class. Ignored for RX [default: 0]
   -f, --file          Send messages from file. Ignored for RX
   -v, --verbosity     Verbosity level [default: 1]
   -T, --thread_count  Thread/process count. Ignored for RX [default: 10]
@@ -148,10 +149,27 @@ $ ./smppload --source 375296660002 --destination 375293332211 --count 100
 $ ./smppload --source 375296660002 --destination 375293332211 --body "Привет" --data_coding 8
 </pre>
 
+* Send a binary message with the port addressing 16-bit and Latin1 'HelloPort' message
+<pre>
+$ ./smppload -s 375296660002 -d 375293332211 -b"06050415821582HelloPort" --esm_class 64
+</pre>
+
+* Send a binary message with the port addressing 16-bit and the message 'HelloPort' hexdump encoded
+<pre>
+$ ./smppload -s375296660002 -d375293332211 -b0605041582158248656c6c6f506f7274 --esm_class 64 --data_coding 4
+</pre>
+
+* Send one concatenated 8-bit 160 chars Latin1 message 'abcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghij' by two separate commands
+
+<pre>
+$ ./smppload -s375296660002 -d375293332211 -b050003010201abcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghi --esm_class 64
+$ ./smppload -s375296660002 -d375293332211 -b050003010202jklmopqrstuvwxyzabcdefghij --esm_class 64
+</pre>
+
 * Send messages from file test/messages.txt
 <pre>
 $ cat test/messages.txt
-# source;destination;body;delivery;data_coding
+# source;destination;body;delivery;data_coding[;esm_class]
 # where
 #   source      :: address
 #   destination :: address
@@ -159,11 +177,13 @@ $ cat test/messages.txt
 #   body        :: string, use double semicolon (;;) in the body
 #   delivery    :: true | false | 1 | 0
 #   data_coding :: integer
+#   esm_class   :: integer optional
 375296660002,1,1;375291112231,1,1;Message #1;true;3
 375296660002,1,1;375291112232,1,1;Message #2;true;3
 375296660002,1,1;375291112233,1,1;Message #3;true;3
 375296660002,1,1;375291112234,1,1;Message #4;true;3
 375296660002,1,1;375291112235,1,1;Message #5;true;3
+375296660002,1,1;375291112235,1,1;06050415821582HelloPort;false;3;64
 $ ./smppload --file test/messages.txt
 </pre>
 
@@ -375,6 +395,7 @@ INFO:  Unbound
 
 ## Known issues and limitations
 
-* Randomly generated message body encoding is Latin1.
+* Default data coding is 3 (Latin1).
+* Randomly generated message body encoding is 3 (Latin1).
 * Message body encoding from files or command line is expected to be in UTF-8.
-* For data coding 2 and 4 the body is expected to be in hexdump.
+* For data coding 2 (Binary 8-bit) and 4 (Binary 8-bit) the body is expected to be in hexdump.
