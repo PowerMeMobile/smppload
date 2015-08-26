@@ -119,6 +119,12 @@ unhexdump_and_encode(Body, DC) ->
         {UDH, Body2} = lists:split((UDHLen+1)*2, Body),
         UDHEnc = ac_hexdump:hexdump_to_list(UDH),
         {ok, Body2Enc} = encode(Body2, DC),
+        %% !!! It's over-simplification here !!!
+        %% For DC=0 (and probably 1) there MUST be 1 filling bit
+        %% between UDH and Encoded Body as described in
+        %% http://stackoverflow.com/questions/21098643/smpp-submit-long-message-and-message-split/21121353#21121353
+        %% But since the gsm0338 library doesn't seem to do 7-bit packing,
+        %% I have no idea how to implement it correctly right now.
         {ok, UDHEnc ++ Body2Enc}
     catch
         _:_ ->
