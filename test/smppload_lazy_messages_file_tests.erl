@@ -56,7 +56,7 @@ file_test() ->
     %?debugFmt("~p~n", [Beginning]),
     %?debugFmt("~p~n", [Body5]),
     ?assertMatch([_, _, _, _, _, _ | Beginning], Body5),
-    ?assert(Class5 =/= 0),
+    ?assert(Class5 =:= 64),
 
     %% long message part2
     {ok, Msg6, State6} = smppload_lazy_messages_file:get_next(State5),
@@ -65,11 +65,19 @@ file_test() ->
     %?debugFmt("~p~n", [Ending]),
     %?debugFmt("~p~n", [Body6]),
     ?assertMatch([_, _, _, _, _, _ | Ending], Body6),
-    ?assert(Class6 =/= 0),
+    ?assert(Class6 =:= 64),
 
-    {no_more, State7} = smppload_lazy_messages_file:get_next(State6),
+    %% UDH + message
+    {ok, Msg7, State7} = smppload_lazy_messages_file:get_next(State6),
+    #message{body = Body7, esm_class = Class7} = Msg7,
+    %?debugFmt("~p~n", [Body7]),
+    %?debugFmt("~p~n", [Class7]),
+    ?assertMatch([6,5,4,21,129,21,129,97,98,99], Body7),
+    ?assert(Class7 =:= 64),
 
-    ok = smppload_lazy_messages_body:deinit(State7).
+    {no_more, State8} = smppload_lazy_messages_file:get_next(State7),
+
+    ok = smppload_lazy_messages_body:deinit(State8).
 
 -spec file_dos_bom_test() -> ok | {error, term()}.
 file_dos_bom_test() ->

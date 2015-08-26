@@ -54,26 +54,42 @@ parse_delivery(String)  -> ?ABORT("Bad delivery: ~p~n", [String]).
 
 -spec parse_message(string()) -> #message{}.
 parse_message(String) ->
-    case parse_message(String, [], []) of
+    case split_fields(String, [], []) of
         [[], Destination, Body, Delivery, DataCoding] ->
             DataCoding2 = parse_data_coding(DataCoding),
-            Body2 = smppload_utils:encode(Body, DataCoding2),
+            EsmClass = 0,
+            Body2 = smppload_utils:encode_or_abort(Body, DataCoding2, EsmClass),
             #message{
                 source = undefined,
                 destination = parse_address(Destination),
                 body = Body2,
                 delivery = parse_delivery(Delivery),
-                data_coding = DataCoding2
+                data_coding = DataCoding2,
+                esm_class = EsmClass
             };
         [Source, Destination, Body, Delivery, DataCoding] ->
             DataCoding2 = parse_data_coding(DataCoding),
-            Body2 = smppload_utils:encode(Body, DataCoding2),
+            EsmClass = 0,
+            Body2 = smppload_utils:encode_or_abort(Body, DataCoding2, EsmClass),
             #message{
                 source = parse_address(Source),
                 destination = parse_address(Destination),
                 body = Body2,
                 delivery = parse_delivery(Delivery),
-                data_coding = DataCoding2
+                data_coding = DataCoding2,
+                esm_class = EsmClass
+            };
+        [Source, Destination, Body, Delivery, DataCoding, EsmClass] ->
+            DataCoding2 = parse_data_coding(DataCoding),
+            EsmClass2 = parse_esm_class(EsmClass),
+            Body2 = smppload_utils:encode_or_abort(Body, DataCoding2, EsmClass2),
+            #message{
+                source = parse_address(Source),
+                destination = parse_address(Destination),
+                body = Body2,
+                delivery = parse_delivery(Delivery),
+                data_coding = DataCoding2,
+                esm_class = EsmClass2
             };
         _ ->
             ?ABORT("Bad message: ~p~n", [String])
@@ -83,14 +99,14 @@ parse_message(String) ->
 %% Internal
 %% ===================================================================
 
-parse_message([], Chunk, Chunks) ->
+split_fields([], Chunk, Chunks) ->
     lists:reverse([lists:reverse(Chunk) | Chunks]);
-parse_message([$;,$;,Char | Chars], Chunk, Chunks) ->
-    parse_message(Chars, [Char, $; | Chunk], Chunks);
-parse_message([$;,Char | Chars], Chunk, Chunks) ->
-    parse_message(Chars, [Char], [lists:reverse(Chunk) | Chunks]);
-parse_message([Char | Chars], Chunk, Chunks) ->
-    parse_message(Chars, [Char | Chunk], Chunks).
+split_fields([$;,$;,Char | Chars], Chunk, Chunks) ->
+    split_fields(Chars, [Char, $; | Chunk], Chunks);
+split_fields([$;,Char | Chars], Chunk, Chunks) ->
+    split_fields(Chars, [Char], [lists:reverse(Chunk) | Chunks]);
+split_fields([Char | Chars], Chunk, Chunks) ->
+    split_fields(Chars, [Char | Chunk], Chunks).
 
 parse_addr(Addr) ->
     case lists:member($:, Addr) of
@@ -115,10 +131,18 @@ parse_addr(Addr) ->
 
 parse_data_coding(Str) ->
     case check_integer(Str) of
-        {ok, Int} ->
+        {ok, Int} when Int >= 0 ->
             Int;
         error ->
             ?ABORT("Bad data coding: ~p~n", [Str])
+    end.
+
+parse_esm_class(Str) ->
+    case check_integer(Str) of
+        {ok, Int} when Int >= 0 ->
+            Int;
+        error ->
+            ?ABORT("Bad esm class: ~p~n", [Str])
     end.
 
 check_integer(Str) ->
