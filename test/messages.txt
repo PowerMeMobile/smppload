@@ -1,4 +1,4 @@
-# source;destination;body;delivery;data_coding
+# source;destination;body;delivery;data_coding[;esm_class]
 # where
 #   source      :: address
 #   destination :: address
@@ -6,9 +6,10 @@
 #   body        :: string, to use double semicolon (;;) in the body
 #   delivery    :: true | false | 1 | 0
 #   data_coding :: integer
-
+#   esm_class   :: integer optional
 375296660002,1,1;375291112231,1,1;Message #1;true;3
 375296660002,1,1;375291112232,1,1;Message #2;true;3
 375296660002,1,1;375291112233,1,1;Message #3;true;3
 375296660002,1,1;375291112234,1,1;Message #4;true;3
 375296660002,1,1;375291112235,1,1;Message #5;true;3
+375296660002,1,1;375291112235,1,1;06050415821582HelloPort;false;3;64

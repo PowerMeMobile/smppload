@@ -4,7 +4,7 @@
     process_address/1,
     encode/2,
     encode/3,
-    encode_or_abort/3,
+    encode_or_abort/4,
     max_msg_seg/1
 ]).
 
@@ -82,15 +82,21 @@ encode(Utf8, DC) when DC =:= 8; DC =:= 24 ->
 encode(Utf8, _DC) ->
     {ok, Utf8}.
 
--spec encode_or_abort(utf8_list(), data_coding(), esm_class()) ->
+-spec encode_or_abort(utf8_list(), body_format(), data_coding(), esm_class()) ->
     encoded_list() | no_return().
-encode_or_abort(Utf8, DC, EC) ->
+encode_or_abort(Utf8, default, DC, EC) ->
     case encode(Utf8, DC, EC) of
         {ok, Encoded} ->
             Encoded;
         error ->
             ?ABORT("Impossible to convert '~s' to data coding: ~p, esm_class: ~p~n",
                 [Utf8, DC, EC])
+    end;
+encode_or_abort(Hexdump, hexdump, _DC, _EC) ->
+    try ac_hexdump:hexdump_to_list(Hexdump)
+    catch
+        _:_ ->
+            ?ABORT("Impossible to convert '~s' to hexdump~n", [Hexdump])
     end.
 
 -spec max_msg_seg(data_coding()) -> {msg_len(), seg_len()}.

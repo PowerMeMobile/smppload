@@ -12,7 +12,14 @@
 
 -spec full_test() -> ok | {error, term()}.
 full_test() ->
-    Config = [{source, "s"}, {destination, "d"}, {body, "b"}, {delivery, true}, {count, 3}],
+    Config = [
+        {source, "s"},
+        {destination, "d"},
+        {body, "b"},
+        {body_format, default},
+        {delivery, true},
+        {count, 3}
+    ],
     {ok, State0} = smppload_lazy_messages_body:init(Config),
     {ok, Msg, State1} = smppload_lazy_messages_body:get_next(State0),
     #message{source = Source, destination = Destination, body = Body, delivery = Delivery} = Msg,
@@ -28,7 +35,13 @@ full_test() ->
 -spec long_body_test() -> ok | {error, term()}.
 long_body_test() ->
     Msg = lists:seq(1, 165),
-    Config = [{source, "s"}, {destination, "d"}, {body, Msg}, {count, 1}],
+    Config = [
+        {source, "s"},
+        {destination, "d"},
+        {body, Msg},
+        {body_format, default},
+        {count, 1}
+    ],
     {ok, State0} = smppload_lazy_messages_body:init(Config),
 
     {ok, Msg1, State1} = smppload_lazy_messages_body:get_next(State0),
@@ -52,13 +65,42 @@ long_body_test() ->
 
 -spec no_source_test() -> ok | {error, term()}.
 no_source_test() ->
-    Config = [{source, ""}, {destination, "d"}, {body, "b"}, {delivery, true}, {count, 1}],
+    Config = [
+        {source, ""},
+        {destination, "d"},
+        {body, "b"},
+        {body_format, default},
+        {delivery, true},
+        {count, 1}
+    ],
     {ok, State0} = smppload_lazy_messages_body:init(Config),
     {ok, Msg, State1} = smppload_lazy_messages_body:get_next(State0),
     #message{source = Source} = Msg,
     ?assertEqual("", Source),
     {no_more, State2} = smppload_lazy_messages_body:get_next(State1),
     ok = smppload_lazy_messages_body:deinit(State2).
+
+-spec hexdump_body_test() -> ok | {error, term()}.
+hexdump_body_test() ->
+    Config = [
+        {source, "s"},
+        {destination, "d"},
+        {body, "68656c6c6f"},
+        {body_format, hexdump},
+        {delivery, true},
+        {count, 3}
+    ],
+    {ok, State0} = smppload_lazy_messages_body:init(Config),
+    {ok, Msg, State1} = smppload_lazy_messages_body:get_next(State0),
+    #message{source = Source, destination = Destination, body = Body, delivery = Delivery} = Msg,
+    ?assertEqual(#address{addr = "s", ton = 1, npi = 1}, Source),
+    ?assertEqual(#address{addr = "d", ton = 1, npi = 1}, Destination),
+    ?assertEqual("hello", Body),
+    ?assert(Delivery),
+    {ok, Msg, State2} = smppload_lazy_messages_body:get_next(State1),
+    {ok, Msg, State3} = smppload_lazy_messages_body:get_next(State2),
+    {no_more, State4} = smppload_lazy_messages_body:get_next(State3),
+    ok = smppload_lazy_messages_body:deinit(State4).
 
 %% ===================================================================
 %% Tests end

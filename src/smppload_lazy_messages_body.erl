@@ -42,12 +42,14 @@ init(Config) ->
         end,
     Destination = smppload_parser:parse_address(?gv(destination, Config)),
     BodyUtf8 = ?gv(body, Config),
+    BodyFormat = ?gv(body_format, Config),
     Count = ?gv(count, Config),
     Delivery = ?gv(delivery, Config),
     EsmClass = ?gv(esm_class, Config),
     DataCoding = ?gv(data_coding, Config),
     ServiceType = ?gv(service_type, Config),
-    BodyEncoded = smppload_utils:encode_or_abort(BodyUtf8, DataCoding, EsmClass),
+    BodyEncoded = smppload_utils:encode_or_abort(
+        BodyUtf8, BodyFormat, DataCoding, EsmClass),
     {MaxMsgLen, MaxSegLen} = smppload_utils:max_msg_seg(DataCoding),
     {ok, #state{
         source = Source,

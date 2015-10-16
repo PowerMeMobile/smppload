@@ -169,6 +169,12 @@ $ ./smppload -s375296660002 -d375293332211 -b050003010201abcdefghijklmopqrstuvwx
 $ ./smppload -s375296660002 -d375293332211 -b050003010202jklmopqrstuvwxyzabcdefghij --esm_class 64
 </pre>
 
+* Send utf-8 '©' character inconsistent with specified GSM 0338 encoding
+
+<pre>
+$ ./smppload -s375296660002 -d375293332211 -b00a9 --body_format hexdump --data_coding 0 -vv
+</pre>
+
 * Send messages from file test/messages.txt
 <pre>
 $ cat test/messages.txt

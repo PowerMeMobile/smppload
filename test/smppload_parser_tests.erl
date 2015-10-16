@@ -61,7 +61,7 @@ parse_delivery_test() ->
 -spec parse_message_without_ton_npi_test() -> ok | {error, term()}.
 parse_message_without_ton_npi_test() ->
     String = "375293332211;375291112233;Hello there!;0;3",
-    Message = smppload_parser:parse_message(String),
+    Message = smppload_parser:parse_message(String, default),
 
     Expected = #message{
         source = #address{addr = "375293332211", ton = 1, npi = 1},
@@ -75,7 +75,21 @@ parse_message_without_ton_npi_test() ->
 -spec parse_full_message_test() -> ok | {error, term()}.
 parse_full_message_test() ->
     String = "FromBank,5,0;375291112233,2,3;We want our money back, looser!;true;3",
-    Message = smppload_parser:parse_message(String),
+    Message = smppload_parser:parse_message(String, default),
+
+    Expected = #message{
+        source = #address{addr = "FromBank", ton = 5, npi = 0},
+        destination = #address{addr = "375291112233", ton = 2, npi = 3},
+        body = "We want our money back, looser!",
+        delivery = true,
+        data_coding = 3
+    },
+    ?assertEqual(Expected, Message).
+
+-spec parse_hexdump_message_test() -> ok | {error, term()}.
+parse_hexdump_message_test() ->
+    String = "FromBank,5,0;375291112233,2,3;57652077616e74206f7572206d6f6e6579206261636b2c206c6f6f73657221;true;3",
+    Message = smppload_parser:parse_message(String, hexdump),
 
     Expected = #message{
         source = #address{addr = "FromBank", ton = 5, npi = 0},
@@ -89,7 +103,7 @@ parse_full_message_test() ->
 -spec parse_message_with_double_semicolon_test() -> ok | {error, term()}.
 parse_message_with_double_semicolon_test() ->
     String = "375293332211;375291112233;Hello here;; there!;0;3",
-    Message = smppload_parser:parse_message(String),
+    Message = smppload_parser:parse_message(String, default),
 
     Expected = #message{
         source = #address{addr = "375293332211", ton = 1, npi = 1},
@@ -103,7 +117,7 @@ parse_message_with_double_semicolon_test() ->
 -spec parse_message_without_source_test() -> ok | {error, term()}.
 parse_message_without_source_test() ->
     String = ";375291112233;Hello there!;0;3",
-    Message = smppload_parser:parse_message(String),
+    Message = smppload_parser:parse_message(String, default),
 
     Expected = #message{
         source = undefined,

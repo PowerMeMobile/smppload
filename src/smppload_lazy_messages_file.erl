@@ -21,7 +21,8 @@
     source,
     destination,
     delivery,
-    data_coding
+    data_coding,
+    body_format
 }).
 
 %% ===================================================================
@@ -31,13 +32,22 @@
 -spec init(config()) -> {ok, state()}.
 init(Config) ->
     ServiceType = ?gv(service_type, Config),
+    BodyFormat = ?gv(body_format, Config),
     case string:strip(?gv(file, Config), both) of
         "-" ->
-            {ok, #state{fd = standard_io, service_type = ServiceType}};
+            {ok, #state{
+                fd = standard_io,
+                service_type = ServiceType,
+                body_format = BodyFormat
+            }};
         File ->
             case file:open(File, [read]) of
                 {ok, Fd} ->
-                    {ok, #state{fd = Fd, service_type = ServiceType}};
+                    {ok, #state{
+                        fd = Fd,
+                        service_type = ServiceType,
+                        body_format = BodyFormat
+                    }};
                 {error, Reason} ->
                     ?ABORT("Open file ~p failed with: ~p~n", [File, Reason])
             end
@@ -50,7 +60,7 @@ deinit(#state{fd = Fd}) ->
     file:close(Fd).
 
 -spec get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
-get_next(State = #state{fd = Fd, parts = []}) ->
+get_next(State = #state{fd = Fd, parts = [], body_format = BodyFormat}) ->
     case file:read_line(Fd) of
         {ok, Line} ->
             Line2 = string:strip(Line, right, $\n),
@@ -70,7 +80,7 @@ get_next(State = #state{fd = Fd, parts = []}) ->
                     %% handle comments.
                     get_next(State);
                 Stripped ->
-                    Message = smppload_parser:parse_message(Stripped),
+                    Message = smppload_parser:parse_message(Stripped, BodyFormat),
 
                     Source      = Message#message.source,
                     Destination = Message#message.destination,

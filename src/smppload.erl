@@ -80,7 +80,8 @@ opt_specs() ->
             io_lib:format("Delivery timeout, ms [default: TX=~p, RX=~p]",
                 [?TX_DELIVERY_TIMEOUT, ?RX_DELIVERY_TIMEOUT])},
         {ssl, undefined, "ssl", undefined, "Use ssl/tls connection"},
-        {service_type, undefined, "service_type", {string, ""}, "Service type"}
+        {service_type, undefined, "service_type", {string, ""}, "Service type"},
+        {body_format, undefined, "body_format", {string, "default"}, "Body format: default | hexdump. Ignored for RX"}
     ].
 
 process_opts(AppName, Opts, OptSpecs) ->
@@ -144,9 +145,12 @@ process_opts(AppName, Opts, OptSpecs) ->
                         [{delivery_timeout, ?RX_DELIVERY_TIMEOUT}], Opts),
                     timer:sleep(?gv(delivery_timeout, Opts2));
                 _ ->
-                    Opts2 = add_default_opts(
-                        [{destination, ""},
-                         {delivery_timeout, ?TX_DELIVERY_TIMEOUT}], Opts),
+                    Opts2 =
+                        [{body_format, get_body_format(Opts)}] ++
+                        add_default_opts([
+                            {destination, ""},
+                            {delivery_timeout, ?TX_DELIVERY_TIMEOUT}
+                        ], Opts),
                     MessagesModule = get_lazy_messages_module(Opts2),
                     ?DEBUG("MessagesModule: ~p~n", [MessagesModule]),
                     send_messages(MessagesModule, Opts2)
@@ -209,6 +213,17 @@ get_bind_type_fun(Opts) ->
             bind_receiver;
         _ ->
             ?ABORT("Unknown bind type: ~p~n", [BindType])
+    end.
+
+get_body_format(Opts) ->
+    Format = ?gv(body_format, Opts),
+    case string:to_lower(Format) of
+        "default" ->
+            default;
+        "hexdump" ->
+            hexdump;
+        _ ->
+            ?ABORT("Unknown body format: ~p~n", [Format])
     end.
 
 get_lazy_messages_module(Opts) ->

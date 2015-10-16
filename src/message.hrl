@@ -22,4 +22,6 @@
     delivery :: boolean()
 }).
 
+-type body_format()  :: default | hexdump.
+
 -endif.

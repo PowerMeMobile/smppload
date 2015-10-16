@@ -3,7 +3,7 @@
 -export([
     parse_address/1,
     parse_delivery/1,
-    parse_message/1
+    parse_message/2
 ]).
 
 -include("smppload.hrl").
@@ -52,13 +52,13 @@ parse_delivery("1")     -> true;
 parse_delivery("true")  -> true;
 parse_delivery(String)  -> ?ABORT("Bad delivery: ~p~n", [String]).
 
--spec parse_message(string()) -> #message{}.
-parse_message(String) ->
+-spec parse_message(string(), body_format()) -> #message{}.
+parse_message(String, BodyFormat) ->
     case split_fields(String, [], []) of
         [[], Destination, Body, Delivery, DataCoding] ->
             DataCoding2 = parse_data_coding(DataCoding),
             EsmClass = 0,
-            Body2 = smppload_utils:encode_or_abort(Body, DataCoding2, EsmClass),
+            Body2 = smppload_utils:encode_or_abort(Body, BodyFormat, DataCoding2, EsmClass),
             #message{
                 source = undefined,
                 destination = parse_address(Destination),
@@ -70,7 +70,7 @@ parse_message(String) ->
         [Source, Destination, Body, Delivery, DataCoding] ->
             DataCoding2 = parse_data_coding(DataCoding),
             EsmClass = 0,
-            Body2 = smppload_utils:encode_or_abort(Body, DataCoding2, EsmClass),
+            Body2 = smppload_utils:encode_or_abort(Body, BodyFormat, DataCoding2, EsmClass),
             #message{
                 source = parse_address(Source),
                 destination = parse_address(Destination),
@@ -82,7 +82,7 @@ parse_message(String) ->
         [Source, Destination, Body, Delivery, DataCoding, EsmClass] ->
             DataCoding2 = parse_data_coding(DataCoding),
             EsmClass2 = parse_esm_class(EsmClass),
-            Body2 = smppload_utils:encode_or_abort(Body, DataCoding2, EsmClass2),
+            Body2 = smppload_utils:encode_or_abort(Body, BodyFormat, DataCoding2, EsmClass2),
             #message{
                 source = parse_address(Source),
                 destination = parse_address(Destination),

@@ -12,7 +12,7 @@
 
 -spec file_test() -> ok | {error, term()}.
 file_test() ->
-    Config = [{file, "../test/messages.test"}],
+    Config = [{file, "../test/messages.test"}, {body_format, default}],
     {ok, State0} = smppload_lazy_messages_file:init(Config),
 
     %% normal message
@@ -81,7 +81,7 @@ file_test() ->
 
 -spec file_dos_bom_test() -> ok | {error, term()}.
 file_dos_bom_test() ->
-    Config = [{file, "../test/messages_utf8_dos_bom.txt"}],
+    Config = [{file, "../test/messages_utf8_dos_bom.txt"}, {body_format, default}],
     {ok, State0} = smppload_lazy_messages_file:init(Config),
 
     {ok, Msg1, State1} = smppload_lazy_messages_file:get_next(State0),
@@ -91,6 +91,23 @@ file_dos_bom_test() ->
     {ok, Msg2, State2} = smppload_lazy_messages_file:get_next(State1),
     #message{source = Source2} = Msg2,
     ?assertEqual(#address{addr = "uuu", ton = 1, npi = 1}, Source2),
+
+    {no_more, State3} = smppload_lazy_messages_file:get_next(State2),
+
+    ok = smppload_lazy_messages_body:deinit(State3).
+
+-spec file_hexdump_test() -> ok | {error, term()}.
+file_hexdump_test() ->
+    Config = [{file, "../test/messages_hexdump.txt"}, {body_format, hexdump}],
+    {ok, State0} = smppload_lazy_messages_file:init(Config),
+
+    {ok, Msg1, State1} = smppload_lazy_messages_file:get_next(State0),
+    #message{body = Body1} = Msg1,
+    ?assertEqual("Hello from hexdump!", Body1),
+
+    {ok, Msg2, State2} = smppload_lazy_messages_file:get_next(State1),
+    #message{body = Body2} = Msg2,
+    ?assertEqual("Intentionally invalid GSM © 0338", Body2),
 
     {no_more, State3} = smppload_lazy_messages_file:get_next(State2),
 
