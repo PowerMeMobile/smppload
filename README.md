@@ -45,6 +45,7 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [--submit_timeout [&lt;submit_timeout&gt;]]
                                 [--delivery_timeout [&lt;delivery_timeout&gt;]] [--ssl]
                                 [--service_type [&lt;service_type&gt;]]
+                                [--body_format [&lt;body_format&gt;]]
 
   -h, --help          Show this message
   -H, --host          SMSC server host name or IP address [default:
@@ -77,6 +78,8 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
   --delivery_timeout  Delivery timeout, ms [default: TX=80000, RX=infinity]
   --ssl               Use ssl/tls connection
   --service_type      Service type [default: ]
+  --body_format       Body format: default | hexdump. Ignored for RX
+                      [default: default]
 </pre>
 
 * Bind only
