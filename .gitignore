@@ -1,7 +1,2 @@
 TAGS
-deps/*
-ebin/*
-priv/*
-smppload
-.eunit/*
-erl_crash.dump
+_build/

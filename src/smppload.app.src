@@ -6,6 +6,9 @@
         kernel,
         stdlib,
         common_lib,
+        getopt,
+        lager,
+        oserl,
         ssl
     ]},
     {mod, {smppload_app, []}},

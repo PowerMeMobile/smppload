@@ -1,5 +1,5 @@
 NAME=smppload
-REBAR=./rebar
+REBAR=./rebar3
 OTP_PLT=~/.otp.plt
 PRJ_PLT=$(NAME).plt
 
@@ -9,7 +9,7 @@ all: generate escriptize
 
 generate: compile xref
 	@rm -rf ./rel/$(NAME)
-	@$(REBAR) generate
+	@$(REBAR) release
 
 escriptize: compile xref
 	@$(REBAR) escriptize
