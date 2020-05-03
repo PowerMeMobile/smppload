@@ -2,7 +2,7 @@ language: erlang
 sudo: false
 script: "make all test"
 otp_release:
-  - R16B03-1
+  - 19.3
 notifications:
   email:
-    - d.klionsky@dev.powermemobile.com
+    - dm.klionsky@gmail.com
