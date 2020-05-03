@@ -39,6 +39,7 @@ process_address_normal_addr_test() ->
 
 -spec process_address_rand_addr_test() -> ok | {error, term()}.
 process_address_rand_addr_test() ->
+    %% NB: Random algorithm (exsplus) and seed dependent results
     {ok, _} = smppload_random:start_link({1, 1, 1}),
     Address = #address{
         addr = #rand_addr{prefix = "12345", rand_len = 5},
@@ -46,7 +47,7 @@ process_address_rand_addr_test() ->
         npi = 2
     },
     Expected = #address{
-        addr = "1234529204",
+        addr = "1234579064",
         ton = 1,
         npi = 2
     },
