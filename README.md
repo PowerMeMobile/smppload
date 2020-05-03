@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/PowerMeMobile/smppload.png?branch=master)](https://travis-ci.org/PowerMeMobile/smppload)
+[![Build Status](https://travis-ci.org/ten0s/smppload.png?branch=master)](https://travis-ci.org/ten0s/smppload)
 
 ## Prerequisites
 
@@ -7,7 +7,7 @@ In order to compile **smppload** you need to have [Erlang/OTP 19+](http://www.er
 ## Compilation
 
 <pre>
-$ git clone https://github.com/PowerMeMobile/smppload.git
+$ git clone https://github.com/ten0s/smppload.git
 $ cd smppload
 $ make
 </pre>
