@@ -12,6 +12,12 @@ $ cd smppload
 $ make
 </pre>
 
+## Tests
+
+<pre>
+$ make test
+</pre>
+
 ## Usage
 
 Now it's possible to launch **smppload** as an escript, which is faster, but Erlang needs to be installed:
