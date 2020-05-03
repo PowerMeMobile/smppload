@@ -7,7 +7,7 @@ PRJ_PLT=$(NAME).plt
 
 all: rel escriptize
 
-rel: compile xref
+rel: compile
 	@rm -rf ./rel/$(NAME)
 	@$(REBAR) release
 
@@ -29,8 +29,13 @@ update-deps:
 clean:
 	@$(REBAR) clean
 
-test: xref
+check: xref
+
+test:
 	@$(REBAR) eunit
+
+cover:
+	@$(REBAR) cover
 
 dialyze: $(OTP_PLT) compile $(PRJ_PLT)
 	@dialyzer --plt $(PRJ_PLT) -r ./subapps/*/ebin

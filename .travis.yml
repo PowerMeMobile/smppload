@@ -1,6 +1,6 @@
 language: erlang
 sudo: false
-script: "make all test"
+script: "make && make check && make test && make cover"
 otp_release:
   - 19.3
 notifications:
