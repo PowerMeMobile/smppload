@@ -20,6 +20,8 @@ $ make test
 
 ## Usage
 
+In order to run the examples below you need to have [smppsink](https://github.com/ten0s/smppsink).
+
 Now it's possible to launch **smppload** as an escript, which is faster, but Erlang needs to be installed:
 
 <pre>
