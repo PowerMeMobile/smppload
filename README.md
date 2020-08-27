@@ -1,36 +1,46 @@
-[![Build Status](https://travis-ci.org/PowerMeMobile/smppload.png?branch=master)](https://travis-ci.org/PowerMeMobile/smppload)
+[![Build Status](https://travis-ci.org/ten0s/smppload.png?branch=master)](https://travis-ci.org/ten0s/smppload)
 
 ## Prerequisites
 
-In order to compile **smppload** you need to have [Erlang](http://www.erlang.org/) and [GNU Make](http://www.gnu.org/software/make/) installed.
+In order to compile **smppload** you need to have [Erlang/OTP 19+](http://www.erlang.org/) and [GNU Make](http://www.gnu.org/software/make/) installed.
 
 ## Compilation
 
 <pre>
-$ git clone https://github.com/PowerMeMobile/smppload.git
+$ git clone https://github.com/ten0s/smppload.git
 $ cd smppload
 $ make
 </pre>
 
+## Tests
+
+<pre>
+$ make test
+</pre>
+
 ## Usage
+
+In order to run the examples below you need to have [smppsink](https://github.com/ten0s/smppsink).
 
 Now it's possible to launch **smppload** as an escript, which is faster, but Erlang needs to be installed:
 
 <pre>
-$ ./smppload
+$ _build/default/bin/smppload
 </pre>
 
 or as a release, which is slower, but has greater portability:
 
 <pre>
-$ ./rel/smppload/smppload
+$ _build/default/rel/smppload/smppload
 </pre>
+
+Add appropriate path to **smppload** to your PATH.
 
 * Help message
 
 <pre>
-$ ./smppload
-SMPP Loader from Power Alley Gateway Suite (2.4.0)
+$ smppload
+SMPP Loader from Power Alley Gateway Suite (2.5.0)
 Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
                                 [-B [&lt;bind_type&gt;]] [-i [&lt;system_id&gt;]]
                                 [-p [&lt;password&gt;]] [-t [&lt;system_type&gt;]]
@@ -84,98 +94,98 @@ Usage: /home/ten0s/bin/smppload [-h] [-H [&lt;host&gt;]] [-P [&lt;port&gt;]]
 
 * Bind only
 <pre>
-$ ./smppload --host 127.0.0.1 --port 2775 --system_type '' --system_id user --password password --count 0
+$ smppload --host 127.0.0.1 --port 2775 --system_type '' --system_id user --password password --count 0
 OR short
-$ ./smppload -H 127.0.0.1 -P 2775 -i user -p password -c 0
+$ smppload -H 127.0.0.1 -P 2775 -i user -p password -c 0
 </pre>
 
 * Send a message with the body 'Hello there!' to localhost and the standard SMPP port
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
+$ smppload --source 375296660002 --destination 375293332211 --body 'Hello there!'
 OR short
-$ ./smppload -s 375296660002 -d 375293332211 -b 'Hello there!'
+$ smppload -s 375296660002 -d 375293332211 -b 'Hello there!'
 </pre>
 
 * The above is the same as
 <pre>
-$ ./smppload --host 127.0.0.1 --port 2775 --bind_type trx --system_type '' --system_id user --password password --source 375296660002 --destination 375293332211 --body 'Hello there!'
+$ smppload --host 127.0.0.1 --port 2775 --bind_type trx --system_type '' --system_id user --password password --source 375296660002 --destination 375293332211 --body 'Hello there!'
 OR short
-$ ./smppload -H 127.0.0.1 -P 2775 -B trx -t '' -i user -p password -s 375296660002 -d 375293332211 -b 'Hello there!'
+$ smppload -H 127.0.0.1 -P 2775 -B trx -t '' -i user -p password -s 375296660002 -d 375293332211 -b 'Hello there!'
 </pre>
 
 * Send a message as TX
 <pre>
-$ ./smppload --bind_type tx --source 375296660002 --destination 375293332211 --body 'Hello there!'
+$ smppload --bind_type tx --source 375296660002 --destination 375293332211 --body 'Hello there!'
 </pre>
 
 * Send a message with defined TON and NPI
 <pre>
-$ ./smppload --source FromBank,5,0 --destination 375293332211,1,1 --body 'Return our money, looser!'
+$ smppload --source FromBank,5,0 --destination 375293332211,1,1 --body 'Return our money, looser!'
 </pre>
 
 * Send a message with random trailing 4 and 7 digits respectively
 <pre>
-$ ./smppload --source 37529000:4 --destination 37529:7 --body 'Hi!'
+$ smppload --source 37529000:4 --destination 37529:7 --body 'Hi!'
 </pre>
 
 * Send a message with an empty source
 <pre>
-$ ./smppload --source "" --destination 375293332211 --body 'Hi!'
+$ smppload --source "" --destination 375293332211 --body 'Hi!'
 OR
-$ ./smppload --destination 375293332211 --body 'Hi!'
+$ smppload --destination 375293332211 --body 'Hi!'
 </pre>
 
 * Send a message with an empty source, but TON and NPI defined
 <pre>
-$ ./smppload --source ",5,0" --destination 375293332211 --body 'Hi!'
+$ smppload --source ",5,0" --destination 375293332211 --body 'Hi!'
 </pre>
 
 * Send a message with a random body
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211
+$ smppload --source 375296660002 --destination 375293332211
 </pre>
 
 * Send a message with a random body and length 25
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --length 25
+$ smppload --source 375296660002 --destination 375293332211 --length 25
 </pre>
 
 * Send a multipart message with a random body and length 160
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --length 160
+$ smppload --source 375296660002 --destination 375293332211 --length 160
 </pre>
 
 * Send 100 messages with random bodies
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --count 100
+$ smppload --source 375296660002 --destination 375293332211 --count 100
 </pre>
 
 * Send a message in data_coding 8 (UCS2-BE)
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --body "Привет" --data_coding 8
+$ smppload --source 375296660002 --destination 375293332211 --body "Привет" --data_coding 8
 </pre>
 
 * Send a binary message with the port addressing 16-bit and Latin1 'HelloPort' message
 <pre>
-$ ./smppload -s 375296660002 -d 375293332211 -b"06050415821582HelloPort" --esm_class 64
+$ smppload -s 375296660002 -d 375293332211 -b"06050415821582HelloPort" --esm_class 64
 </pre>
 
 * Send a binary message with the port addressing 16-bit and the message 'HelloPort' hexdump encoded
 <pre>
-$ ./smppload -s375296660002 -d375293332211 -b0605041582158248656c6c6f506f7274 --esm_class 64 --data_coding 4
+$ smppload -s375296660002 -d375293332211 -b0605041582158248656c6c6f506f7274 --esm_class 64 --data_coding 4
 </pre>
 
 * Send one concatenated 8-bit 160 chars Latin1 message 'abcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghij' by two separate commands
 
 <pre>
-$ ./smppload -s375296660002 -d375293332211 -b050003010201abcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghi --esm_class 64
-$ ./smppload -s375296660002 -d375293332211 -b050003010202jklmopqrstuvwxyzabcdefghij --esm_class 64
+$ smppload -s375296660002 -d375293332211 -b050003010201abcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghijklmopqrstuvwxyzabcdefghi --esm_class 64
+$ smppload -s375296660002 -d375293332211 -b050003010202jklmopqrstuvwxyzabcdefghij --esm_class 64
 </pre>
 
 * Send utf-8 '©' character inconsistent with specified GSM 0338 encoding
 
 <pre>
-$ ./smppload -s375296660002 -d375293332211 -b00a9 --body_format hexdump --data_coding 0 -vv
+$ smppload -s375296660002 -d375293332211 -b00a9 --body_format hexdump --data_coding 0 -vv
 </pre>
 
 * Send messages from file test/messages.txt
@@ -196,27 +206,27 @@ $ cat test/messages.txt
 375296660002,1,1;375291112234,1,1;Message #4;true;3
 375296660002,1,1;375291112235,1,1;Message #5;true;3
 375296660002,1,1;375291112235,1,1;06050415821582HelloPort;false;3;64
-$ ./smppload --file test/messages.txt
+$ smppload --file test/messages.txt
 </pre>
 
 * Send messages from standard input
 <pre>
-$ cat test/messages.txt | ./smppload --file -
+$ cat test/messages.txt | smppload --file -
 </pre>
 
 * Send dynamically generated messages from standard input
 <pre>
-$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false;3\n" $i $i; done | ./smppload --file -
+$ for i in `seq 1 100`; do printf "375296660002,1,1;37529%07d,1,1;Message #%d;false;3\n" $i $i; done | smppload --file -
 </pre>
 
 * Send a message with ERROR log level
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -v0
+$ smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -v0
 </pre>
 
 * Send a message with INFO (default) log level
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -v
+$ smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -v
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Stats:
@@ -232,7 +242,7 @@ INFO:  Unbound
 
 * Send a message with DEBUG log level
 <pre>
-$ ./smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -vv
+$ smppload --source 375296660002 --destination 375293332211 --body 'Hello there!' -vv
 DEBUG: Options: [{source,"375296660002"},
                  {destination,"375293332211"},
                  {body,"Hello there!"},
@@ -289,7 +299,7 @@ INFO:  Unbound
 
 * Bind as RX and keep an active connection. Stop with Ctrl-C.
 <pre>
-$ ./smppload --bind_type rx -vv
+$ smppload --bind_type rx -vv
 DEBUG: Options: [{bind_type,"rx"},
                  {verbosity,2},
                  {host,"127.0.0.1"},
@@ -320,7 +330,7 @@ INFO:  Bound to Funnel
 
 * Bind as RX with 5 secs timeout, bind as TX, send SMS with delivery receipt via TX, receive delivery receipt via RX.
 <pre>
-$ ./smppload -Brx --delivery_timeout=5000
+$ smppload -Brx --delivery_timeout=5000
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Receipt: [{short_message,"id:22035 submit date:1505071451 done date:1505071451 stat:DELIVRD"},
@@ -354,7 +364,7 @@ INFO:  Unbound
 </pre>
 
 <pre>
-$ ./smppload -Btx -d375296543210 -bHello -D
+$ smppload -Btx -d375296543210 -bHello -D
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Stats:
@@ -370,7 +380,7 @@ INFO:  Unbound
 
 * Bind as RX with 5 secs timeout and receive an incoming message.
 <pre>
-$ ./smppload -Brx -v --delivery_timeout=5000
+$ smppload -Brx -v --delivery_timeout=5000
 INFO:  Connected to 127.0.0.1:2775
 INFO:  Bound to Funnel
 INFO:  Incoming: [{short_message,"Hello"},

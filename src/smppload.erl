@@ -463,9 +463,9 @@ app_options(AppName) ->
 escript_options(ScriptName) ->
     {ok, Sections} = escript:extract(ScriptName, []),
     Zip = ?gv(archive, Sections),
-    AppName = lists:flatten(io_lib:format("~p.app", [?MODULE])),
-    case zip:extract(Zip, [{file_list, [AppName]}, memory]) of
-        {ok, [{AppName, Binary}]} ->
+    AppPath = lists:flatten(io_lib:format("~p/ebin/~p.app", [?MODULE, ?MODULE])),
+    case zip:extract(Zip, [{file_list, [AppPath]}, memory]) of
+        {ok, [{AppPath, Binary}]} ->
             {ok, Tokens, _} = erl_scan:string(binary_to_list(Binary)),
             {ok, {application, ?MODULE, Options}} = erl_parse:parse_term(Tokens),
             Options;

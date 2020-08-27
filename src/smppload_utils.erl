@@ -46,8 +46,7 @@ encode(Body, DC, EC) ->
     {ok, encoded_list()} | error.
 encode(Utf8, DC) when DC =:= 0; DC =:= 16; DC =:= 240 ->
     %% to gsm0338.
-    Utf8Bin = list_to_binary(Utf8),
-    case gsm0338:from_utf8(Utf8Bin) of
+    case gsm0338:from_utf8(Utf8) of
         {valid, EncodedBin} ->
             {ok, binary_to_list(EncodedBin)};
         {invalid, _} ->
@@ -55,8 +54,7 @@ encode(Utf8, DC) when DC =:= 0; DC =:= 16; DC =:= 240 ->
     end;
 encode(Utf8, DC) when DC =:= 1; DC =:= 3 ->
     %% to ascii or latin1.
-    Utf8Bin = list_to_binary(Utf8),
-    case unicode:characters_to_binary(Utf8Bin, utf8, latin1) of
+    case unicode:characters_to_binary(Utf8, utf8, latin1) of
         {_, _, _} ->
             error;
         EncodedBin ->
@@ -72,8 +70,7 @@ encode(Hexdump, DC) when DC =:= 2; DC =:= 4 ->
     end;
 encode(Utf8, DC) when DC =:= 8; DC =:= 24 ->
     %% to ucs2-be.
-    Utf8Bin = list_to_binary(Utf8),
-    case unicode:characters_to_binary(Utf8Bin, utf8, {utf16, big}) of
+    case unicode:characters_to_binary(Utf8, utf8, {utf16, big}) of
         {_, _, _} ->
             error;
         EncodedBin ->
