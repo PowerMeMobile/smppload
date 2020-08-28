@@ -28,8 +28,8 @@ Group: Applications/System
 License: Proprietary
 Source0: ${rpmName}-${PMM_VERSION}.tar
 
-Requires: erlang > 18
-BuildRequires: esl-erlang > 18
+Requires: erlang > 17
+BuildRequires: esl-erlang < 19
 BuildRequires: libuuid-devel git net-snmp-utils tokyocabinet-devel ncurses-devel gcc-c++ zlib-devel bzip2-devel
 
 %description
