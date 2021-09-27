@@ -25,8 +25,10 @@
 -include_lib("alley_common/include/gen_server_spec.hrl").
 
 -record(state, {
-    rand_state :: rand:state()
+    seed :: random:seed()
 }).
+
+-ignore_xref([{random, uniform_s, 1}]).
 
 %% ===================================================================
 %% API
@@ -34,7 +36,7 @@
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
-    start_link(os:timestamp()).
+    start_link(now()).
 
 -spec start_link(random:seed()) -> {ok, pid()} | ignore | {error, term()}.
 start_link(Seed) ->
@@ -59,16 +61,15 @@ get_digit_string(Length) ->
 %% ===================================================================
 
 init([Seed]) ->
-    RandState = rand:seed(exsplus, Seed),
-    {ok, #state{rand_state = RandState}}.
+    {ok, #state{seed = Seed}}.
 
-handle_call({get_alnum_string, Length}, _From, State = #state{rand_state = RandState0}) ->
-    {String, RandState1} = random(Length, fun is_alnum/1, RandState0),
-    {reply, {ok, String}, State#state{rand_state = RandState1}};
+handle_call({get_alnum_string, Length}, _From, State = #state{seed = Seed0}) ->
+    {String, Seed1} = random(Length, fun is_alnum/1, Seed0),
+    {reply, {ok, String}, State#state{seed = Seed1}};
 
-handle_call({get_digit_string, Length}, _From, State = #state{rand_state = RandState0}) ->
-    {String, RandState1} = random(Length, fun is_digit/1, RandState0),
-    {reply, {ok, String}, State#state{rand_state = RandState1}};
+handle_call({get_digit_string, Length}, _From, State = #state{seed = Seed0}) ->
+    {String, Seed1} = random(Length, fun is_digit/1, Seed0),
+    {reply, {ok, String}, State#state{seed = Seed1}};
 
 handle_call(Request, _From, State = #state{}) ->
     {stop, {bad_arg, Request}, State}.
@@ -92,18 +93,18 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal
 %% ===================================================================
 
-random(Length, Pred, RandState) ->
-    random(Length, Pred, "", RandState).
+random(Length, Pred, Seed) ->
+    random(Length, Pred, "", Seed).
 
-random(Length, _Pred, Body, RandState) when length(Body) =:= Length ->
-    {Body, RandState};
-random(Length, Pred, Body, RandState0) ->
-    {R, RandState1} = rand:uniform_s($z, RandState0),
+random(Length, _Pred, Body, Seed) when length(Body) =:= Length ->
+    {Body, Seed};
+random(Length, Pred, Body, Seed0) ->
+    {R, Seed1} = random:uniform_s($z, Seed0),
     case Pred(R) of
         true ->
-            random(Length, Pred, [R | Body], RandState1);
+            random(Length, Pred, [R | Body], Seed1);
         false ->
-            random(Length, Pred, Body, RandState1)
+            random(Length, Pred, Body, Seed1)
     end.
 
 is_alnum(C) ->
