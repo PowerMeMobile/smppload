@@ -41,7 +41,7 @@ init(Config) ->
                 body_format = BodyFormat
             }};
         File ->
-            case file:open(File, [read]) of
+            case file:open(File, [read, {encoding, utf8}]) of
                 {ok, Fd} ->
                     {ok, #state{
                         fd = Fd,
@@ -61,8 +61,10 @@ deinit(#state{fd = Fd}) ->
 
 -spec get_next(state()) -> {ok, #message{}, state()} | {no_more, state()}.
 get_next(State = #state{fd = Fd, parts = [], body_format = BodyFormat}) ->
-    case file:read_line(Fd) of
-        {ok, Line} ->
+    case io:get_line(Fd, "") of
+        eof ->
+            {no_more, State};
+        Line ->
             Line2 = string:strip(Line, right, $\n),
             Line3 = string:strip(Line2, both),
             Line4 = case Line3 of
@@ -113,9 +115,7 @@ get_next(State = #state{fd = Fd, parts = [], body_format = BodyFormat}) ->
                                 data_coding = DataCoding
                             }}
                     end
-            end;
-        eof ->
-            {no_more, State}
+            end
     end;
 get_next(State = #state{
     parts = [Part],
