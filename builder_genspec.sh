@@ -2,7 +2,9 @@
 
 [ -n "$PMM_VERSION" ] || { echo "PMM_VERSION must be defined (x.y.z.nnnn)."; exit 1; }
 [ -n "$PROJ_REL" ] || { echo "PROJ_REL must be defined (rc_commit)."; exit 1; }
+[ -f buildsystem.conf ] && . buildsystem.conf || { echo "can't load \"buildsystem.conf\""; exit 1; }
 
+arch=$(uname -m)
 rpmName="pmm-smppload-base"
 rpmSpecFile=${HOME}/rpmbuild/SPECS/${rpmName}.spec
 
@@ -10,6 +12,7 @@ rm -f $rpmSpecFile
 
 ### base packages
 cat >"${rpmSpecFile}" <<_SPEC_
+%define _build_id_links none
 %define  debug_package %{nil}
 %define _unpackaged_files_terminate_build 0
 %define buildroot_bak %{buildroot}
@@ -23,13 +26,14 @@ Name: ${rpmName}
 Version: ${PMM_VERSION}
 Release: ${PROJ_REL}
 Summary: pmm smppload
+BuildArch: noarch
 
 Group: Applications/System
 License: Proprietary
 Source0: ${rpmName}-${PMM_VERSION}.tar
 
 Requires: erlang > 17
-BuildRequires: esl-erlang < 19
+BuildRequires: ${ERLANG_PACKAGE["$arch"]} ${ERLANG_VERSION["$arch"]}
 BuildRequires: libuuid-devel git net-snmp-utils tokyocabinet-devel ncurses-devel gcc-c++ zlib-devel bzip2-devel
 
 %description

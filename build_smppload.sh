@@ -25,6 +25,7 @@ RPM_NAME="pmm-smppload-base"
 
 [ -n "$BUILD_NUMBER" ] || BUILD_NUMBER=0
 [ -n "$PMM_VERSION" ] || PMM_VERSION="${PROJ_VER}.${BUILD_NUMBER}"
+[ -f buildsystem.conf ] && . buildsystem.conf || { echo "can't load \"buildsystem.conf\""; exit 1; }
 
 # PROJ_REL="${RPM_RELEASE_TYPE}_$(git log --raw --abbrev-commit --abbrev=10 | head -n1 | awk '{print $2}')"
 
@@ -38,6 +39,7 @@ function send_comment() {
 	~/bin/git_send_comment.sh $retcode "smppload" $BUILD_URL $PMM_VERSION $GIT_COMMIT
 }
 
+arch=$(uname -m)
 function build_rpm() {
 set -x
 	./builder_genspec.sh
@@ -50,7 +52,7 @@ set -x
 	echo "######## Start Mock!"
 	local ret_code
 	[ -d build ] || mkdir build
-	/usr/bin/mock -r epel-6-pmm-x86_64 --resultdir=build --plugin-option=bind_mount:dirs="[(\"build\",\"/tmp/build\")]" --rebuild ${HOME}/rpmbuild/SRPMS/${RPM_NAME}-${PMM_VERSION}-${PROJ_REL}.src.rpm
+	/usr/bin/mock -r ${MOCK_CONTAINER["$arch"]} --resultdir=build --plugin-option=bind_mount:dirs="[(\"build\",\"/tmp/build\")]" --rebuild ${HOME}/rpmbuild/SRPMS/${RPM_NAME}-${PMM_VERSION}-${PROJ_REL}.src.rpm
 #	/usr/bin/mock --offline -r epel-6-pmm-x86_64 --resultdir=build --plugin-option=bind_mount:dirs="[(\"build\",\"/tmp/build\")]" --rebuild ${HOME}/rpmbuild/SRPMS/${RPM_NAME}-${PMM_VERSION}-${PROJ_REL}.src.rpm
 	ret_code=$?
 	rm -f ${HOME}/rpmbuild/SRPMS/${RPM_NAME}-${PMM_VERSION}-${PROJ_REL}.src.rpm
