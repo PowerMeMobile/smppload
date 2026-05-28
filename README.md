@@ -12,7 +12,7 @@ $ cd smppload
 $ make
 </pre>
 
-## Tests
+## Tests 
 
 <pre>
 $ make test
